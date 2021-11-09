@@ -1,0 +1,14 @@
+Prefix: "&6&lAuctionHouse"
+#This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE
+database: FILE
+MySQL:
+  Connection:
+    Host: localhost
+    Username: test
+    Password: password
+    Port: 3306
+    Database: database
+  Tables:
+    Listings: ah_listings
+    Completed: ah_completed
+    Expired: ah_expired
