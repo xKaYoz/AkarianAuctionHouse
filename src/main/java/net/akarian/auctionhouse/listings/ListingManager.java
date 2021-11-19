@@ -157,8 +157,125 @@ public class ListingManager {
                 databaseType = DatabaseType.MYSQL;
                 AuctionHouse.getInstance().getConfig().set("database", "MYSQL");
                 AuctionHouse.getInstance().saveConfig();
+                chat.alert("Transfer complete. Transferred " + (et + lt + ct) + " total listings.");
                 break;
             case MYSQL2FILE:
+                chat.alert("&eStarting transfer from MySQL to File. You may experience some lag.");
+                lt = 0;
+                et = 0;
+                ct = 0;
+                chat.alert("Creating Files");
+                if (!fm.getFile("/database/listings").exists()) {
+                    fm.createFile("/database/listings");
+                }
+                if (!fm.getFile("/database/expired").exists()) {
+                    fm.createFile("/database/expired");
+                }
+                if (!fm.getFile("/database/completed").exists()) {
+                    fm.createFile("/database/completed");
+                }
+                listingsFile = fm.getConfig("/database/listings");
+                expiredFile = fm.getConfig("/database/expired");
+                completedFile = fm.getConfig("/database/completed");
+                chat.alert("Files created... Starting Transferring Process.");
+
+                try {
+                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable());
+
+                    ResultSet rs = statement.executeQuery();
+
+                    while (rs.next()) {
+
+                        String id = rs.getString(1);
+
+                        listingsFile.set(id + ".ItemStack", rs.getString(2));
+                        listingsFile.set(id + ".Price", rs.getDouble(3));
+                        listingsFile.set(id + ".Creator", rs.getString(4));
+                        listingsFile.set(id + ".Start", rs.getLong(5));
+
+                        lt++;
+
+                        PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getListingsTable() + " WHERE ID=?");
+                        delete.setString(1, id);
+                        delete.executeUpdate();
+                        delete.closeOnCompletion();
+
+                    }
+                    fm.saveFile(listingsFile, "/database/listings");
+                    chat.alert("Transferred " + lt + " active listings from MySQL.");
+                    statement.closeOnCompletion();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    chat.alert("Error while transferring active listings.");
+                }
+
+                try {
+                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getExpiredTable());
+
+                    ResultSet rs = statement.executeQuery();
+
+                    while (rs.next()) {
+
+                        String id = rs.getString(1);
+
+                        expiredFile.set(id + ".ItemStack", rs.getString(2));
+                        expiredFile.set(id + ".Creator", rs.getString(3));
+
+                        et++;
+
+                        PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getExpiredTable() + " WHERE ID=?");
+                        delete.setString(1, id);
+                        delete.executeUpdate();
+                        delete.closeOnCompletion();
+
+                    }
+                    fm.saveFile(expiredFile, "/database/expired");
+                    chat.alert("Transferred " + et + " expired listings from MySQL.");
+                    statement.closeOnCompletion();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    chat.alert("Error while transferring expired listings.");
+                }
+
+                try {
+                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getCompletedTable());
+
+                    ResultSet rs = statement.executeQuery();
+
+                    while (rs.next()) {
+
+                        String id = rs.getString(1);
+
+                        completedFile.set(id + ".ItemStack", rs.getString(2));
+                        completedFile.set(id + ".Price", rs.getDouble(3));
+                        completedFile.set(id + ".Creator", rs.getString(4));
+                        completedFile.set(id + ".Start", rs.getLong(5));
+                        completedFile.set(id + ".End", rs.getLong(6));
+                        completedFile.set(id + ".Buyer", rs.getString(7));
+
+                        ct++;
+
+                        PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getCompletedTable() + " WHERE ID=?");
+                        delete.setString(1, id);
+                        delete.executeUpdate();
+                        delete.closeOnCompletion();
+
+                    }
+                    fm.saveFile(completedFile, "/database/completed");
+                    chat.alert("Transferred " + ct + " completed listings from MySQL.");
+                    statement.closeOnCompletion();
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    chat.alert("Error while transferring completed listings.");
+                }
+                AuctionHouse.getInstance().setDatabaseType(DatabaseType.FILE);
+                databaseType = DatabaseType.FILE;
+                AuctionHouse.getInstance().getConfig().set("database", "FILE");
+                AuctionHouse.getInstance().saveConfig();
+                chat.alert("Transfer complete. Transferred " + (et + lt + ct) + " total listings.");
                 break;
         }
     }
@@ -610,7 +727,6 @@ public class ListingManager {
             case FILE:
                 YamlConfiguration listingsFile = fm.getConfig("/database/listings");
                 Map<String, Object> map = listingsFile.getValues(false);
-                chat.alert(map.keySet().toString());
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));

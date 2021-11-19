@@ -77,7 +77,7 @@ public final class AuctionHouse extends JavaPlugin {
                 }
                 if(!fileManager.getFile("/database/completed").exists()) {
                 fileManager.createFile("/database/completed");
-            }
+                }
 
                 break;
             case "FILE2MYSQL":
