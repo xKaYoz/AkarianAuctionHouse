@@ -1,5 +1,5 @@
 name: AkarianAuctionHouse
-version: 0.0.1
+version: 0.0.2
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.17
 description: Akarian Group's Auction House plugin.

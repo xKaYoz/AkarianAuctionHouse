@@ -7,6 +7,7 @@ import net.akarian.auctionhouse.commands.CommandManager;
 import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
 import net.akarian.auctionhouse.events.ExpireJoinEvent;
 import net.akarian.auctionhouse.listings.ListingManager;
+import net.akarian.auctionhouse.updater.UpdateManager;
 import net.akarian.auctionhouse.utils.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -29,7 +30,8 @@ public final class AuctionHouse extends JavaPlugin {
     private ListingManager listingManager;
     @Getter
     private Chat chat;
-    @Getter @Setter
+    @Getter
+    @Setter
     private DatabaseType databaseType;
     @Getter
     private NameManager nameManager;
@@ -39,6 +41,10 @@ public final class AuctionHouse extends JavaPlugin {
     private FileManager fileManager;
     @Getter
     private GUIManager guiManager;
+    @Getter
+    private UpdateManager updateManager;
+    @Getter
+    private boolean update;
 
     @Override
     public void onEnable() {
@@ -48,11 +54,13 @@ public final class AuctionHouse extends JavaPlugin {
         nameManager = new NameManager();
         fileManager = new FileManager(this);
         mySQL = new MySQL();
+        update = getConfig().getBoolean("updates");
+        updateManager = new UpdateManager(this);
         guiManager = new GUIManager();
 
         if (!setupEconomy()) {
-            chat.alert("&cAkarainAH Failed to detect an economy.");
-            chat.log("AkarainAH disabled due to no found economy.");
+            chat.alert("&cAuctionHouse has Failed to detect an economy.");
+            chat.log("AuctionHouse disabled due to no found economy.");
             setEnabled(false);
             return;
         }

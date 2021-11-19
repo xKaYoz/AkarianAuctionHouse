@@ -1,5 +1,7 @@
 package net.akarian.auctionhouse.utils;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
@@ -20,10 +22,13 @@ import java.util.List;
 
 public class Chat {
 
-    private final String prefix;
+    @Getter
+    @Setter
+    private String prefix;
     private final Plugin plugin;
 
-    /** Chat API
+    /**
+     * Chat API
      *
      * @param plugin - JavaPlugin class of the Plugin
      * @param prefix - Prefix of the Plugin

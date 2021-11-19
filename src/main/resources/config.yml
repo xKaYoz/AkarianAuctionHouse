@@ -1,6 +1,8 @@
 Prefix: "&6&lAuctionHouse"
 #This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE
 database: FILE
+#Wheather or not to enable updates.
+updates: true
 MySQL:
   Connection:
     Host: localhost
