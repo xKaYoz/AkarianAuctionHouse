@@ -45,6 +45,8 @@ public final class AuctionHouse extends JavaPlugin {
     private UpdateManager updateManager;
     @Getter
     private boolean update;
+    @Getter
+    private Messages messages;
 
     @Override
     public void onEnable() {
@@ -52,7 +54,8 @@ public final class AuctionHouse extends JavaPlugin {
         saveDefaultConfig();
         chat = new Chat(this, getConfig().getString("Prefix"));
         nameManager = new NameManager();
-        fileManager = new FileManager(this);
+        this.fileManager = new FileManager(this);
+        this.messages = new Messages();
         mySQL = new MySQL();
         update = getConfig().getBoolean("updates");
         updateManager = new UpdateManager(this);

@@ -4,7 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.comparators.*;
-import net.akarian.auctionhouse.guis.*;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
+import net.akarian.auctionhouse.guis.SortGUI;
+import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -110,7 +112,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format("&c&lAuction&f&lHouse &4Admin Menu"));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getAuctionHouseAdminTitle()));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {

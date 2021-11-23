@@ -10,7 +10,6 @@ import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -53,10 +52,7 @@ public class AuctionHouseGUI implements AkarianInventory {
     }
 
     public AuctionHouseGUI search(String search) {
-        if(search.equals("")) {
-            this.search = false;
-        } else
-            this.search = true;
+        this.search = !search.equals("");
         this.searchStr = search;
         this.page = 1;
         return this;
@@ -116,7 +112,7 @@ public class AuctionHouseGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format("&c&lAuction&f&lHouse"));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getAuctionHouseTitle()));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {

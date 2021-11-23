@@ -71,6 +71,7 @@ public class AdminSubCommand extends AkarianCommand {
 
             chat.sendMessage(sender, "&7Reloading...");
             AuctionHouse.getInstance().reloadConfig();
+            AuctionHouse.getInstance().getMessages().reloadMessages();
             chat.setPrefix(AuctionHouse.getInstance().getConfig().getString("Prefix"));
             chat.sendMessage(sender, "&aReload complete.");
 

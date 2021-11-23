@@ -44,14 +44,16 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
-        if(price <= 0) {
+        if (price <= 0) {
             chat.sendMessage(p, "&cThe price must be above $0.");
             return;
         }
 
         Listing l = AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
 
-        chat.sendMessage(p, "&fYou have created an auction for &e" + chat.formatItem(l.getItemStack()) + "&f with the price of &2$" + chat.formatMoney(l.getPrice()) + "&f.");
+        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
+                .replace("%item%", chat.formatItem(l.getItemStack())).replace("%price%", chat.formatMoney(l.getPrice())));
+
         p.getInventory().remove(itemStack);
     }
 }

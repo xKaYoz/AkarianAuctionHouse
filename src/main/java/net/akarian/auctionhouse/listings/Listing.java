@@ -55,51 +55,45 @@ public class Listing {
 
     public ItemStack createAdminListing() {
         ItemStack itemStack = getItemStack().clone();
-        List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+        List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
-            lore = new ArrayList<>();
+            tlore = new ArrayList<>();
         }
 
-        assert lore != null;
+        assert tlore != null;
 
         long seconds = ((getStart() + (86400 * 1000)) - System.currentTimeMillis()) / 1000;
-
-        lore.add("&8&m&l---------------------------");
-        lore.add("");
-        lore.add("  &fTime Left &8&m&l-&e " + chat.formatTime(seconds));
-        lore.add("  &fCreator &8&m&l-&e " + plugin.getNameManager().getName(getCreator()));
-        lore.add("  &fPrice &8&m&l-&2 $" + chat.formatMoney(getPrice()));
-        lore.add("");
-        if (itemStack.getType() == Material.SHULKER_BOX) {
-            if (itemStack.getItemMeta() instanceof BlockStateMeta) {
-                BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
-                if (im.getBlockState() instanceof ShulkerBox) {
-                    ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                    int amount = 0;
-                    for (ItemStack si : shulker.getInventory().getContents()) {
-                        if (si != null) {
-                            amount += si.getAmount();
-                        }
-                    }
-                    lore.add(" &fThere are &e" + amount + "&f items in this box.");
-                    lore.add("");
-                    lore.add(" &cShift + Left Click to view contents");
-                    lore.add("");
-                }
-            }
-        }
-        lore.add("  &cLeft click to edit listing");
-        lore.add("  &cShift + Right Click to Safely Remove");
-        lore.add("");
-        lore.add("&8&m&l---------------------------");
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
 
-        itemMeta.setLore(chat.formatList(lore));
+        for (String s : AuctionHouse.getInstance().getMessages().getAdminListingLore()) {
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getShulker()) {
+                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                        }
+                    }
+                }
+            } else {
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
+                        .replace("%price%", chat.formatMoney(price)));
+            }
+        }
+        itemMeta.setLore(chat.formatList(tlore
+        ));
         itemMeta.setDisplayName(chat.formatItem(itemStack));
 
         itemStack.setItemMeta(itemMeta);
@@ -109,58 +103,51 @@ public class Listing {
     public void setupDisplay(Player p) {
         setDisplay(itemStack.clone());
 
-        List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+        List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
-            lore = new ArrayList<>();
+            tlore = new ArrayList<>();
         }
 
-        assert lore != null;
+        assert tlore != null;
 
         long seconds = ((start + (86400 * 1000)) - System.currentTimeMillis()) / 1000;
-
-        lore.add("&8&m&l---------------------------");
-        lore.add("");
-        lore.add("  &fTime Left &8&m&l-&e " + chat.formatTime(seconds));
-        lore.add("  &fCreator &8&m&l-&e " + plugin.getNameManager().getName(creator));
-        lore.add("  &fPrice &8&m&l-&2 $" + chat.formatMoney(price));
-        lore.add("");
-        if (itemStack.getType() == Material.SHULKER_BOX) {
-            if (itemStack.getItemMeta() instanceof BlockStateMeta) {
-                BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
-                if (im.getBlockState() instanceof ShulkerBox) {
-                    ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                    int amount = 0;
-                    for (ItemStack si : shulker.getInventory().getContents()) {
-                        if (si != null) {
-                            amount += si.getAmount();
-                        }
-                    }
-                    lore.add(" &fThere are &e" + amount + "&f items in this box.");
-                    lore.add("");
-                    if (getCreator().toString().equals(p.getUniqueId().toString())) {
-                        lore.add("  &c&oLeft Click to edit");
-                        lore.add("  &c&oShift + Right Click to remove");
-                    } else
-                        lore.add("  &7&oClick to view contents and purchase");
-                }
-            }
-        } else {
-            if (getCreator().toString().equals(p.getUniqueId().toString())) {
-                lore.add("  &c&oLeft Click to edit");
-                lore.add("  &c&oShift + Right Click to remove");
-            } else
-                lore.add("  &7&oClick to purchase");
-        }
-        lore.add("");
-        lore.add("&8&m&l---------------------------");
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        itemMeta.setLore(chat.formatList(lore));
+        for (String s : AuctionHouse.getInstance().getMessages().getListingLore()) {
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getShulker()) {
+                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                        }
+                    }
+                }
+            } else if (s.equalsIgnoreCase("%self_info%")) {
+                if (getCreator().toString().equals(p.getUniqueId().toString())) {
+                    tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoCreator());
+                } else
+                    tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
+            } else {
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
+                        .replace("%price%", chat.formatMoney(price)));
+            }
+        }
+
+        itemMeta.setLore(chat.formatList(tlore
+        ));
         itemMeta.setDisplayName(chat.formatItem(display));
 
         display.setItemMeta(itemMeta);
