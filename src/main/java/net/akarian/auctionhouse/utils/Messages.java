@@ -11,7 +11,7 @@ public class Messages {
 
     private final FileManager fm;
     @Getter
-    private String createListing, auctionHouseTitle, auctionHouseAdminTitle, listingRemoved, listingBoughtBuyer, listingBoughtCreator;
+    private String createListing, expiredJoinMessage, expiredReclaimTitle, auctionHouseTitle, auctionHouseAdminTitle, listingRemoved, listingBoughtBuyer, listingBoughtCreator;
     @Getter
     private List<String> listingLore, adminListingLore, shulker, selfInfoCreator, selfInfoBuyer;
     @Getter
@@ -37,6 +37,17 @@ public class Messages {
             messagesFile.set("Auction House Title", "&6&lAuction&f&lHouse");
         }
         auctionHouseTitle = messagesFile.getString("Auction House Title");
+
+        if (!messagesFile.contains("Expired Join Message")) {
+            messagesFile.set("Expired Join Message", "&fYou have &e%amount%x Expired Listings&f waiting for you to reclaim. Use &7&o/ah expired&f to reclaim.");
+        }
+        expiredJoinMessage = messagesFile.getString("Expired Join Message");
+
+        if (!messagesFile.contains("Expired Reclaim Title")) {
+            messagesFile.set("Expired Reclaim Title", "&c&lExpired Item &f&lReclaim");
+        }
+        expiredReclaimTitle = messagesFile.getString("Expired Reclaim Title");
+
         if (!messagesFile.contains("Auction House Admin Title")) {
             messagesFile.set("Auction House Admin Title", "&6&lAuction&f&lHouse &4Admin Menu");
         }

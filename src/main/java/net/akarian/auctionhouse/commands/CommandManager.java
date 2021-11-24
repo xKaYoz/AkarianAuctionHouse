@@ -1,10 +1,7 @@
 package net.akarian.auctionhouse.commands;
 
 import lombok.Getter;
-import net.akarian.auctionhouse.commands.subcommands.AdminSubCommand;
-import net.akarian.auctionhouse.commands.subcommands.HelpSubCommand;
-import net.akarian.auctionhouse.commands.subcommands.ListSubCommand;
-import net.akarian.auctionhouse.commands.subcommands.SearchSubCommand;
+import net.akarian.auctionhouse.commands.subcommands.*;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 
 import java.util.HashMap;
@@ -25,6 +22,7 @@ public class CommandManager {
         commands.put("list", new ListSubCommand("list", "auctionhouse.list", "/auctionhouse list", "Create an AuctionHouse listing", "create", "c", "l", "sell"));
         commands.put("admin", new AdminSubCommand("admin", "auctionhouse.admin", "/auctionhouse admin", "Open the AuctionHouse Admin Menu"));
         commands.put("search", new SearchSubCommand("search", "auctionhouse.search", "/auctionhouse search <query>", "Open the AuctionHouse Menu with a pre defined search."));
+        commands.put("expired", new ExpiredSubCommand("expired", "auctionhouse.expired", "/auctionhouse expired", "Open your expired listings."));
 
     }
 

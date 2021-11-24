@@ -54,7 +54,7 @@ public class AuctionHouseCommand implements CommandExecutor {
             return false;
         }
 
-        if (sender.hasPermission(subCommand.getPermission())) {
+        if (sender.hasPermission(subCommand.getPermission()) || sender.isOp()) {
             subCommand.execute(sender, args);
         } else {
             chat.noPermission(sender);

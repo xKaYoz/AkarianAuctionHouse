@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.commands.AuctionHouseCommand;
 import net.akarian.auctionhouse.commands.CommandManager;
 import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
 import net.akarian.auctionhouse.events.ExpireJoinEvent;
+import net.akarian.auctionhouse.events.UpdateJoinEvent;
 import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
 import net.akarian.auctionhouse.utils.*;
@@ -113,6 +114,7 @@ public final class AuctionHouse extends JavaPlugin {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new AuctionHouseGUIEvents(), this);
         pm.registerEvents(new ExpireJoinEvent(), this);
+        pm.registerEvents(new UpdateJoinEvent(), this);
         pm.registerEvents(guiManager, this);
     }
 

@@ -33,6 +33,7 @@ public class ListSubCommand extends AkarianCommand {
 
         if(itemStack.getType().isAir()) {
             chat.sendMessage(p, "&cYou must be holding an item");
+            return;
         }
 
         double price;

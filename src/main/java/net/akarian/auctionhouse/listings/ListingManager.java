@@ -3,10 +3,7 @@ package net.akarian.auctionhouse.listings;
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.UUIDDataType;
-import net.akarian.auctionhouse.guis.AuctionHouseGUI;
-import net.akarian.auctionhouse.guis.ConfirmBuyGUI;
-import net.akarian.auctionhouse.guis.ListingEditGUI;
-import net.akarian.auctionhouse.guis.ShulkerViewGUI;
+import net.akarian.auctionhouse.guis.*;
 import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
 import net.akarian.auctionhouse.utils.*;
@@ -744,9 +741,87 @@ public class ListingManager {
         }
     }
 
-    /** Get a List of ItemStacks of expired listings
+    /**
+     * Get the ID of an Expired listing a user is reclaiming.
      *
-     * @param uuid UUID of player
+     * @param itemStack Expired listing ItemStack
+     * @return UUID ID
+     */
+    public UUID getIDofExpired(ItemStack itemStack) {
+        if (!itemStack.hasItemMeta()) return null;
+        NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+        PersistentDataContainer container = itemMeta.getPersistentDataContainer();
+
+        if (container.has(key, new UUIDDataType())) {
+            return container.get(key, new UUIDDataType());
+        }
+        return null;
+    }
+
+    /**
+     * Remove a player's expired listing ofter reclaiming
+     *
+     * @param uuid ID of Listing
+     */
+    public void removeExpire(UUID uuid, Player player, boolean returnItem) {
+
+        if (returnItem) {
+            ItemStack itemStack = null;
+            switch (databaseType) {
+                case MYSQL:
+                    try {
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getExpiredTable() + " WHERE CREATOR=?");
+
+                        statement.setString(1, uuid.toString());
+
+                        ResultSet rs = statement.executeQuery();
+
+                        while (rs.next()) {
+                            itemStack = AuctionHouse.getInstance().decode(rs.getString(2));
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    break;
+                case FILE:
+                    YamlConfiguration expiredFile = fm.getConfig("/database/expired");
+                    if (!expiredFile.contains(uuid.toString())) return;
+                    itemStack = AuctionHouse.getInstance().decode(Objects.requireNonNull(expiredFile.getString(uuid + ".ItemStack")));
+            }
+            assert itemStack != null;
+            if (!InventoryHandler.canCarryItem(player, itemStack, true)) {
+                chat.sendMessage(player, "&cYou do not have enough space in your inventory to hold this item.");
+                return;
+            }
+            InventoryHandler.addItem(player, itemStack);
+        }
+
+        switch (databaseType) {
+            case MYSQL:
+                try {
+                    PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getExpiredTable() + " WHERE ID=?");
+
+                    delete.setString(1, uuid.toString());
+
+                    delete.executeUpdate();
+                    delete.closeOnCompletion();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                break;
+            case FILE:
+                YamlConfiguration expiredFile = fm.getConfig("/database/expired");
+                expiredFile.set(uuid.toString(), null);
+                fm.saveFile(expiredFile, "/database/expired");
+                break;
+        }
+    }
+
+    /**
+     * Get a List of ItemStacks of expired listings
+     *
+     * @param uuid   UUID of player
      * @param remove Whether to remove the listing from expired or not
      * @return List of ItemStack
      */
@@ -764,7 +839,7 @@ public class ListingManager {
                     ResultSet rs = statement.executeQuery();
 
                     while (rs.next()) {
-                        items.add(AuctionHouse.getInstance().decode(rs.getString(2)));
+                        ItemStack itemStack = AuctionHouse.getInstance().decode(rs.getString(2));
                         if (remove) {
                             PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getExpiredTable() + " WHERE ID=?");
 
@@ -772,7 +847,14 @@ public class ListingManager {
 
                             delete.executeUpdate();
                             delete.closeOnCompletion();
+                        } else {
+                            NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+                            ItemMeta itemMeta = itemStack.getItemMeta();
+
+                            itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), UUID.fromString(rs.getString(1)));
+                            itemStack.setItemMeta(itemMeta);
                         }
+                        items.add(itemStack);
                     }
 
                     statement.closeOnCompletion();
@@ -787,10 +869,17 @@ public class ListingManager {
                 Map<String, Object> map = expiredFile.getValues(false);
                 for(String str : map.keySet()) {
                     if(Objects.requireNonNull(expiredFile.getString(str + ".Creator")).equalsIgnoreCase(uuid.toString())) {
-                        items.add(AuctionHouse.getInstance().decode(Objects.requireNonNull(expiredFile.getString(str + ".ItemStack"))));
-                        if(remove) {
+                        ItemStack itemStack = AuctionHouse.getInstance().decode(Objects.requireNonNull(expiredFile.getString(str + ".ItemStack")));
+                        if (remove) {
                             expiredFile.set(str, null);
+                        } else {
+                            NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+                            ItemMeta itemMeta = itemStack.getItemMeta();
+
+                            itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), UUID.fromString(str));
+                            itemStack.setItemMeta(itemMeta);
                         }
+                        items.add(itemStack);
                     }
                 }
                 if(remove) {
@@ -863,16 +952,26 @@ public class ListingManager {
                     gui.updateInventory();
                     p.updateInventory();
                 }
-            }
-            //Listing Edit GUI
-            else if (inv instanceof ListingEditGUI) {
-                ListingEditGUI gui = (ListingEditGUI) inv;
-                Player p = Bukkit.getPlayer(UUID.fromString(str));
-                if (p == null)
-                    chat.alert("Player found is null " + AuctionHouse.getInstance().getNameManager().getName(str));
-                else {
-                    gui.updateInventory();
-                    p.updateInventory();
+            } else //Expired Reclaim GUI
+                if (inv instanceof ExpireReclaimGUI) {
+                    ExpireReclaimGUI gui = (ExpireReclaimGUI) inv;
+                    Player p = Bukkit.getPlayer(UUID.fromString(str));
+                    if (p == null)
+                        chat.alert("Player found is null " + AuctionHouse.getInstance().getNameManager().getName(str));
+                    else {
+                        gui.updateInventory();
+                        p.updateInventory();
+                    }
+                }
+                //Listing Edit GUI
+                else if (inv instanceof ListingEditGUI) {
+                    ListingEditGUI gui = (ListingEditGUI) inv;
+                    Player p = Bukkit.getPlayer(UUID.fromString(str));
+                    if (p == null)
+                        chat.alert("Player found is null " + AuctionHouse.getInstance().getNameManager().getName(str));
+                    else {
+                        gui.updateInventory();
+                        p.updateInventory();
                 }
             }
             //Shulker View GUI

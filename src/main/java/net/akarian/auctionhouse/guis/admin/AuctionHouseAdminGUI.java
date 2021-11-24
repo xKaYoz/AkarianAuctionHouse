@@ -87,6 +87,8 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
         if (slot >= 8 && slot <= 45) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(itemStack);
 
+            if (listing == null) return;
+
             if (clickType.isLeftClick()) {
                 if (clickType.isShiftClick()) {
                     if (itemStack.getType() == Material.SHULKER_BOX) {

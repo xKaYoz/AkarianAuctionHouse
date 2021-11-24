@@ -33,7 +33,7 @@ public class HelpSubCommand extends AkarianCommand {
         List<AkarianCommand> commands = new ArrayList<>();
 
         for(AkarianCommand command : CommandManager.getInstance().getCommands().values()) {
-            if(sender.hasPermission(command.getPermission())) commands.add(command);
+            if (sender.hasPermission(command.getPermission()) || sender.isOp()) commands.add(command);
         }
 
         if(commands.size() == 0) {
