@@ -19,12 +19,12 @@ public class ListSubCommand extends AkarianCommand {
         Chat chat = AuctionHouse.getInstance().getChat();
 
         if(!(sender instanceof Player)) {
-            chat.sendMessage(sender, "&cYou must be a player to execute this command.");
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
             return;
         }
 
         if(args.length != 2) {
-            chat.usage(sender, "/ah list <price>");
+            chat.usage(sender, AuctionHouse.getInstance().getMessages().getList_syntax());
             return;
         }
 
@@ -32,7 +32,7 @@ public class ListSubCommand extends AkarianCommand {
         ItemStack itemStack = p.getInventory().getItemInMainHand();
 
         if(itemStack.getType().isAir()) {
-            chat.sendMessage(p, "&cYou must be holding an item");
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_item());
             return;
         }
 
@@ -41,12 +41,12 @@ public class ListSubCommand extends AkarianCommand {
         try {
             price = Double.parseDouble(args[1]);
         } catch (NumberFormatException e) {
-            chat.sendMessage(p, "&cThe 2nd argument must be the price.");
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
             return;
         }
 
         if (price <= 0) {
-            chat.sendMessage(p, "&cThe price must be above $0.");
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
             return;
         }
 

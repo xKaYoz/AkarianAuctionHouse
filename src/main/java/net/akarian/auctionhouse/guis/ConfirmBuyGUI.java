@@ -15,8 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-
 public class ConfirmBuyGUI implements AkarianInventory {
 
     @Getter
@@ -49,10 +47,10 @@ public class ConfirmBuyGUI implements AkarianInventory {
 
                 switch (AuctionHouse.getInstance().getListingManager().buy(listing, player)) {
                     case -1:
-                        chat.sendMessage(player, "&cThat listing no longer exists.");
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_deleted());
                         break;
                     case 0:
-                        chat.sendMessage(player, "&cYou do not have enough money to purchase that.");
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_poor());
                         break;
                     case 1:
                         chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator offline.");
@@ -71,20 +69,20 @@ public class ConfirmBuyGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 9, chat.format("&eAre you sure???"));
+        inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessages().getGui_cb_title()));
 
-        inv.setItem(0, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm your order.")));
-        inv.setItem(1, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm your order.")));
-        inv.setItem(2, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm your order.")));
-        inv.setItem(3, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm your order.")));
+        inv.setItem(0, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
+        inv.setItem(1, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
+        inv.setItem(2, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
+        inv.setItem(3, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
 
         listing.setupDisplay(player);
         inv.setItem(4, listing.getDisplay());
 
-        inv.setItem(5, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, "&c&lCancel", Collections.singletonList("&7Click to cancel your order.")));
-        inv.setItem(6, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, "&c&lCancel", Collections.singletonList("&7Click to cancel your order.")));
-        inv.setItem(7, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, "&c&lCancel", Collections.singletonList("&7Click to cancel your order.")));
-        inv.setItem(8, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, "&c&lCancel", Collections.singletonList("&7Click to cancel your order.")));
+        inv.setItem(5, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
+        inv.setItem(6, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
+        inv.setItem(7, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
+        inv.setItem(8, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
 
 
         return inv;

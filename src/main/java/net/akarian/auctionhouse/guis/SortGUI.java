@@ -75,29 +75,30 @@ public class SortGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 27, chat.format("&eSort Menu"));
+        Inventory inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_st_title()));
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+
         if (sortType == SortType.OVERALL_PRICE)
-            inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&lOverall Price", highestList()));
+            inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_op(), highestList()));
         else
-            inv.setItem(10, ItemBuilder.build(Material.GRAY_DYE, 1, "&7Overall Price", Collections.singletonList("&7&oClick to enable sorting by overall price.")));
+            inv.setItem(10, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_op(), AuctionHouse.getInstance().getMessages().getGui_st_od()));
         if (sortType == SortType.TIME_LEFT)
-            inv.setItem(12, ItemBuilder.build(Material.LIME_DYE, 1, "&a&lTime Left", longestList()));
+            inv.setItem(12, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), longestList()));
         else
-            inv.setItem(12, ItemBuilder.build(Material.GRAY_DYE, 1, "&7Time Left", Collections.singletonList("&7&oClick to enable sorting by the time remaining.")));
+            inv.setItem(12, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), AuctionHouse.getInstance().getMessages().getGui_st_td()));
         if (sortType == SortType.COST_PER_ITEM)
-            inv.setItem(14, ItemBuilder.build(Material.LIME_DYE, 1, "&a&lCost per item", highestList()));
+            inv.setItem(14, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_cp(), highestList()));
         else
-            inv.setItem(14, ItemBuilder.build(Material.GRAY_DYE, 1, "&7Cost per item", Collections.singletonList("&7&oClick to enable sorting by the cost of each item.")));
+            inv.setItem(14, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_cp(), AuctionHouse.getInstance().getMessages().getGui_st_cd()));
 
         if (sortType == SortType.AMOUNT)
-            inv.setItem(16, ItemBuilder.build(Material.LIME_DYE, 1, "&a&lAmount of Items", highestList()));
+            inv.setItem(16, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), highestList()));
         else
-            inv.setItem(16, ItemBuilder.build(Material.GRAY_DYE, 1, "&7Amount of Items", Collections.singletonList("&7&oClick to enable sorting by the amount of items.")));
+            inv.setItem(16, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), AuctionHouse.getInstance().getMessages().getGui_st_ad()));
 
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
@@ -111,9 +112,9 @@ public class SortGUI implements AkarianInventory {
         lore.add("&8&m&l---------------------------");
         lore.add("");
         if (sortBool) {
-            lore.add("    &6→ Longest &8| &7Shortest");
+            lore.add("    &6→ " + AuctionHouse.getInstance().getMessages().getGui_st_lg() + " &8| &7" + AuctionHouse.getInstance().getMessages().getGui_st_st());
         } else {
-            lore.add("      &7Longest &8| &6Shortest ←");
+            lore.add("      &7" + AuctionHouse.getInstance().getMessages().getGui_st_lg() + " &8| &6" + AuctionHouse.getInstance().getMessages().getGui_st_st() + " ←");
         }
         lore.add("");
         lore.add("&8&m&l---------------------------");
@@ -126,9 +127,9 @@ public class SortGUI implements AkarianInventory {
         lore.add("&8&m&l---------------------------");
         lore.add("");
         if (sortBool) {
-            lore.add("      &6→ Highest &8| &7Lowest");
+            lore.add("      &6→ " + AuctionHouse.getInstance().getMessages().getGui_st_hg() + " &8| &7" + AuctionHouse.getInstance().getMessages().getGui_st_lw());
         } else {
-            lore.add("        &7Highest &8| &6Lowest ←");
+            lore.add("        &7" + AuctionHouse.getInstance().getMessages().getGui_st_hg() + " &8| &6" + AuctionHouse.getInstance().getMessages().getGui_st_lw() + " ←");
         }
         lore.add("");
         lore.add("&8&m&l---------------------------");

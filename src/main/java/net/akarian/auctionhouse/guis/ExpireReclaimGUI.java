@@ -69,7 +69,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getExpiredReclaimTitle()));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getGui_er_title()));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
@@ -77,7 +77,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         }
 
         //Return Button
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         //Bottom Lining
         for (int i = 45; i <= 53; i++) {
@@ -89,13 +89,13 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
         //Previous Page
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Previous Page", Collections.singletonList("&7Go to the previous page."));
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         }
 
         //Next Page
         if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Next Page", Collections.singletonList("&7Go to the next page."));
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         }
 
@@ -130,7 +130,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
         //Previous Page
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Previous Page", Collections.singletonList("&7Go to the previous page."));
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         } else {
             inv.setItem(45, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
@@ -138,7 +138,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
         //Next Page
         if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Next Page", Collections.singletonList("&7Go to the next page."));
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         } else {
             inv.setItem(53, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));

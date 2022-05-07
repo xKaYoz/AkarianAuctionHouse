@@ -22,14 +22,14 @@ public class SearchSubCommand extends AkarianCommand {
         //  /ah search <searchStr>
 
         if (!(sender instanceof Player)) {
-            chat.sendMessage(sender, "&cYou must be a player to execute this command.");
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
             return;
         }
 
         Player player = (Player) sender;
 
         if (args.length == 1) {
-            chat.usage(player, "/ah search <query>");
+            chat.usage(player, AuctionHouse.getInstance().getMessages().getSearch_syntax());
             return;
         }
 

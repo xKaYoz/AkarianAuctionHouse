@@ -15,7 +15,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.UUID;
@@ -53,14 +52,12 @@ public class ListingEditGUI implements AkarianInventory {
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
                 break;
             case 11:
-                chat.sendMessage(player, "&eLeft click to cancel");
-                chat.sendMessage(player, "&eEnter the new price of your auction...");
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_pc());
                 priceMap.put(player.getUniqueId(), this);
                 player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
                 break;
             case 15:
-                chat.sendMessage(player, "&eLeft click to cancel");
-                chat.sendMessage(player, "&eEnter the new amount of your auction...");
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_ac());
                 amountMap.put(player.getUniqueId(), this);
                 player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
                 break;
@@ -69,24 +66,17 @@ public class ListingEditGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format("&eEdit your listing"));
+        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_le_title()));
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
-        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, "&6Price", Collections.singletonList("&7&oClick to edit the price.")));
+        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_le_pn(), AuctionHouse.getInstance().getMessages().getGui_le_pd()));
         listing.setupDisplay(player);
         inv.setItem(13, listing.getDisplay());
-        inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, "&6Amount", Arrays.asList(
-                "&eIf you enter a higher amount than the current listing,",
-                "&eyou must have the items in your inventory.",
-                "&eIf you enter a lower amount than the current listing,",
-                "&eyou will be given the items you removed.",
-                "",
-                "&7&oClick to remove or add items to this listing."
-        )));
+        inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessages().getGui_le_an(), AuctionHouse.getInstance().getMessages().getGui_le_ad()));
 
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));

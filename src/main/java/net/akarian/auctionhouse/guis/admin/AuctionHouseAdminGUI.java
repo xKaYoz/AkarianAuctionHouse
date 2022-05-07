@@ -72,8 +72,8 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
             case 47:
                 player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
                 searchMap.put(player.getUniqueId(), this);
-                chat.sendMessage(player, "&eLeft click to clear");
-                chat.sendMessage(player, "&eEnter your search query...");
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
                 return;
             case 51:
                 player.openInventory(new SortGUI(sortType, sortBool, page, searchStr).getInventory());
@@ -114,14 +114,14 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
     @Override
     public @NotNull Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getAuctionHouseAdminTitle()));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getGui_aha_title()));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
         //Close Button
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lClose", Collections.singletonList("&7&oClose the menu.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
 
         //Listings
         updateInventory();
@@ -134,22 +134,21 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
         //Previous Page
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Previous Page", Collections.singletonList("&7Go to the previous page."));
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         }
         //Next Page
         if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, "&6Next Page", Collections.singletonList("&7Go to the next page."));
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         }
 
         //Search Item
-        inv.setItem(47, ItemBuilder.build(Material.HOPPER, 1, "&6Search", Collections.singletonList("&7Search for specific listings.")));
+        inv.setItem(47, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
 
         //Sort Item
-        inv.setItem(51, ItemBuilder.build(Material.PAPER, 1, "&6Sort", Arrays.asList(
-                "&7&oSort the listings."
-        )));
+        inv.setItem(51, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+
 
         return inv;
     }

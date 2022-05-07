@@ -81,7 +81,7 @@ public class AdminSubCommand extends AkarianCommand {
                 Player p = (Player) sender;
                 p.openInventory(new AuctionHouseAdminGUI(p, SortType.TIME_LEFT, true, 1).getInventory());
             } else {
-                chat.sendMessage(sender, "&cYou must be a player to use this command.");
+                chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
             }
 
         } else {

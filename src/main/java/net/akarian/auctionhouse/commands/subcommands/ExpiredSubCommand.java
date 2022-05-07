@@ -1,8 +1,10 @@
 package net.akarian.auctionhouse.commands.subcommands;
 
+import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.ExpireReclaimGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.utils.AkarianCommand;
+import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -14,10 +16,15 @@ public class ExpiredSubCommand extends AkarianCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        if (sender instanceof Player) {
-            Player p = (Player) sender;
-            p.openInventory(new ExpireReclaimGUI(p, SortType.TIME_LEFT, true, 1, "", 1).getInventory());
+
+        Chat chat = AuctionHouse.getInstance().getChat();
+
+        if (!(sender instanceof Player)) {
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
             return;
         }
+
+        Player p = (Player) sender;
+        p.openInventory(new ExpireReclaimGUI(p, SortType.TIME_LEFT, true, 1, "", 1).getInventory());
     }
 }

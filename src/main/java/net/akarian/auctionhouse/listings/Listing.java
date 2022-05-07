@@ -70,7 +70,7 @@ public class Listing {
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
 
-        for (String s : AuctionHouse.getInstance().getMessages().getAdminListingLore()) {
+        for (String s : AuctionHouse.getInstance().getMessages().getGui_aha_listing()) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -82,7 +82,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getShulker()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
                             tlore.add(shulkers.replace("%amount%", amount + ""));
                         }
                     }
@@ -130,7 +130,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getShulker()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
                             tlore.add(shulkers.replace("%amount%", amount + ""));
                         }
                     }
