@@ -3,6 +3,7 @@ Prefix: "&6&lAuctionHouse"
 database: FILE
 #Wheather or not to enable updates.
 updates: true
+#MySQL details if database is set accordingly
 MySQL:
   Connection:
     Host: localhost
@@ -14,3 +15,6 @@ MySQL:
     Listings: ah_listings
     Completed: ah_completed
     Expired: ah_expired
+#Auction House Prices
+Minimum Listing: 10.00
+Maximum Listing: 1000000000.00

@@ -10,7 +10,7 @@ public class FileManager {
 
     private File file;
     private YamlConfiguration config;
-    private Plugin plugin;
+    private final Plugin plugin;
 
     public FileManager(Plugin plugin) {
         this.plugin = plugin;
@@ -65,4 +65,3 @@ public class FileManager {
     }
 
 }
-

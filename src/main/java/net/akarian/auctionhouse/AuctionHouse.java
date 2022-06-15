@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Callable;
 
 public final class AuctionHouse extends JavaPlugin {
 
@@ -103,6 +104,16 @@ public final class AuctionHouse extends JavaPlugin {
 
         registerCommands();
         registerEvents();
+
+        int pluginId = 15488;
+        Metrics metrics = new Metrics(this, pluginId);
+
+        metrics.addCustomChart(new Metrics.SingleLineChart("active_listings", new Callable<Integer>() {
+            @Override
+            public Integer call() throws Exception {
+                return listingManager.getListings().size();
+            }
+        }));
 
     }
 
