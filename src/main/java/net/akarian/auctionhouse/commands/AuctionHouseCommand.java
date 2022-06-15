@@ -38,7 +38,7 @@ public class AuctionHouseCommand implements CommandExecutor {
 
                 for(String aliases : CommandManager.getInstance().getCommands().get(s).getAliases()) {
                     if(aliases.equalsIgnoreCase(args[0])) {
-                        if (sender.hasPermission(sc.getPermission())) {
+                        if (sender.hasPermission(sc.getPermission()) || sender.isOp()) {
                             sc.execute(sender, args);
                         } else {
                             chat.noPermission(sender);
@@ -58,7 +58,6 @@ public class AuctionHouseCommand implements CommandExecutor {
             subCommand.execute(sender, args);
         } else {
             chat.noPermission(sender);
-
         }
         log(start, sender, subCommand);
 

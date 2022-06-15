@@ -61,7 +61,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         }
 
         //Is an Expired Listing
-        if (slot >= 8 && slot <= 45) {
+        if (slot >= 9 && slot <= 45) {
             AuctionHouse.getInstance().getListingManager().removeExpire(AuctionHouse.getInstance().getListingManager().getIDofExpired(item), player, true);
         }
 
