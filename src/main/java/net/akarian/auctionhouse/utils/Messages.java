@@ -285,9 +285,9 @@ public class Messages {
                 selfInfoBuyer = messagesFile.getStringList("GUIs.AuctionHouse.Listing.Buyer Info");
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Seller Tag")) {
-                    messagesFile.set("GUI.AuctionHouse.Seller Tag", "seller");
+                    messagesFile.set("GUIs.AuctionHouse.Seller Tag", "seller");
                 }
-                gui_ah_st = messagesFile.getString("GUI.AuctionHouse.Seller Tag");
+                gui_ah_st = messagesFile.getString("GUIs.AuctionHouse.Seller Tag");
 
             }
             /*Confirm Buy*/
