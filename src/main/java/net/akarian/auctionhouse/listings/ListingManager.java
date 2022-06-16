@@ -26,7 +26,7 @@ public class ListingManager {
     private final Chat chat;
     @Getter
     private final List<Listing> listings = new ArrayList<>();
-    private DatabaseType databaseType;
+    private final DatabaseType databaseType;
     private final FileManager fm;
     private int expireTimer;
     private int refreshTimer;
@@ -149,11 +149,7 @@ public class ListingManager {
                 fm.saveFile(listingsFile, "/database/listings");
                 fm.saveFile(expiredFile, "/database/expired");
                 fm.saveFile(completedFile, "/database/completed");
-
-                AuctionHouse.getInstance().setDatabaseType(DatabaseType.MYSQL);
-                databaseType = DatabaseType.MYSQL;
-                AuctionHouse.getInstance().getConfig().set("database", "MYSQL");
-                AuctionHouse.getInstance().saveConfig();
+                AuctionHouse.getInstance().getConfigFile().setDatabaseType(DatabaseType.MYSQL);
                 chat.alert("Transfer complete. Transferred " + (et + lt + ct) + " total listings.");
                 break;
             }
@@ -268,10 +264,7 @@ public class ListingManager {
                     e.printStackTrace();
                     chat.alert("Error while transferring completed listings.");
                 }
-                AuctionHouse.getInstance().setDatabaseType(DatabaseType.FILE);
-                databaseType = DatabaseType.FILE;
-                AuctionHouse.getInstance().getConfig().set("database", "FILE");
-                AuctionHouse.getInstance().saveConfig();
+                AuctionHouse.getInstance().getConfigFile().setDatabaseType(DatabaseType.FILE);
                 chat.alert("Transfer complete. Transferred " + (et + lt + ct) + " total listings.");
                 break;
             }
@@ -682,6 +675,7 @@ public class ListingManager {
                 expiredFile.set(listing.getId().toString() + ".Creator", listing.getCreator().toString());
 
                 fm.saveFile(expiredFile, "/database/expired");
+                remove(listing);
                 return 2;
         }
         return 0;
@@ -914,7 +908,7 @@ public class ListingManager {
                                 chat.log("!! Error while saving " + chat.formatItem(item) + ".");
                                 break;
                             case 1:
-                                chat.log("Listing " + chat.formatItem(item) + " has expired. Item given to player.");
+                                chat.log("Listing " + chat.formatItem(item) + " has expired with user online.");
                                 break;
                             case 2:
                                 chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.");

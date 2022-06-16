@@ -70,9 +70,9 @@ public class AdminSubCommand extends AkarianCommand {
         } else if (args[1].equalsIgnoreCase("reload") && sender.hasPermission("auctionhouse.admin.reload")) {
 
             chat.sendMessage(sender, "&7Reloading...");
-            AuctionHouse.getInstance().reloadConfig();
+            AuctionHouse.getInstance().getConfigFile().reloadConfig();
             AuctionHouse.getInstance().getMessages().reloadMessages();
-            chat.setPrefix(AuctionHouse.getInstance().getConfig().getString("Prefix"));
+            chat.setPrefix(AuctionHouse.getInstance().getConfigFile().getPrefix());
             chat.sendMessage(sender, "&aReload complete.");
 
         } else if (args[1].equalsIgnoreCase("menu") && sender.hasPermission("auctionhouse.admin.menu")) {

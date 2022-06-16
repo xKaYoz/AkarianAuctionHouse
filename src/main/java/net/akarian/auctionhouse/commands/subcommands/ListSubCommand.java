@@ -31,8 +31,13 @@ public class ListSubCommand extends AkarianCommand {
         Player p = (Player) sender;
         ItemStack itemStack = p.getInventory().getItemInMainHand();
 
-        if(itemStack.getType().isAir()) {
+        if (itemStack.getType().isAir()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_item());
+            return;
+        }
+
+        if (AuctionHouse.getInstance().getCooldownManager().isCooldown(p)) {
+            chat.sendMessage(p, "&eCooldown for " + chat.formatTime(AuctionHouse.getInstance().getCooldownManager().getRemaining(p)));
             return;
         }
 
@@ -45,15 +50,15 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
-        if (price > AuctionHouse.getInstance().getConfig().getDouble("Maximum Listing")) {
+        if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaximumListing()
-                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfig().getDouble("Maximum Listing"))));
+                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
             return;
         }
 
-        if (price < AuctionHouse.getInstance().getConfig().getDouble("Minimum Listing")) {
+        if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing()
-                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfig().getDouble("Minimum Listing"))));
+                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
             return;
         }
 
@@ -68,5 +73,6 @@ public class ListSubCommand extends AkarianCommand {
                 .replace("%item%", chat.formatItem(l.getItemStack())).replace("%price%", chat.formatMoney(l.getPrice())));
 
         p.getInventory().remove(itemStack);
+        AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
     }
 }

@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.commands.AuctionHouseCommand;
 import net.akarian.auctionhouse.commands.CommandManager;
+import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
 import net.akarian.auctionhouse.events.ExpireJoinEvent;
 import net.akarian.auctionhouse.events.UpdateJoinEvent;
@@ -49,19 +50,24 @@ public final class AuctionHouse extends JavaPlugin {
     private boolean update;
     @Getter
     private Messages messages;
+    @Getter
+    private Configuration configFile;
+    @Getter
+    private CooldownManager cooldownManager;
 
     @Override
     public void onEnable() {
         instance = this;
-        saveDefaultConfig();
-        chat = new Chat(this, getConfig().getString("Prefix"));
-        nameManager = new NameManager();
         this.fileManager = new FileManager(this);
+        this.configFile = new Configuration();
+        chat = new Chat(this, getConfigFile().getPrefix());
+        nameManager = new NameManager();
         this.messages = new Messages();
         mySQL = new MySQL();
-        update = getConfig().getBoolean("updates");
+        update = getConfigFile().isUpdates();
         updateManager = new UpdateManager(this);
         guiManager = new GUIManager();
+        cooldownManager = new CooldownManager();
 
         if (!setupEconomy()) {
             chat.alert("&cAuctionHouse has Failed to detect an economy.");
@@ -71,17 +77,17 @@ public final class AuctionHouse extends JavaPlugin {
         }
 
         // Set the database storage type
-        switch (Objects.requireNonNull(getConfig().getString("database")).toUpperCase(Locale.ROOT)) {
+        switch (Objects.requireNonNull(getConfigFile().getDatabaseType()).toUpperCase(Locale.ROOT)) {
             case "FILE":
                 databaseType = DatabaseType.FILE;
-                if(!fileManager.getFile("/database/listings").exists()) {
+                if (!fileManager.getFile("/database/listings").exists()) {
                     fileManager.createFile("/database/listings");
                 }
-                if(!fileManager.getFile("/database/expired").exists()) {
+                if (!fileManager.getFile("/database/expired").exists()) {
                     fileManager.createFile("/database/expired");
                 }
-                if(!fileManager.getFile("/database/completed").exists()) {
-                fileManager.createFile("/database/completed");
+                if (!fileManager.getFile("/database/completed").exists()) {
+                    fileManager.createFile("/database/completed");
                 }
 
                 break;
@@ -121,6 +127,7 @@ public final class AuctionHouse extends JavaPlugin {
         new CommandManager();
         this.getCommand("auctionhouse").setExecutor(new AuctionHouseCommand());
     }
+
     private void registerEvents() {
         PluginManager pm = Bukkit.getPluginManager();
         pm.registerEvents(new AuctionHouseGUIEvents(), this);
@@ -131,10 +138,11 @@ public final class AuctionHouse extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        if(databaseType != DatabaseType.FILE) {
+        if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();
         }
         guiManager.closeAllInventories();
+        cooldownManager.saveCooldowns();
     }
 
     private boolean setupEconomy() {
@@ -152,7 +160,7 @@ public final class AuctionHouse extends JavaPlugin {
 
     public String encode(ItemStack itemStack, boolean asOne) {
         ItemStack local = itemStack;
-        if(asOne) {
+        if (asOne) {
             local = local.asOne();
         }
         return new String(Base64.getEncoder().encode(local.serializeAsBytes()));

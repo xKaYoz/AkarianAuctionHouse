@@ -1,3 +1,4 @@
+#Plugin prefix
 Prefix: "&6&lAuctionHouse"
 #This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE
 database: FILE
@@ -18,3 +19,5 @@ MySQL:
 #Auction House Prices
 Minimum Listing: 10.00
 Maximum Listing: 1000000000.00
+#Delay between listing times
+Listing Delay: 10
