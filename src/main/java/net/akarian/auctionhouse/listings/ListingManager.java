@@ -25,7 +25,7 @@ public class ListingManager {
     private final MySQL mySQL;
     private final Chat chat;
     @Getter
-    private final List<Listing> listings = new ArrayList<>();
+    private final List<Listing> listings;
     private final DatabaseType databaseType;
     private final FileManager fm;
     private int expireTimer;
@@ -36,6 +36,7 @@ public class ListingManager {
         this.chat = AuctionHouse.getInstance().getChat();
         this.databaseType = AuctionHouse.getInstance().getDatabaseType();
         this.fm = AuctionHouse.getInstance().getFileManager();
+        this.listings = new ArrayList<>();
         checkDatabaseTransfer();
         loadListings();
         startExpireCheck();
@@ -356,7 +357,6 @@ public class ListingManager {
                 chat.log("Removed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
 
                 listings.remove(listing);
-
                 return true;
         }
 
@@ -645,8 +645,8 @@ public class ListingManager {
 
         if (creator != null) {
             chat.sendMessage(creator, "&fYour listing for &e" + chat.formatItem(listing.getItemStack()) + "&f has expired.");
-            remove(listing);
             InventoryHandler.addItem(creator, listing.getItemStack());
+            remove(listing);
             return 1;
         }
 
@@ -894,9 +894,9 @@ public class ListingManager {
     private void startExpireCheck() {
 
         expireTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), () -> {
-            if (listings.size() != 0) {
-
-                for (Listing listing : listings) {
+            if (!listings.isEmpty()) {
+                List<Listing> copy = new ArrayList<>(listings);
+                for (Listing listing : copy) {
                     long now = System.currentTimeMillis() / 1000;
                     long end = (listing.getStart() + (86400 * 1000)) / 1000;
 

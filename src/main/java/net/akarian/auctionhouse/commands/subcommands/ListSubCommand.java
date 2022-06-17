@@ -36,9 +36,11 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
-        if (AuctionHouse.getInstance().getCooldownManager().isCooldown(p)) {
-            chat.sendMessage(p, "&eCooldown for " + chat.formatTime(AuctionHouse.getInstance().getCooldownManager().getRemaining(p)));
-            return;
+        if (AuctionHouse.getInstance().getConfigFile().getListingDelay() > 0 && !p.hasPermission("auctionhouse.delay.bypass")) {
+            if (AuctionHouse.getInstance().getCooldownManager().isCooldown(p)) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCooldownTimer().replace("%time%", chat.formatTime(AuctionHouse.getInstance().getCooldownManager().getRemaining(p))));
+                return;
+            }
         }
 
         double price;

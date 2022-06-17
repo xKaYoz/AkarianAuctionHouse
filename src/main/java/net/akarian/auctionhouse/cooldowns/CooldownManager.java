@@ -70,10 +70,12 @@ public class CooldownManager {
     public void loadCooldowns() {
         cooldownFile = fm.getConfig("/database/cooldowns");
         int loaded = 0;
-        for (String s : cooldownFile.getConfigurationSection("Cooldowns").getKeys(false)) {
-            UUID uuid = UUID.fromString(s);
-            map.put(uuid, cooldownFile.getLong("Cooldowns." + uuid));
-            loaded++;
+        if (cooldownFile.isConfigurationSection("Cooldowns")) {
+            for (String s : cooldownFile.getConfigurationSection("Cooldowns").getKeys(false)) {
+                UUID uuid = UUID.fromString(s);
+                map.put(uuid, cooldownFile.getLong("Cooldowns." + uuid));
+                loaded++;
+            }
         }
         AuctionHouse.getInstance().getChat().log("Loaded " + loaded + " cooldowns.");
     }

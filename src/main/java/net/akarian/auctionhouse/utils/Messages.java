@@ -11,7 +11,7 @@ public class Messages {
 
     private final FileManager fm;
     @Getter
-    private String createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing;
+    private String createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer;
     @Getter
     private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad;
     @Getter
@@ -105,6 +105,11 @@ public class Messages {
                     messagesFile.set("Messages.Maximum Listing", "&cYour listing price is too high! It must be below $%price%.");
                 }
                 maximumListing = messagesFile.getString("Messages.Maximum Listing");
+
+                if (!messagesFile.contains("Messages.Cooldown Timer")) {
+                    messagesFile.set("Messages.Cooldown Timer", "&eYou have %time% remaining before you can make another listing.");
+                }
+                cooldownTimer = messagesFile.getString("Messages.Cooldown Timer");
             }
         }
 

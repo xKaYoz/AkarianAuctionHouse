@@ -24,4 +24,7 @@ permissions:
   auctionhouse.list:
     default: false
     description: AuctionHouse List command.
+  auctionhouse.delay.bypass:
+    default: op
+    description: Bypass the delay in-between listings.
 

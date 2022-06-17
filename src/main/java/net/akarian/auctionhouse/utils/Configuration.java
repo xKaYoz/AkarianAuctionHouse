@@ -46,7 +46,8 @@ public class Configuration {
         header.add("Akarian Auction House v" + AuctionHouse.getInstance().getDescription().getVersion());
         header.add(" ");
         header.add("database: This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE");
-        header.add("updates: Wheather or not to enable updates.");
+        header.add("updates: Whether or not to enable updates.");
+        header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
         configFile.options().setHeader(header);
 
         /* Defaults */
@@ -125,7 +126,6 @@ public class Configuration {
         }
 
         /* Templates
-
         Add String
         if(!configFile.contains("1")) {
             configFile.set("1", "2");

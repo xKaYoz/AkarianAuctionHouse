@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 
 public class Chat {
 
@@ -164,7 +165,8 @@ public class Chat {
         return formatted;
     }
 
-    /** Send the Akarian No Permission Message to a user
+    /**
+     * Send the Akarian No Permission Message to a user
      *
      * @param sender - CommandSender to send the message to
      */
@@ -172,10 +174,16 @@ public class Chat {
         sender.sendMessage(format("&cYou do not have permission to execute this command!"));
     }
 
-    /** Send the Akarian Incorrect Usage Message to a user
+    public void debug(String str) {
+        plugin.getLogger().log(Level.INFO, "DEBUG: " + str);
+        alert("&4DEBUG: &e" + str);
+    }
+
+    /**
+     * Send the Akarian Incorrect Usage Message to a user
      *
      * @param sender - CommandSender to send the message to
-     * @param m - Correct usage
+     * @param m      - Correct usage
      */
     public void usage(CommandSender sender, String m) {
         sender.sendMessage(format("&cIncorrect Usage: &7&o" + m));

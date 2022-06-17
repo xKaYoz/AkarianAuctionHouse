@@ -22,6 +22,7 @@ import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
 
 public final class AuctionHouse extends JavaPlugin {
 
@@ -57,6 +58,9 @@ public final class AuctionHouse extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        getLogger().log(Level.INFO, "========== Akarian Auction House ==========");
+        getLogger().log(Level.INFO, " ");
+        getLogger().log(Level.INFO, "Loading Akarian Auction House v" + getDescription().getVersion() + "...");
         instance = this;
         this.fileManager = new FileManager(this);
         this.configFile = new Configuration();
@@ -68,14 +72,15 @@ public final class AuctionHouse extends JavaPlugin {
         updateManager = new UpdateManager(this);
         guiManager = new GUIManager();
         cooldownManager = new CooldownManager();
-
+        getLogger().log(Level.INFO, "Setting up Economy...");
         if (!setupEconomy()) {
             chat.alert("&cAuctionHouse has Failed to detect an economy.");
             chat.log("AuctionHouse disabled due to no found economy.");
             setEnabled(false);
             return;
         }
-
+        getLogger().log(Level.INFO, "Successfully hooked into " + econ.getName() + ".");
+        getLogger().log(Level.INFO, "Loading database...");
         // Set the database storage type
         switch (Objects.requireNonNull(getConfigFile().getDatabaseType()).toUpperCase(Locale.ROOT)) {
             case "FILE":
@@ -89,7 +94,6 @@ public final class AuctionHouse extends JavaPlugin {
                 if (!fileManager.getFile("/database/completed").exists()) {
                     fileManager.createFile("/database/completed");
                 }
-
                 break;
             case "FILE2MYSQL":
                 databaseType = DatabaseType.FILE2MYSQL;
@@ -105,9 +109,14 @@ public final class AuctionHouse extends JavaPlugin {
                 break;
 
         }
-
+        getLogger().log(Level.INFO, "Successfully connected to " + databaseType.getStr() + " database.");
+        if (databaseType != DatabaseType.FILE) {
+            if (mySQL.isConnected()) getLogger().log(Level.INFO, "Successfully loaded MySQL.");
+            else getLogger().log(Level.SEVERE, "Failed loaded MySQL.");
+        }
+        getLogger().log(Level.INFO, "Loading listings...");
         this.listingManager = new ListingManager();
-
+        getLogger().log(Level.INFO, "Listing loaded successfully.");
         registerCommands();
         registerEvents();
 
@@ -120,7 +129,8 @@ public final class AuctionHouse extends JavaPlugin {
                 return listingManager.getListings().size();
             }
         }));
-
+        getLogger().log(Level.INFO, "Finished loading Akarian Auction House. Enjoy!");
+        getLogger().log(Level.INFO, "=================================================");
     }
 
     private void registerCommands() {
