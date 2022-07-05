@@ -63,7 +63,7 @@ public class Listing {
 
         assert tlore != null;
 
-        long seconds = ((getStart() + (86400 * 1000)) - System.currentTimeMillis()) / 1000;
+        long seconds = ((getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) - System.currentTimeMillis()) / 1000;
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -111,7 +111,7 @@ public class Listing {
 
         assert tlore != null;
 
-        long seconds = ((start + (86400 * 1000)) - System.currentTimeMillis()) / 1000;
+        long seconds = ((start + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) - System.currentTimeMillis()) / 1000;
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();

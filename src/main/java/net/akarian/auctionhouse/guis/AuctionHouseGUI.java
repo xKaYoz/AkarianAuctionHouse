@@ -92,7 +92,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             if (listing.getCreator().toString().equals(player.getUniqueId().toString())) {
                 if (clickType.isLeftClick()) {
                     player.openInventory(new ListingEditGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
-                } else {
+                } else if (clickType.isRightClick() && clickType.isShiftClick()) {
                     switch (AuctionHouse.getInstance().getListingManager().safeRemove(listing)) {
                         case -1:
                             chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));

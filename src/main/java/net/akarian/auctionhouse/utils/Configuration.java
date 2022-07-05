@@ -19,7 +19,7 @@ public class Configuration {
     @Getter
     private double minListing, maxListing;
     @Getter
-    private int listingDelay;
+    private int listingDelay, listingTime;
     @Getter
     private YamlConfiguration configFile;
 
@@ -48,6 +48,7 @@ public class Configuration {
         header.add("database: This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE");
         header.add("updates: Whether or not to enable updates.");
         header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
+        header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
         configFile.options().setHeader(header);
 
         /* Defaults */
@@ -81,6 +82,11 @@ public class Configuration {
                 configFile.set("Listing Delay", 10);
             }
             listingDelay = configFile.getInt("Listing Delay");
+
+            if (!configFile.contains("Listing Time")) {
+                configFile.set("Listing Time", 86400);
+            }
+            listingTime = configFile.getInt("Listing Time");
         }
         /* MySQL */
         {

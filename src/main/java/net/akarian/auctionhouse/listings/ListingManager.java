@@ -363,6 +363,14 @@ public class ListingManager {
         return false;
     }
 
+    public List<Listing> getListings(UUID uuid) {
+        List<Listing> personal = new ArrayList<>();
+        for (Listing listing : listings) {
+            if (listing.getCreator().toString().equalsIgnoreCase(uuid.toString())) personal.add(listing);
+        }
+        return personal;
+    }
+
     /**
      * Create a new Listing
      *
@@ -637,7 +645,7 @@ public class ListingManager {
     public int expire(Listing listing) {
 
         long now = System.currentTimeMillis() / 1000;
-        long end = (listing.getStart() + (86400 * 1000)) / 1000;
+        long end = (listing.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
 
         if (!(now > end)) return -1;
 
@@ -898,7 +906,7 @@ public class ListingManager {
                 List<Listing> copy = new ArrayList<>(listings);
                 for (Listing listing : copy) {
                     long now = System.currentTimeMillis() / 1000;
-                    long end = (listing.getStart() + (86400 * 1000)) / 1000;
+                    long end = (listing.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
 
                     ItemStack item = listing.getItemStack();
 
