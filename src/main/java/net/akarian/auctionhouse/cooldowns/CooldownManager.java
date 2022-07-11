@@ -54,8 +54,8 @@ public class CooldownManager {
         cooldownFile = fm.getConfig("/database/cooldowns");
         cooldownFile.set("Cooldowns", null);
         int saved = 0;
-
-        for (UUID uuid : map.keySet()) {
+        HashMap<UUID, Long> copy = new HashMap<>(map);
+        for (UUID uuid : copy.keySet()) {
             if (map.get(uuid) <= System.currentTimeMillis()) {
                 map.remove(uuid);
             } else {

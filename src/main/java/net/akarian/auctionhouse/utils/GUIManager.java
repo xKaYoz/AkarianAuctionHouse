@@ -43,7 +43,7 @@ public class GUIManager implements Listener {
         for(String uuid : getGui().keySet()) {
             Player p = Bukkit.getPlayer(UUID.fromString(uuid));
             if(p != null) {
-                p.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                p.closeInventory();
             }
         }
     }

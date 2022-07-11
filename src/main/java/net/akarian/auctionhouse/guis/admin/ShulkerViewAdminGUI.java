@@ -14,7 +14,6 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
@@ -47,7 +46,7 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
 
         Inventory inv = Bukkit.createInventory(this, 36, chat.format("&4Admin Shulker View"));
 

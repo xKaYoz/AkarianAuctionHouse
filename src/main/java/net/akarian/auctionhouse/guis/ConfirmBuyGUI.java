@@ -10,10 +10,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 public class ConfirmBuyGUI implements AkarianInventory {
 
@@ -43,7 +41,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
         switch (itemStack.getType()) {
 
             case LIME_STAINED_GLASS_PANE:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
 
                 switch (AuctionHouse.getInstance().getListingManager().buy(listing, player)) {
                     case -1:
@@ -68,7 +66,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessages().getGui_cb_title()));
 
         inv.setItem(0, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));

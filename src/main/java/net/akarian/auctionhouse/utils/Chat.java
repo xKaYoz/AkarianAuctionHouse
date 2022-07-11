@@ -2,10 +2,9 @@ package net.akarian.auctionhouse.utils;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -228,9 +227,6 @@ public class Chat {
      * @param component - Component to get the String of
      * @return - String of the Component
      */
-    public String plainTextComponent(Component component) {
-        return PlainTextComponentSerializer.plainText().serialize(component);
-    }
 
     /** Get the Akarian formatted name of an ItemStack
      *
@@ -238,14 +234,20 @@ public class Chat {
      * @return - Formatted name of the ItemStack
      */
     public String formatItem(ItemStack itemStack) {
+        Material material = itemStack.getType();
+
         if (itemStack.hasItemMeta()) {
             if (itemStack.getItemMeta().hasDisplayName()) {
-                String name = plainTextComponent(itemStack.getItemMeta().displayName());
+                String name = itemStack.getItemMeta().getDisplayName();
                 return format("&e" + itemStack.getAmount() + "x " + name);
             }
         }
 
-        return format(itemStack.getAmount() + "x " + itemStack.getI18NDisplayName());
+        StringBuilder builder = new StringBuilder();
+        for (String word : material.toString().split("_"))
+            builder.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
+
+        return format(itemStack.getAmount() + "x " + builder.toString().trim());
     }
 
     /** Send a message to all ops and the console

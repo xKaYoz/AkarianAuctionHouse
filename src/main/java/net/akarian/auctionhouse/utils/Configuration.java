@@ -2,7 +2,6 @@ package net.akarian.auctionhouse.utils;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,7 +20,7 @@ public class Configuration {
     @Getter
     private int listingDelay, listingTime;
     @Getter
-    private YamlConfiguration configFile;
+    private AkarianConfiguration configFile;
 
     public Configuration() {
         fm = AuctionHouse.getInstance().getFileManager();
@@ -49,7 +48,7 @@ public class Configuration {
         header.add("updates: Whether or not to enable updates.");
         header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
         header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
-        configFile.options().setHeader(header);
+        configFile.setHeader(header);
 
         /* Defaults */
         {
@@ -58,13 +57,20 @@ public class Configuration {
             }
             prefix = configFile.getString("Prefix");
 
+
             if (!configFile.contains("database")) {
                 configFile.set("database", "FILE");
             }
             databaseType = configFile.getString("database");
 
             if (!configFile.contains("updates")) {
-                configFile.set("updates", "true");
+                configFile.set("updates", true);
+            } else if (configFile.isString("updates")) {
+                if (configFile.getString("updates").equalsIgnoreCase("true")) {
+                    configFile.set("updates", true);
+                } else if (configFile.getString("updates").equalsIgnoreCase("false")) {
+                    configFile.set("updates", false);
+                }
             }
             updates = configFile.getBoolean("updates");
 

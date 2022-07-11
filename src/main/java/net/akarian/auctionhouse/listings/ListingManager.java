@@ -504,7 +504,7 @@ public class ListingManager {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
             return 2;
         }
-        chat.log("Auction " + listing.getId().toString() + " has been bought by " + creator.getUniqueId() + " for " + listing.getPrice() + ".");
+        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".");
         return 1;
     }
 

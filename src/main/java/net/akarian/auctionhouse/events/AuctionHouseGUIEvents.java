@@ -29,11 +29,7 @@ public class AuctionHouseGUIEvents implements Listener {
             e.setCancelled(true);
             if(input.startsWith("seller:")) {
                 String playerName = input.split(":")[1];
-                UUID playerUUID = Bukkit.getPlayerUniqueId(playerName);
-                if(playerUUID == null) {
-                    chat.sendMessage(p, "&cCould not find a player with the name of " + playerName + ".");
-                    return;
-                }
+                UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
             }
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(AuctionHouseGUI.getSearchMap().get(p.getUniqueId()).search(input).getInventory());

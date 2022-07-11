@@ -15,10 +15,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -64,13 +62,13 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
         switch (slot) {
             case 8:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 return;
             case 45:
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
                 return;
             case 47:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 searchMap.put(player.getUniqueId(), this);
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
@@ -113,7 +111,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getGui_aha_title()));
 
         //Top Lining

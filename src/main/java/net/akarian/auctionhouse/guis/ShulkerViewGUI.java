@@ -11,11 +11,9 @@ import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
@@ -50,7 +48,7 @@ public class ShulkerViewGUI implements AkarianInventory {
         switch (itemStack.getType()) {
 
             case LIME_STAINED_GLASS_PANE:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
 
                 switch (AuctionHouse.getInstance().getListingManager().buy(listing, player)) {
                     case -1:
@@ -75,16 +73,16 @@ public class ShulkerViewGUI implements AkarianInventory {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
 
         inv = Bukkit.createInventory(this, 45, chat.format(AuctionHouse.getInstance().getMessages().getGui_sv_title()));
 
-        if(listing.getItemStack().getItemMeta() instanceof BlockStateMeta) {
+        if (listing.getItemStack().getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta im = (BlockStateMeta) listing.getItemStack().getItemMeta();
             if (im.getBlockState() instanceof ShulkerBox) {
                 ShulkerBox shulker = (ShulkerBox) im.getBlockState();
-                for(ItemStack itemStack : shulker.getInventory().getContents()) {
-                    if(itemStack != null) {
+                for (ItemStack itemStack : shulker.getInventory().getContents()) {
+                    if (itemStack != null) {
                         inv.addItem(itemStack);
                     }
                 }

@@ -17,7 +17,12 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.util.io.BukkitObjectInputStream;
+import org.bukkit.util.io.BukkitObjectOutputStream;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
@@ -171,9 +176,23 @@ public final class AuctionHouse extends JavaPlugin {
     public String encode(ItemStack itemStack, boolean asOne) {
         ItemStack local = itemStack;
         if (asOne) {
-            local = local.asOne();
+            local.setAmount(1);
         }
-        return new String(Base64.getEncoder().encode(local.serializeAsBytes()));
+        String encodedObj;
+
+        try {
+            ByteArrayOutputStream io = new ByteArrayOutputStream();
+            BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
+            os.writeObject(local);
+            os.flush();
+
+            byte[] serializedObj = io.toByteArray();
+
+            encodedObj = Base64.getEncoder().encodeToString(serializedObj);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return encodedObj;
     }
 
     /**
@@ -183,7 +202,16 @@ public final class AuctionHouse extends JavaPlugin {
      * @return - Decoded ItemStack
      */
     public ItemStack decode(String string) {
-        return ItemStack.deserializeBytes(Base64.getDecoder().decode(string.getBytes()));
+        try {
+            byte[] serializedObj = Base64.getDecoder().decode(string);
+            ByteArrayInputStream in = new ByteArrayInputStream(serializedObj);
+            BukkitObjectInputStream is = new BukkitObjectInputStream(in);
+
+            return (ItemStack) is.readObject();
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

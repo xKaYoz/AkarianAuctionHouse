@@ -9,7 +9,7 @@ import java.io.IOException;
 public class FileManager {
 
     private File file;
-    private YamlConfiguration config;
+    private AkarianConfiguration config;
     private final Plugin plugin;
 
     public FileManager(Plugin plugin) {
@@ -30,7 +30,7 @@ public class FileManager {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            this.config = YamlConfiguration.loadConfiguration(file);
+            this.config = AkarianConfiguration.loadConfiguration(file);
         } else {
             try {
                 throw new IOException();
@@ -57,10 +57,10 @@ public class FileManager {
         return this.file;
     }
 
-    public YamlConfiguration getConfig(String name) {
+    public AkarianConfiguration getConfig(String name) {
         this.file = new File(plugin.getDataFolder(), name + ".yml");
 
-        this.config = YamlConfiguration.loadConfiguration(this.file);
+        this.config = AkarianConfiguration.loadConfiguration(this.file);
         return this.config;
     }
 

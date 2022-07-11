@@ -11,10 +11,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,33 +55,33 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&eLeft click to cancel");
                 chat.sendMessage(player, "&eEnter the new price of your auction...");
                 priceMap.put(player.getUniqueId(), this);
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 break;
             case 12:
                 if (!(clickType.isRightClick() && clickType.isShiftClick())) return;
                 chat.sendMessage(player, "&4You have unsafely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&4.");
                 AuctionHouse.getInstance().getListingManager().remove(listing);
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 break;
             case 14:
                 if (!clickType.isRightClick()) return;
                 chat.sendMessage(player, "&cYou have safely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&c.");
                 AuctionHouse.getInstance().getListingManager().safeRemove(listing);
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 break;
             case 16:
                 chat.sendMessage(player, "&eLeft click to cancel");
                 chat.sendMessage(player, "&eEnter the new amount of your auction...");
                 amountMap.put(player.getUniqueId(), this);
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 break;
         }
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 27, chat.format("&4Edit " + chat.formatItem(listing.getItemStack())));
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));

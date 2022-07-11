@@ -12,10 +12,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
-import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
@@ -63,13 +61,13 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         switch (slot) {
             case 8:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 return;
             case 45:
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
                 return;
             case 46:
-                player.closeInventory(InventoryCloseEvent.Reason.PLUGIN);
+                player.closeInventory();
                 searchMap.put(player.getUniqueId(), this);
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
@@ -114,7 +112,7 @@ public class AuctionHouseGUI implements AkarianInventory {
     }
 
     @Override
-    public @NotNull Inventory getInventory() {
+    public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getAuctionHouseTitle()));
 
         //Top Lining
@@ -168,10 +166,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         if(this.search) {
             if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
                 String playerName = searchStr.split(":")[1];
-                UUID playerUUID = Bukkit.getPlayerUniqueId(playerName);
-                if (playerUUID == null) {
-                    return false;
-                }
+                UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
                 return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
             } else {
                 return chat.formatItem(listing.getItemStack()).toLowerCase(Locale.ROOT).contains(searchStr.toLowerCase(Locale.ROOT));
