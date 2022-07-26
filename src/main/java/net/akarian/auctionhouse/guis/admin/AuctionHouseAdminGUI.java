@@ -96,7 +96,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 }
                 player.openInventory(new ListingEditAdminGUI(listing, player, sortType, sortBool, page, searchStr).getInventory());
             } else {
-                switch (AuctionHouse.getInstance().getListingManager().safeRemove(listing)) {
+                switch (AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing)) {
                     case -1:
                         chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
                         break;
@@ -153,7 +153,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
     private Listing[] sortedList() {
 
-        Listing[] listings = AuctionHouse.getInstance().getListingManager().getListings().toArray(new Listing[0]);
+        Listing[] listings = AuctionHouse.getInstance().getListingManager().getActive().toArray(new Listing[0]);
 
         switch (sortType) {
             case OVERALL_PRICE:
@@ -214,7 +214,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 break;
             }
             Listing listing = listings.get(i);
-            listing.setupDisplay(player);
+            listing.setupActive(player);
             inv.setItem(slot, listing.createAdminListing());
             viewable++;
             slot++;

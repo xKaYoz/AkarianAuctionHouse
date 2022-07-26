@@ -42,6 +42,12 @@ public class Listing {
     @Getter
     @Setter
     private UUID buyer;
+    @Getter
+    @Setter
+    private String endReason;
+    @Getter
+    @Setter
+    private boolean reclaimed;
 
     public Listing(UUID id, UUID creator, ItemStack itemStack, Double price, Long start) {
         plugin = AuctionHouse.getInstance();
@@ -51,6 +57,7 @@ public class Listing {
         this.itemStack = itemStack;
         this.price = price;
         this.start = start;
+        this.reclaimed = false;
     }
 
     public ItemStack createAdminListing() {
@@ -100,7 +107,39 @@ public class Listing {
         return itemStack;
     }
 
-    public void setupDisplay(Player p) {
+    public void setupExpired(Player p) {
+        setDisplay(itemStack.clone());
+
+        List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+
+        if (itemStack.getType() == Material.SHULKER_BOX) {
+            lore = new ArrayList<>();
+        }
+
+        assert lore != null;
+
+        NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
+
+        //Stuff
+
+        for (String s : AuctionHouse.getInstance().getMessages().getExpiredLore()) {
+
+            lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                    .replace("%price%", chat.formatMoney(price)));
+
+        }
+
+        itemMeta.setLore(chat.formatList(lore));
+        itemMeta.setDisplayName(chat.formatItem(display));
+
+        display.setItemMeta(itemMeta);
+
+    }
+
+    public void setupActive(Player p) {
         setDisplay(itemStack.clone());
 
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();

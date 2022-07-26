@@ -1,12 +1,12 @@
 package net.akarian.auctionhouse.events;
 
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
@@ -16,7 +16,7 @@ public class ExpireJoinEvent implements Listener {
     public void onJoin(PlayerJoinEvent e) {
 
         Player p = e.getPlayer();
-        List<ItemStack> expired = AuctionHouse.getInstance().getListingManager().getExpired(p.getUniqueId(), false);
+        List<Listing> expired = AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(p.getUniqueId());
         Chat chat = AuctionHouse.getInstance().getChat();
 
         if(expired.size() > 0) {

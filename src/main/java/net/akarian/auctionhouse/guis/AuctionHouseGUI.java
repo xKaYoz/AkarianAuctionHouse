@@ -91,7 +91,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                 if (clickType.isLeftClick()) {
                     player.openInventory(new ListingEditGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
                 } else if (clickType.isRightClick() && clickType.isShiftClick()) {
-                    switch (AuctionHouse.getInstance().getListingManager().safeRemove(listing)) {
+                    switch (AuctionHouse.getInstance().getListingManager().expire(listing, false, true, player.getUniqueId().toString())) {
                         case -1:
                             chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
                             break;
@@ -174,10 +174,9 @@ public class AuctionHouseGUI implements AkarianInventory {
         }
         return true;
     }
-
     private Listing[] sortedList() {
 
-        Listing[] listings = AuctionHouse.getInstance().getListingManager().getListings().toArray(new Listing[0]);
+        Listing[] listings = AuctionHouse.getInstance().getListingManager().getActive().toArray(new Listing[0]);
 
         switch (sortType) {
             case OVERALL_PRICE:
@@ -234,7 +233,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                 break;
             }
             Listing listing = listings.get(i);
-            listing.setupDisplay(player);
+            listing.setupActive(player);
             inv.setItem(slot, listing.getDisplay());
             viewable++;
             slot++;

@@ -74,7 +74,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
         inv.setItem(2, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(3, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
 
-        listing.setupDisplay(player);
+        listing.setupActive(player);
         inv.setItem(4, listing.getDisplay());
 
         inv.setItem(5, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
@@ -87,7 +87,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listing.setupDisplay(player);
+        listing.setupActive(player);
         inv.setItem(4, listing.getDisplay());
     }
 }

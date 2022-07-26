@@ -72,7 +72,7 @@ public class ListingEditGUI implements AkarianInventory {
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_le_pn(), AuctionHouse.getInstance().getMessages().getGui_le_pd()));
-        listing.setupDisplay(player);
+        listing.setupActive(player);
         inv.setItem(13, listing.getDisplay());
         inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessages().getGui_le_an(), AuctionHouse.getInstance().getMessages().getGui_le_ad()));
 
@@ -83,7 +83,7 @@ public class ListingEditGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listing.setupDisplay(player);
+        listing.setupActive(player);
         inv.setItem(13, listing.getDisplay());
     }
 

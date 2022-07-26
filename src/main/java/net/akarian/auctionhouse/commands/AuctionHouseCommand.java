@@ -25,7 +25,7 @@ public class AuctionHouseCommand implements CommandExecutor {
                 return false;
             }
             CommandManager.getInstance().find("help").execute(sender, args);
-            log(start, sender, CommandManager.getInstance().find("help"));
+            log(start, sender, CommandManager.getInstance().find("help"), args);
             return false;
         }
 
@@ -43,14 +43,14 @@ public class AuctionHouseCommand implements CommandExecutor {
                         } else {
                             chat.noPermission(sender);
                         }
-                        log(start, sender, sc);
+                        log(start, sender, sc, args);
                         return false;
                     }
                 }
             }
 
             chat.sendMessage(sender, "&cInvalid Command. Use /ah help for more info.");
-            log(start, sender, null);
+            log(start, sender, null, args);
             return false;
         }
 
@@ -59,14 +59,18 @@ public class AuctionHouseCommand implements CommandExecutor {
         } else {
             chat.noPermission(sender);
         }
-        log(start, sender, subCommand);
+        log(start, sender, subCommand, args);
 
         return false;
     }
 
-    private void log(long time, CommandSender sender, AkarianCommand command) {
+    private void log(long time, CommandSender sender, AkarianCommand command, String[] args) {
         String str = command == null ? "UNKNOWN" : command.getName();
-        AuctionHouse.getInstance().getChat().log(sender.getName() + " executed " + str + " in " + (System.currentTimeMillis() - time) + "ms.");
+        StringBuilder builder = new StringBuilder();
+        for (String s : args) {
+            builder.append(s).append(" ");
+        }
+        AuctionHouse.getInstance().getChat().log(sender.getName() + " executed " + str + " in " + (System.currentTimeMillis() - time) + "ms. (" + builder.toString().trim() + ")");
     }
 
 

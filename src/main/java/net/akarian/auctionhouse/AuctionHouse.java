@@ -20,14 +20,15 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.Callable;
 import java.util.logging.Level;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public final class AuctionHouse extends JavaPlugin {
 
@@ -87,7 +88,7 @@ public final class AuctionHouse extends JavaPlugin {
         getLogger().log(Level.INFO, "Successfully hooked into " + econ.getName() + ".");
         getLogger().log(Level.INFO, "Loading database...");
         // Set the database storage type
-        switch (Objects.requireNonNull(getConfigFile().getDatabaseType()).toUpperCase(Locale.ROOT)) {
+        switch (Objects.requireNonNull(getConfigFile().getDatabaseType().getStr()).toUpperCase(Locale.ROOT)) {
             case "FILE":
                 databaseType = DatabaseType.FILE;
                 if (!fileManager.getFile("/database/listings").exists()) {
@@ -100,16 +101,8 @@ public final class AuctionHouse extends JavaPlugin {
                     fileManager.createFile("/database/completed");
                 }
                 break;
-            case "FILE2MYSQL":
-                databaseType = DatabaseType.FILE2MYSQL;
-                mySQL.setup();
-                break;
             case "MYSQL":
                 databaseType = DatabaseType.MYSQL;
-                mySQL.setup();
-                break;
-            case "MYSQL2FILE":
-                databaseType = DatabaseType.MYSQL2FILE;
                 mySQL.setup();
                 break;
 
@@ -128,13 +121,10 @@ public final class AuctionHouse extends JavaPlugin {
         int pluginId = 15488;
         Metrics metrics = new Metrics(this, pluginId);
 
-        metrics.addCustomChart(new Metrics.SingleLineChart("active_listings", new Callable<Integer>() {
-            @Override
-            public Integer call() throws Exception {
-                return listingManager.getListings().size();
-            }
-        }));
-        getLogger().log(Level.INFO, "Finished loading Akarian Auction House. Enjoy!");
+        metrics.addCustomChart(new Metrics.SingleLineChart("active_listings", () -> listingManager.getActive().size()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("expired_listings", () -> listingManager.getExpired().size()));
+        metrics.addCustomChart(new Metrics.SingleLineChart("completed_listings", () -> listingManager.getCompleted().size()));
+        metrics.addCustomChart(new Metrics.SimplePie("database_type", () -> databaseType.getStr()));
         getLogger().log(Level.INFO, "=================================================");
     }
 
@@ -153,11 +143,14 @@ public final class AuctionHouse extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        listingManager.cancelExpireTimer();
+        listingManager.cancelRefreshTimer();
         if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();
         }
         guiManager.closeAllInventories();
         cooldownManager.saveCooldowns();
+        zipLog();
     }
 
     private boolean setupEconomy() {
@@ -212,6 +205,47 @@ public final class AuctionHouse extends JavaPlugin {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public void zipLog() {
+        try {
+            DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDateTime now = LocalDateTime.now();
+            String formatted = String.format("%03d", 1);
+            String cName = dtf.format(now) + "-" + formatted;
+            String dateFile = dtf.format(now);
+            if (!(new File(getDataFolder() + File.separator + "logs/" + dateFile).isDirectory()))
+                new File(getDataFolder() + File.separator + "logs/" + dateFile).mkdir();
+            //Setting the number after the log date
+            if (new File(getDataFolder() + File.separator + "logs/" + dateFile + "/" + cName + ".zip").exists()) {
+                for (int i = 2; i <= 100; i++) {
+                    formatted = String.format("%03d", i);
+                    cName = dtf.format(now) + "-" + formatted;
+                    if (!(new File(getDataFolder() + File.separator + "logs/" + dateFile + "/" + cName + ".zip").exists())) {
+                        break;
+                    }
+                }
+            }
+
+            String sourceFile = "logs/log.txt";
+            FileOutputStream fos = new FileOutputStream(getDataFolder() + File.separator + "logs/" + dateFile + "/" + cName + ".zip");
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            File fileToZip = new File(getDataFolder() + File.separator + sourceFile);
+            FileInputStream fis = new FileInputStream(fileToZip);
+            ZipEntry zipEntry = new ZipEntry(fileToZip.getName());
+            zipOut.putNextEntry(zipEntry);
+            byte[] bytes = new byte[1024];
+            int length;
+            while ((length = fis.read(bytes)) >= 0) {
+                zipOut.write(bytes, 0, length);
+            }
+            zipOut.close();
+            fis.close();
+            fos.close();
+            if (fileToZip.delete()) AuctionHouse.getInstance().getLogger().log(Level.INFO, "Zipped log " + cName + ".");
+        } catch (IOException ex) {
+            chat.log("Error while zipping latest log.");
+        }
     }
 
 }

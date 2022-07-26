@@ -1,6 +1,7 @@
 package net.akarian.auctionhouse.utils;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 
 import java.util.ArrayList;
@@ -10,15 +11,22 @@ public class Configuration {
 
     private final FileManager fm;
     @Getter
-    private String prefix, databaseType, db_host, db_username, db_password, db_listings, db_expired, db_completed;
+    @Setter
+    private String prefix, db_database, db_host, db_username, db_password, db_listings, db_expired, db_completed;
     @Getter
-    private DatabaseType db_database;
+    @Setter
+    private String listingFee;
     @Getter
+    private DatabaseType databaseType;
+    @Getter
+    @Setter
     private boolean updates;
     @Getter
+    @Setter
     private double minListing, maxListing;
     @Getter
-    private int listingDelay, listingTime;
+    @Setter
+    private int listingDelay, listingTime, db_port;
     @Getter
     private AkarianConfiguration configFile;
 
@@ -34,7 +42,7 @@ public class Configuration {
         configFile = fm.getConfig("config");
         configFile.set("database", type.toString());
         fm.saveFile(configFile, "config");
-        AuctionHouse.getInstance().setDatabaseType(db_database = type);
+        AuctionHouse.getInstance().setDatabaseType(databaseType = type);
     }
 
     public void reloadConfig() {
@@ -48,6 +56,7 @@ public class Configuration {
         header.add("updates: Whether or not to enable updates.");
         header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
         header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
+        header.add("Listing Fee: For percentage of listing, use \"5%\". To take a flat rate, use \"$5\".");
         configFile.setHeader(header);
 
         /* Defaults */
@@ -61,7 +70,7 @@ public class Configuration {
             if (!configFile.contains("database")) {
                 configFile.set("database", "FILE");
             }
-            databaseType = configFile.getString("database");
+            databaseType = DatabaseType.getByStr(configFile.getString("database"));
 
             if (!configFile.contains("updates")) {
                 configFile.set("updates", true);
@@ -93,6 +102,11 @@ public class Configuration {
                 configFile.set("Listing Time", 86400);
             }
             listingTime = configFile.getInt("Listing Time");
+
+            if (!configFile.contains("Listing Fee")) {
+                configFile.set("Listing Fee", "0%");
+            }
+            listingFee = configFile.getString("Listing Fee");
         }
         /* MySQL */
         {
@@ -102,6 +116,11 @@ public class Configuration {
                     configFile.set("MySQL.Connection.Host", "localhost");
                 }
                 db_host = configFile.getString("MySQL.Connection.Host");
+
+                if (!configFile.contains("MySQL.Connection.Port")) {
+                    configFile.set("MySQL.Connection.Port", 3306);
+                }
+                db_port = configFile.getInt("MySQL.Connection.Port");
 
                 if (!configFile.contains("MySQL.Connection.Username")) {
                     configFile.set("MySQL.Connection.Username", "test");
@@ -116,7 +135,7 @@ public class Configuration {
                 if (!configFile.contains("MySQL.Connection.Database")) {
                     configFile.set("MySQL.Connection.Database", "database");
                 }
-                db_database = DatabaseType.getByStr(configFile.getString("MySQL.Connection.Database"));
+                db_database = configFile.getString("MySQL.Connection.Database");
             }
             /* Tables */
             {
@@ -157,6 +176,64 @@ public class Configuration {
         3 = configFile.getInt("1");
         */
         fm.saveFile(configFile, "config");
+    }
+
+    public void saveConfig() {
+        configFile = fm.getConfig("config");
+
+        List<String> header = new ArrayList<>();
+        header.add("Akarian Auction House v" + AuctionHouse.getInstance().getDescription().getVersion());
+        header.add(" ");
+        header.add("database: This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE");
+        header.add("updates: Whether or not to enable updates.");
+        header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
+        header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
+        header.add("Listing Fee: For percentage of listing, use \"5%\". To take a flat rate, use \"$5\".");
+        configFile.setHeader(header);
+
+        /* Defaults */
+        {
+            configFile.set("Prefix", prefix);
+            configFile.set("database", databaseType.toString());
+            configFile.set("updates", updates);
+            configFile.set("Minimum Listing", minListing);
+            configFile.set("Maximum Listing", maxListing);
+            configFile.set("Listing Delay", listingDelay);
+            configFile.set("Listing Time", listingTime);
+            configFile.set("Listing Fee", listingFee);
+        }
+        /* MySQL */
+        {
+            /* Connections */
+            {
+                configFile.set("MySQL.Connection.Host", db_host);
+                configFile.set("MySQL.Connection.Port", db_port);
+                configFile.set("MySQL.Connection.Username", db_username);
+                configFile.set("MySQL.Connection.Password", db_password);
+                configFile.set("MySQL.Connection.Database", db_database);
+            }
+            /* Tables */
+            {
+                configFile.set("MySQL.Tables.Listings", db_listings);
+                configFile.set("MySQL.Tables.Completed", db_completed);
+                configFile.set("MySQL.Tables.Expired", db_expired);
+            }
+        }
+        fm.saveFile(configFile, "config");
+        reloadConfig();
+    }
+
+    public double calculateListingFee(double price) {
+        if (listingFee.contains("%")) {
+            double percentage = Double.parseDouble(listingFee.split("%")[0]) / 100;
+
+            return price * percentage;
+        } else if (listingFee.contains("$")) {
+            return Double.parseDouble(listingFee.split("\\$")[1]);
+        } else {
+            AuctionHouse.getInstance().getChat().log("Tried to calculate a listing fee but was unable to find correct syntax. Please set to $0 for none.");
+            return 0;
+        }
     }
 
 }

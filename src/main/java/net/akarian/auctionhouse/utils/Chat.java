@@ -14,9 +14,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.DateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -164,6 +166,13 @@ public class Chat {
         return formatted;
     }
 
+    public String formatDate(Long val) {
+        Date date = new Date(val);
+        DateFormat formatter = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+
+        return formatter.format(date);
+    }
+
     /**
      * Send the Akarian No Permission Message to a user
      *
@@ -297,4 +306,5 @@ public class Chat {
             e.printStackTrace();
         }
     }
+
 }

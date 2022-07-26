@@ -68,7 +68,7 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 if (!clickType.isRightClick()) return;
                 chat.sendMessage(player, "&cYou have safely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&c.");
-                AuctionHouse.getInstance().getListingManager().safeRemove(listing);
+                AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing);
                 player.closeInventory();
                 break;
             case 16:

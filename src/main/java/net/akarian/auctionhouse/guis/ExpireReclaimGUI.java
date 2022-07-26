@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.guis;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -13,6 +14,7 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -27,7 +29,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
     private final int page;
     @Getter
     @Setter
-    private List<ItemStack> listings;
+    private List<Listing> listings;
     @Getter
     private Inventory inv;
     @Getter
@@ -39,6 +41,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         this.sortBool = sortBool;
         this.mainPage = mainPage;
         this.search = search;
+        this.listings = new ArrayList<>();
         this.page = page;
     }
 
@@ -61,7 +64,10 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
         //Is an Expired Listing
         if (slot >= 9 && slot <= 45) {
-            AuctionHouse.getInstance().getListingManager().removeExpire(AuctionHouse.getInstance().getListingManager().getIDofExpired(item), player, true);
+            Listing listing = AuctionHouse.getInstance().getListingManager().get(item);
+            AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true);
+
+
         }
 
     }
@@ -103,9 +109,8 @@ public class ExpireReclaimGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        List<ItemStack> newListings = AuctionHouse.getInstance().getListingManager().getExpired(player.getUniqueId(), false);
-
-        listings = newListings;
+        listings.clear();
+        listings.addAll(AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(player.getUniqueId()));
         viewable = 0;
 
         int end = page * 36;
@@ -121,7 +126,9 @@ public class ExpireReclaimGUI implements AkarianInventory {
             if (listings.size() == t || t >= end) {
                 break;
             }
-            inv.setItem(slot, listings.get(i));
+            Listing listing = listings.get(i);
+            listing.setupExpired(player);
+            inv.setItem(slot, listing.getDisplay());
             viewable++;
             slot++;
             t++;

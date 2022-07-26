@@ -13,7 +13,7 @@ public class Messages {
     @Getter
     private String createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, maxListings;
     @Getter
-    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad;
+    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredLore;
     @Getter
     private YamlConfiguration messagesFile;
 
@@ -303,6 +303,23 @@ public class Messages {
                     messagesFile.set("GUIs.AuctionHouse.Listing.Buyer Info", input);
                 }
                 selfInfoBuyer = messagesFile.getStringList("GUIs.AuctionHouse.Listing.Buyer Info");
+
+                if (!messagesFile.contains("GUIs.AuctionHouse.Expired.Description")) {
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------");
+                    lore.add("");
+                    lore.add("  &fStarted &8&m&l-&e %start%");
+                    lore.add("  &fExpired &8&m&l-&e %end%");
+                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("");
+                    lore.add("  &7Click to reclaim item.");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Expired.Description", lore);
+
+                }
+                expiredLore = messagesFile.getStringList("GUIs.AuctionHouse.Expired.Description");
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Seller Tag")) {
                     messagesFile.set("GUIs.AuctionHouse.Seller Tag", "seller");

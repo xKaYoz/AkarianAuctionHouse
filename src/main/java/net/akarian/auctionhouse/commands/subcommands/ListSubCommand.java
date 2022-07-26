@@ -58,7 +58,7 @@ public class ListSubCommand extends AkarianCommand {
             }
         });
 
-        if (!p.isOp() && maxListings.get() > 0 && AuctionHouse.getInstance().getListingManager().getListings(p.getUniqueId()).size() >= maxListings.get()) {
+        if (!p.isOp() && maxListings.get() > 0 && AuctionHouse.getInstance().getListingManager().getActive(p.getUniqueId()).size() >= maxListings.get()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaxListings().replace("%max%", maxListings.get() + ""));
             return;
         }
@@ -92,6 +92,11 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
+        if (AuctionHouse.getInstance().getEcon().getBalance(p) < AuctionHouse.getInstance().getConfigFile().calculateListingFee(price)) {
+            chat.sendMessage(p, "&cYou do not have enough money to cover the listing fee.");
+            return;
+        }
+
         if (price <= 0) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
             return;
@@ -99,10 +104,6 @@ public class ListSubCommand extends AkarianCommand {
 
         Listing l = AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
 
-        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
-                .replace("%item%", chat.formatItem(l.getItemStack())).replace("%price%", chat.formatMoney(l.getPrice())));
 
-        p.getInventory().remove(itemStack);
-        AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
     }
 }

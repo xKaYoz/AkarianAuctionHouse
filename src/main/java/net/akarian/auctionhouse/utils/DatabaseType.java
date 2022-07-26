@@ -1,7 +1,7 @@
 package net.akarian.auctionhouse.utils;
 
 public enum DatabaseType {
-    FILE("FILE"), MYSQL("MYSQL"), MYSQL2FILE("MYSQL2FILE"), FILE2MYSQL("FILE2MYSQL");
+    FILE("FILE"), MYSQL("MYSQL");
 
     private final String str;
 
