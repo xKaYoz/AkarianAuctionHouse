@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.0.0_PRE-1
+version: 1.0.0_PRE-2
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -7,6 +7,8 @@ author: Austin/KaYoz
 database: true
 depend:
   - Vault
+softdepend:
+  - Citizens
 commands:
   auctionhouse:
     description: Main AuctionHouse command.
@@ -14,6 +16,13 @@ commands:
       - ah
       - ahouse
       - auction
+  ahadmin:
+    description: AuctionHouse Admin command.
+    aliases:
+      - aha
+      - ahouseadmin
+      - auctionadmin
+      - auctionhouseadmin
 permissions:
   auctionhouse.help:
     description: AuctionHouse help command.

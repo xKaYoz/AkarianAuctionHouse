@@ -34,13 +34,13 @@ public class MainDatabaseGUI implements AkarianInventory {
                 if (type.isRightClick() && type.isShiftClick())
                     p.openInventory(new ConfirmDatabaseTransfer(p).getInventory());
                 break;
-            case 38:
-                //TODO Open active listings
+            case 29:
+                p.openInventory(new ActiveListingsGUI(1).getInventory());
                 break;
-            case 40:
+            case 31:
                 //TODO Open expired listings
                 break;
-            case 42:
+            case 33:
                 //TODO Open completed auctions
                 break;
         }

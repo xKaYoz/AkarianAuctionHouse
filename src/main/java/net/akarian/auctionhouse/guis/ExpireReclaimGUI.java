@@ -65,7 +65,15 @@ public class ExpireReclaimGUI implements AkarianInventory {
         //Is an Expired Listing
         if (slot >= 9 && slot <= 45) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(item);
-            AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true);
+            if (listing == null) return;
+            switch (AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true)) {
+                case -2:
+                    chat.sendMessage(player, "&cThat listing is already reclaimed!");
+                    break;
+                case -1:
+                    chat.sendMessage(player, "&cYou cannot hold that item.");
+                    break;
+            }
 
 
         }

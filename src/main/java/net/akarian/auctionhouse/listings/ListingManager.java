@@ -4,9 +4,10 @@ import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.UUIDDataType;
 import net.akarian.auctionhouse.guis.*;
-import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
+import net.akarian.auctionhouse.guis.admin.database.ActiveListingsGUI;
 import net.akarian.auctionhouse.guis.admin.database.DatabaseTransferStatusGUI;
+import net.akarian.auctionhouse.guis.admin.database.PlayerActiveListings;
 import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -468,7 +469,7 @@ public class ListingManager {
                         chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                                 .replace("%item%", chat.formatItem(listing[0].getItemStack())).replace("%price%", chat.formatMoney(listing[0].getPrice())));
 
-                        p.getInventory().remove(itemStack);
+                        p.getInventory().removeItem(itemStack);
                         AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
                     } catch (Exception e) {
@@ -495,7 +496,8 @@ public class ListingManager {
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                         .replace("%item%", chat.formatItem(listing1.getItemStack())).replace("%price%", chat.formatMoney(listing1.getPrice())));
 
-                p.getInventory().remove(itemStack);
+
+                p.getInventory().removeItem(itemStack);
                 AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
                 return listing1;
@@ -728,7 +730,7 @@ public class ListingManager {
      * Expire a listing
      *
      * @param listing - Listing set to expire.
-     * @return -2: MySQL Error -1: Not ready to expire 0: Through no change 1: Stored in Database
+     * @return -3: Already expired -2: MySQL Error -1: Not ready to expire 0: Through no change 1: Stored in Database
      */
     public int expire(Listing listing, boolean notify, boolean ignoreTime, String reason) {
 
@@ -736,6 +738,7 @@ public class ListingManager {
         long end = (listing.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
 
         if (!(now > end) && !ignoreTime) return -1;
+        if (listing.getEnd() != 0) return -3;
 
         Player creator = Bukkit.getPlayer(listing.getCreator());
 
@@ -795,7 +798,7 @@ public class ListingManager {
     }
 
     /**
-     * Load all listings
+     * Load all active listings
      */
     public void loadListings() {
         active.clear();
@@ -856,6 +859,9 @@ public class ListingManager {
         chat.log("Loaded " + num.get() + " active listings.");
     }
 
+    /**
+     * Load all expired listings
+     */
     public void loadExpired() {
         chat.log("Loading Expired listings...");
         switch (databaseType) {
@@ -939,6 +945,7 @@ public class ListingManager {
      */
     public int reclaimExpire(Listing listing, Player player, boolean returnItem) {
         AtomicInteger ret = new AtomicInteger(0);
+        if (listing.isReclaimed()) return -2;
         if (returnItem) {
             final ItemStack[] itemStack = {null};
             switch (databaseType) {
@@ -1091,61 +1098,70 @@ public class ListingManager {
                     gui.updateInventory();
                     p.updateInventory();
                 }
-            } else //Expired Reclaim GUI
-                if (inv instanceof ExpireReclaimGUI) {
-                    ExpireReclaimGUI gui = (ExpireReclaimGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
+            }
+            //Expired Reclaim GUI
+            else if (inv instanceof ExpireReclaimGUI) {
+                ExpireReclaimGUI gui = (ExpireReclaimGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
-                //Listing Edit GUI
-                else if (inv instanceof ListingEditGUI) {
-                    ListingEditGUI gui = (ListingEditGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
+            }
+            //Listing Edit GUI
+            else if (inv instanceof ListingEditGUI) {
+                ListingEditGUI gui = (ListingEditGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
-                //Shulker View GUI
-                else if (inv instanceof ShulkerViewGUI) {
-                    ShulkerViewGUI gui = (ShulkerViewGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
+            }
+            //Shulker View GUI
+            else if (inv instanceof ShulkerViewGUI) {
+                ShulkerViewGUI gui = (ShulkerViewGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
-                //Confirm Buy GUI
-                else if (inv instanceof ConfirmBuyGUI) {
-                    ConfirmBuyGUI gui = (ConfirmBuyGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
+            }
+            //Confirm Buy GUI
+            else if (inv instanceof ConfirmBuyGUI) {
+                ConfirmBuyGUI gui = (ConfirmBuyGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
-                //Auction House Admin GUI
-                else if (inv instanceof AuctionHouseAdminGUI) {
-                    AuctionHouseAdminGUI gui = (AuctionHouseAdminGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
-
+            }
+            //Listing Edit Admin GUI
+            else if (inv instanceof ListingEditAdminGUI) {
+                ListingEditAdminGUI gui = (ListingEditAdminGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
-                //Listing Edit Admin GUI
-                else if (inv instanceof ListingEditAdminGUI) {
-                    ListingEditAdminGUI gui = (ListingEditAdminGUI) inv;
-                    Player p = Bukkit.getPlayer(UUID.fromString(str));
-                    if (p != null) {
-                        gui.updateInventory();
-                        p.updateInventory();
-                    }
+            }
+            //Player Active Listings
+            else if (inv instanceof PlayerActiveListings) {
+                PlayerActiveListings gui = (PlayerActiveListings) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
                 }
+            }
+            //Active Listings
+            else if (inv instanceof ActiveListingsGUI) {
+                ActiveListingsGUI gui = (ActiveListingsGUI) inv;
+                Player p = Bukkit.getPlayer(UUID.fromString(str));
+                if (p != null) {
+                    gui.updateInventory();
+                    p.updateInventory();
+                }
+            }
         }
     }
 

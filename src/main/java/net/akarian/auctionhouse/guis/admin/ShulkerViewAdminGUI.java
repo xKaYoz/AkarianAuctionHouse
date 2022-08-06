@@ -1,7 +1,9 @@
 package net.akarian.auctionhouse.guis.admin;
 
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.SortType;
+import net.akarian.auctionhouse.guis.admin.database.PlayerActiveListings;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -16,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BlockStateMeta;
 
 import java.util.Collections;
+import java.util.UUID;
 
 public class ShulkerViewAdminGUI implements AkarianInventory {
 
@@ -25,6 +28,8 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
     private final SortType sortType;
     private final boolean sortBool;
     private final String search;
+    private final boolean activeListings;
+    private UUID player;
 
     public ShulkerViewAdminGUI(Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
         this.listing = listing;
@@ -32,13 +37,27 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
         this.sortBool = sortBool;
         this.mainPage = mainPage;
         this.search = search;
+        this.activeListings = false;
+    }
+
+    public ShulkerViewAdminGUI(Listing listing, UUID player, int mainPage) {
+        this.listing = listing;
+        this.sortType = null;
+        this.sortBool = false;
+        this.mainPage = mainPage;
+        this.search = null;
+        this.player = player;
+        this.activeListings = true;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         if (slot == 8) {
-            player.openInventory(new AuctionHouseAdminGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+            if (activeListings) player.openInventory(new PlayerActiveListings(this.player, mainPage).getInventory());
+                //TODO Make so opens with Admin mode on
+            else
+                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
         } else {
             return;
         }

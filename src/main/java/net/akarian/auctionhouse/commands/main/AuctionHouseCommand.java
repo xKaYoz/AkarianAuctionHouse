@@ -1,4 +1,4 @@
-package net.akarian.auctionhouse.commands;
+package net.akarian.auctionhouse.commands.main;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;

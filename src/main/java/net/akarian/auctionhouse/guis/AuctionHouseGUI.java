@@ -92,6 +92,9 @@ public class AuctionHouseGUI implements AkarianInventory {
                     player.openInventory(new ListingEditGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
                 } else if (clickType.isRightClick() && clickType.isShiftClick()) {
                     switch (AuctionHouse.getInstance().getListingManager().expire(listing, false, true, player.getUniqueId().toString())) {
+                        case -3:
+                            chat.sendMessage(player, "&eThat item is already expired.");
+                            break;
                         case -1:
                             chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
                             break;

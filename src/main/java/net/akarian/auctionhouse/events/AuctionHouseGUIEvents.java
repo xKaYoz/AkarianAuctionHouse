@@ -3,7 +3,6 @@ package net.akarian.auctionhouse.events;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.ListingEditGUI;
-import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
 import net.akarian.auctionhouse.guis.admin.database.ConfirmDatabaseTransfer;
 import net.akarian.auctionhouse.listings.Listing;
@@ -41,14 +40,6 @@ public class AuctionHouseGUIEvents implements Listener {
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(AuctionHouseGUI.getSearchMap().get(p.getUniqueId()).search(input).getInventory());
                 AuctionHouseGUI.getSearchMap().remove(p.getUniqueId());
-            });
-        }
-        //Auction House Admin GUI Search
-        else if (AuctionHouseAdminGUI.getSearchMap().containsKey(p.getUniqueId())) {
-            e.setCancelled(true);
-            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
-                p.openInventory(AuctionHouseAdminGUI.getSearchMap().get(p.getUniqueId()).search(input).getInventory());
-                AuctionHouseAdminGUI.getSearchMap().remove(p.getUniqueId());
             });
         }
         //Listing Edit Price
@@ -242,13 +233,6 @@ public class AuctionHouseGUIEvents implements Listener {
 
             p.openInventory(AuctionHouseGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
             AuctionHouseGUI.getSearchMap().remove(p.getUniqueId());
-        }
-        //Auction House Admin GUI Search
-        if (AuctionHouseAdminGUI.getSearchMap().containsKey(p.getUniqueId())) {
-            e.setCancelled(true);
-
-            p.openInventory(AuctionHouseAdminGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
-            AuctionHouseAdminGUI.getSearchMap().remove(p.getUniqueId());
         }
         //Listing Edit Price
         else if (ListingEditGUI.getPriceMap().containsKey(p.getUniqueId())) {

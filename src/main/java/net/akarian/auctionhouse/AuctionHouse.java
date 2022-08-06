@@ -2,8 +2,10 @@ package net.akarian.auctionhouse;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.akarian.auctionhouse.commands.AuctionHouseCommand;
-import net.akarian.auctionhouse.commands.CommandManager;
+import net.akarian.auctionhouse.commands.admin.AHAdminCommand;
+import net.akarian.auctionhouse.commands.admin.AdminCommandManager;
+import net.akarian.auctionhouse.commands.main.AuctionHouseCommand;
+import net.akarian.auctionhouse.commands.main.CommandManager;
 import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
 import net.akarian.auctionhouse.events.ExpireJoinEvent;
@@ -54,6 +56,7 @@ public final class AuctionHouse extends JavaPlugin {
     @Getter
     private UpdateManager updateManager;
     @Getter
+    @Setter
     private boolean update;
     @Getter
     private Messages messages;
@@ -130,7 +133,10 @@ public final class AuctionHouse extends JavaPlugin {
 
     private void registerCommands() {
         new CommandManager();
+        new AdminCommandManager();
         this.getCommand("auctionhouse").setExecutor(new AuctionHouseCommand());
+        this.getCommand("ahadmin").setExecutor(new AHAdminCommand());
+
     }
 
     private void registerEvents() {
