@@ -468,7 +468,7 @@ public class ListingManager {
                         chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                                 .replace("%item%", chat.formatItem(listing[0].getItemStack())).replace("%price%", chat.formatMoney(listing[0].getPrice())));
 
-                        p.getInventory().remove(itemStack);
+                        p.getInventory().removeItem(itemStack);
                         AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
                     } catch (Exception e) {
@@ -495,7 +495,7 @@ public class ListingManager {
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                         .replace("%item%", chat.formatItem(listing1.getItemStack())).replace("%price%", chat.formatMoney(listing1.getPrice())));
 
-                p.getInventory().remove(itemStack);
+                p.getInventory().removeItem(itemStack);
                 AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
                 return listing1;
