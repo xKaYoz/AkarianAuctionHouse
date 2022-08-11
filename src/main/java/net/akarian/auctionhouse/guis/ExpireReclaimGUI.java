@@ -35,6 +35,16 @@ public class ExpireReclaimGUI implements AkarianInventory {
     @Getter
     private int viewable;
 
+    /**
+     * Reclaim expired listings
+     *
+     * @param player   Player reclaiming listings
+     * @param sortType Main page sort type
+     * @param sortBool Main page sort Greater than or less than
+     * @param mainPage Main page's page number
+     * @param search   Main page search query
+     * @param page     Page number
+     */
     public ExpireReclaimGUI(Player player, SortType sortType, boolean sortBool, int mainPage, String search, int page) {
         this.player = player;
         this.sortType = sortType;

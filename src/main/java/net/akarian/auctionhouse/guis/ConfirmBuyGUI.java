@@ -26,6 +26,16 @@ public class ConfirmBuyGUI implements AkarianInventory {
     @Getter
     private Inventory inv;
 
+    /**
+     * Confirm you want to buy the listing
+     *
+     * @param player   Player buying the listing
+     * @param listing  Listing item
+     * @param sortType Main page sort type
+     * @param sortBool Main page Greater than or Less than
+     * @param mainPage Main page's page number
+     * @param search   Main page search query
+     */
     public ConfirmBuyGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
         this.player = player;
         this.listing = listing;

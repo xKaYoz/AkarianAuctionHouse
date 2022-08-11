@@ -2,6 +2,8 @@ package net.akarian.auctionhouse.guis.admin;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
+import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.database.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
@@ -43,6 +45,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 }
                 return;
             case 23:
+                player.openInventory(new AuctionHouseGUI(player, SortType.TIME_LEFT, true, 1).adminMode().getInventory());
                 return;
             case 25:
                 if (clickType.isRightClick() && clickType.isShiftClick()) {
@@ -72,7 +75,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
         inv.setItem(19, ItemBuilder.build(Material.WRITABLE_BOOK, 1, "&6Messages", Collections.singletonList("&7Click to edit the plugin's messages file.")));
         inv.setItem(21, ItemBuilder.build(Material.BOOKSHELF, 1, "&6Database", Collections.singletonList("&7Click to manage and view the plugin's database.")));
-        inv.setItem(23, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Manage Auction Hosue", Collections.singletonList("&7Click to open the Auction House in Admin Mode.")));
+        inv.setItem(23, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Manage Auction House", Collections.singletonList("&7Click to open the Auction House in Admin Mode.")));
         inv.setItem(25, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4Reload Plugin Files", Collections.singletonList("&7Shift + Right Click to reload plugin files.")));
         inv.setItem(31, ItemBuilder.build(Material.PLAYER_HEAD, 1, "&6Manage NPCs", Collections.singletonList("&7Click to manage all AuctionHouse NPCs.")));
 

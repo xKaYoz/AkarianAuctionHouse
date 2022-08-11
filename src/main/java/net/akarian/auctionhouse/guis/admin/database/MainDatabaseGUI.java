@@ -35,7 +35,7 @@ public class MainDatabaseGUI implements AkarianInventory {
                     p.openInventory(new ConfirmDatabaseTransfer(p).getInventory());
                 break;
             case 29:
-                p.openInventory(new ActiveListingsGUI(1).getInventory());
+                p.openInventory(new ActiveListingsGUI(player, 1).getInventory());
                 break;
             case 31:
                 //TODO Open expired listings

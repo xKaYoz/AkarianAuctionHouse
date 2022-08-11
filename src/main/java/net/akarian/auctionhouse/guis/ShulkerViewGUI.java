@@ -29,6 +29,16 @@ public class ShulkerViewGUI implements AkarianInventory {
     @Getter
     private Inventory inv;
 
+    /**
+     * View shulker box listing
+     *
+     * @param player   Player viewing listing
+     * @param listing  Listing viewing
+     * @param sortType Main page search type
+     * @param sortBool Main page Greater than or Less than
+     * @param mainPage Main page's page number
+     * @param search   Main page search query
+     */
     public ShulkerViewGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
         this.player = player;
         this.listing = listing;

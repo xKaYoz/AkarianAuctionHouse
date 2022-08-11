@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.0.0_PRE-2
+version: 1.0.0_PRE-3
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -9,6 +9,7 @@ depend:
   - Vault
 softdepend:
   - Citizens
+  - PlaceholderAPI
 commands:
   auctionhouse:
     description: Main AuctionHouse command.

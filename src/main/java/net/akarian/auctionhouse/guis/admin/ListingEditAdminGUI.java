@@ -30,14 +30,14 @@ public class ListingEditAdminGUI implements AkarianInventory {
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final int mainPage;
     private final SortType sortType;
-    private final UUID player;
+    private final Player player;
     private final boolean sortBool;
     @Getter
     private final Listing listing;
     private final String search;
     @Getter
     private Inventory inv;
-    private final boolean activeListings;
+    private final UUID activeListings;
 
     /**
      * Edit Listing in AuctionHouseAdminGUI
@@ -55,35 +55,35 @@ public class ListingEditAdminGUI implements AkarianInventory {
         this.sortBool = sortBool;
         this.mainPage = mainPage;
         this.search = search;
-        this.activeListings = false;
+        this.activeListings = null;
     }
 
     /**
      * Edit listing in PlayerActiveListings
      *
      * @param listing Listing to edit
-     * @param player  UUID of player who's listing is edited
+     * @param player  Admin player
+     * @param uuid    UUID of player whose listings are being viewed
      * @param page    Main page number
      */
-    public ListingEditAdminGUI(Listing listing, UUID player, int page) {
+    public ListingEditAdminGUI(Listing listing, Player player, UUID uuid, int page) {
         this.listing = listing;
         this.player = player;
+        this.mainPage = page;
+        this.activeListings = uuid;
         this.sortType = null;
         this.sortBool = false;
-        this.mainPage = page;
         this.search = null;
-        this.activeListings = true;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
         switch (slot) {
             case 8:
-                if (activeListings)
-                    player.openInventory(new PlayerActiveListings(this.player, mainPage).getInventory());
-                    //TODO Make so opens with Admin mode on
+                if (activeListings != null)
+                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
                 else
-                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).adminMode().getInventory());
                 break;
             case 10:
                 chat.sendMessage(player, "&eLeft click to cancel");
@@ -96,8 +96,8 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&4You have unsafely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&4.");
                 AuctionHouse.getInstance().getListingManager().remove(listing);
-                if (activeListings)
-                    player.openInventory(new PlayerActiveListings(this.player, mainPage).getInventory());
+                if (activeListings != null)
+                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
                 else player.closeInventory();
                 break;
             case 14:
@@ -105,8 +105,8 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&cYou have safely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&c.");
                 AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing);
-                if (activeListings)
-                    player.openInventory(new PlayerActiveListings(this.player, mainPage).getInventory());
+                if (activeListings != null)
+                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
                 else player.closeInventory();
                 break;
             case 16:
@@ -150,12 +150,14 @@ public class ListingEditAdminGUI implements AkarianInventory {
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
-        inv.setItem(22, listing.createAdminListing());
+        listing.setupAdminListing(player);
+        inv.setItem(22, listing.getDisplay());
         return inv;
     }
 
     public void updateInventory() {
-        inv.setItem(22, listing.createAdminListing());
+        listing.setupAdminListing(player);
+        inv.setItem(22, listing.getDisplay());
     }
 
 }

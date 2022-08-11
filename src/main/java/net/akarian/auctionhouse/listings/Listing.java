@@ -107,6 +107,54 @@ public class Listing {
         return itemStack;
     }
 
+    public void setupAdminListing(Player p) {
+        setDisplay(itemStack.clone());
+
+        List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+
+        if (itemStack.getType() == Material.SHULKER_BOX) {
+            tlore = new ArrayList<>();
+        }
+
+        assert tlore != null;
+
+        long seconds = ((getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) - System.currentTimeMillis()) / 1000;
+
+        NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
+
+        for (String s : AuctionHouse.getInstance().getMessages().getGui_aha_listing()) {
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                        }
+                    }
+                }
+            } else {
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
+                        .replace("%price%", chat.formatMoney(price)));
+            }
+        }
+
+        itemMeta.setLore(chat.formatList(tlore
+        ));
+        itemMeta.setDisplayName(chat.formatItem(display));
+
+        display.setItemMeta(itemMeta);
+    }
+
     public void setupExpired(Player p) {
         setDisplay(itemStack.clone());
 
@@ -190,7 +238,6 @@ public class Listing {
         itemMeta.setDisplayName(chat.formatItem(display));
 
         display.setItemMeta(itemMeta);
-
     }
 
 }
