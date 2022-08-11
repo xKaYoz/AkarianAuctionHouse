@@ -2,6 +2,7 @@ package net.akarian.auctionhouse.utils;
 
 import lombok.Getter;
 import lombok.Setter;
+import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -212,7 +213,7 @@ public class Chat {
      * @param str - Message to send
      */
     public void sendMessage(CommandSender sender, String str) {
-        sender.sendMessage(format(prefix + " &8» &7" + str));
+        sender.sendMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7" + str));
     }
 
     /** Broadcast a formatted message to all players
@@ -228,7 +229,7 @@ public class Chat {
      * @param str - Message to send
      */
     public void broadcastMessage(String str) {
-        Bukkit.broadcastMessage(format(prefix + " &8» &7" + str));
+        Bukkit.broadcastMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7" + str));
     }
 
     /** Get the String of the given Component

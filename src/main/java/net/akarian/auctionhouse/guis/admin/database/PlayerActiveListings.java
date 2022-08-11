@@ -26,10 +26,17 @@ public class PlayerActiveListings implements AkarianInventory {
     private final Chat chat;
     private Inventory inv;
     private List<Listing> listings;
+    private final Player player;
 
-    public PlayerActiveListings(UUID uuid, int page) {
-        this.page = page;
+    /**
+     * @param player Player viewing active listings
+     * @param uuid   UUID of player viewing
+     * @param page   page number
+     */
+    public PlayerActiveListings(Player player, UUID uuid, int page) {
+        this.player = player;
         this.uuid = uuid;
+        this.page = page;
         this.chat = AuctionHouse.getInstance().getChat();
         this.listings = new ArrayList<>();
     }
@@ -39,10 +46,10 @@ public class PlayerActiveListings implements AkarianInventory {
 
         switch (slot) {
             case 45:
-                p.openInventory(new PlayerActiveListings(uuid, page - 1).getInventory());
+                p.openInventory(new PlayerActiveListings(player, uuid, page - 1).getInventory());
                 return;
             case 53:
-                p.openInventory(new PlayerActiveListings(uuid, page + 1).getInventory());
+                p.openInventory(new PlayerActiveListings(player, uuid, page + 1).getInventory());
                 return;
         }
 
@@ -55,11 +62,11 @@ public class PlayerActiveListings implements AkarianInventory {
             if (type.isLeftClick()) {
                 if (type.isShiftClick()) {
                     if (item.getType() == Material.SHULKER_BOX) {
-                        p.openInventory(new ShulkerViewAdminGUI(listing, uuid, page).getInventory());
+                        p.openInventory(new ShulkerViewAdminGUI(listing, player, uuid, page).getInventory());
                         return;
                     }
                 }
-                p.openInventory(new ListingEditAdminGUI(listing, uuid, page).getInventory());
+                p.openInventory(new ListingEditAdminGUI(listing, player, uuid, page).getInventory());
             } else {
                 switch (AuctionHouse.getInstance().getListingManager().safeRemove(p.getUniqueId().toString(), listing)) {
                     case -1:

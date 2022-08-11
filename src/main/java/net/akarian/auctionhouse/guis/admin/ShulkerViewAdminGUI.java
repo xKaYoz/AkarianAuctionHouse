@@ -28,36 +28,53 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
     private final SortType sortType;
     private final boolean sortBool;
     private final String search;
-    private final boolean activeListings;
-    private UUID player;
+    private final UUID activeListings;
+    private Player player;
 
+    /**
+     * Shulker view admin GUI
+     *
+     * @param listing  Listing viewing
+     * @param sortType Main page's sort type
+     * @param sortBool Main page's Greater than or less than
+     * @param mainPage Main page's page number
+     * @param search   Main page's search query
+     */
     public ShulkerViewAdminGUI(Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
         this.listing = listing;
         this.sortType = sortType;
         this.sortBool = sortBool;
         this.mainPage = mainPage;
         this.search = search;
-        this.activeListings = false;
+        this.activeListings = null;
     }
 
-    public ShulkerViewAdminGUI(Listing listing, UUID player, int mainPage) {
+    /**
+     * Shulker view admin GUI from Player Active Listings
+     *
+     * @param listing        Listing viewing
+     * @param player         Player viewing listing
+     * @param activeListings UUID of player whose active listings are being viewed
+     * @param mainPage       Main page's page number
+     */
+    public ShulkerViewAdminGUI(Listing listing, Player player, UUID activeListings, int mainPage) {
         this.listing = listing;
         this.sortType = null;
         this.sortBool = false;
         this.mainPage = mainPage;
         this.search = null;
         this.player = player;
-        this.activeListings = true;
+        this.activeListings = activeListings;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         if (slot == 8) {
-            if (activeListings) player.openInventory(new PlayerActiveListings(this.player, mainPage).getInventory());
-                //TODO Make so opens with Admin mode on
+            if (activeListings != null)
+                player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
             else
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).adminMode().getInventory());
         } else {
             return;
         }

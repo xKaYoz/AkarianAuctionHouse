@@ -24,12 +24,14 @@ import java.util.UUID;
 
 public class ActiveListingsGUI implements AkarianInventory {
 
-    Inventory inv;
-    Chat chat;
-    int page;
-    List<UUID> users;
+    private final Chat chat;
+    private final int page;
+    private final Player player;
+    private Inventory inv;
+    private List<UUID> users;
 
-    public ActiveListingsGUI(int page) {
+    public ActiveListingsGUI(Player player, int page) {
+        this.player = player;
         this.page = page;
         this.chat = AuctionHouse.getInstance().getChat();
         this.users = new ArrayList<>();
@@ -40,10 +42,10 @@ public class ActiveListingsGUI implements AkarianInventory {
 
         switch (slot) {
             case 45:
-                p.openInventory(new ActiveListingsGUI(page - 1).getInventory());
+                p.openInventory(new ActiveListingsGUI(player, page - 1).getInventory());
                 return;
             case 53:
-                p.openInventory(new ActiveListingsGUI(page + 1).getInventory());
+                p.openInventory(new ActiveListingsGUI(player, page + 1).getInventory());
                 return;
         }
 
@@ -56,7 +58,7 @@ public class ActiveListingsGUI implements AkarianInventory {
             PersistentDataContainer container = itemMeta.getPersistentDataContainer();
 
             if (container.has(key, new UUIDDataType())) {
-                p.openInventory(new PlayerActiveListings(container.get(key, new UUIDDataType()), 1).getInventory());
+                p.openInventory(new PlayerActiveListings(player, container.get(key, new UUIDDataType()), 1).getInventory());
             }
         }
 

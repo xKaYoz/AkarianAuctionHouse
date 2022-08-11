@@ -34,6 +34,16 @@ public class ListingEditGUI implements AkarianInventory {
     @Getter
     private Inventory inv;
 
+    /**
+     * Edit listing GUI
+     *
+     * @param player   Player editing listing
+     * @param listing  Listing to edit
+     * @param sortType Main page sort type
+     * @param sortBool Main page Greater than or less than
+     * @param mainPage Main page's page number
+     * @param search   Main page search query
+     */
     public ListingEditGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
         this.listing = listing;
         this.player = player;

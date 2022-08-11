@@ -22,6 +22,14 @@ public class SortGUI implements AkarianInventory {
     private boolean sortBool;
     private final String search;
 
+    /**
+     * Select how to sort the Auction House
+     *
+     * @param sortType Main page sort type
+     * @param sortBool Main page Greater than or Less than
+     * @param mainPage Main page's page number
+     * @param search   Main page's search query
+     */
     public SortGUI(SortType sortType, boolean sortBool, int mainPage, String search) {
         this.sortType = sortType;
         this.sortBool = sortBool;

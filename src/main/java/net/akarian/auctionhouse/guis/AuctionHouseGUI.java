@@ -2,6 +2,7 @@ package net.akarian.auctionhouse.guis;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.comparators.*;
 import net.akarian.auctionhouse.listings.Listing;
@@ -41,14 +42,36 @@ public class AuctionHouseGUI implements AkarianInventory {
     private Inventory inv;
     @Getter
     private int viewable;
+    @Getter
+    private boolean adminMode;
 
+    /**
+     * Auction House GUI
+     *
+     * @param player   Admin Player
+     * @param sortType SortType to sort by
+     * @param sortBool Greater than or Less than
+     * @param page     Auction House page
+     */
     public AuctionHouseGUI(Player player, SortType sortType, boolean sortBool, int page) {
         this.player = player;
         this.sortType = sortType;
         this.sortBool = sortBool;
         this.page = page;
+        this.adminMode = false;
     }
 
+    public AuctionHouseGUI adminMode() {
+        this.adminMode = true;
+        return this;
+    }
+
+    /**
+     * Search the Auction House
+     *
+     * @param search Search query
+     * @return instance of this class with the search query
+     */
     public AuctionHouseGUI search(String search) {
         this.search = !search.equals("");
         this.searchStr = search;
@@ -60,6 +83,15 @@ public class AuctionHouseGUI implements AkarianInventory {
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         switch (slot) {
+            case 1:
+                if (itemStack.getType() == Material.GRAY_DYE && player.hasPermission("auctionhouseadmin.manage")) {
+                    inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+                    adminMode = true;
+                } else if (itemStack.getType() == Material.LIME_DYE && player.hasPermission("auctionhouseadmin.manage")) {
+                    inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
+                    adminMode = false;
+                }
+                return;
             case 8:
                 player.closeInventory();
                 return;
@@ -86,6 +118,11 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Is a Listing
         if (slot >= 8 && slot <= 45) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(itemStack);
+
+            if (adminMode) {
+                //TODO ADmin stuff
+                return;
+            }
 
             if (listing.getCreator().toString().equals(player.getUniqueId().toString())) {
                 if (clickType.isLeftClick()) {
@@ -122,6 +159,9 @@ public class AuctionHouseGUI implements AkarianInventory {
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
+        //Admin Button
+        if (player.hasPermission("auctionhouseadmin.manage"))
+            inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
         //Close Button
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
 
@@ -152,7 +192,10 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Info Item
         List<String> infoDesc = new ArrayList<>();
         for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))));
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s));
+            else
+                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))));
         }
         inv.setItem(48, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
 
@@ -236,7 +279,10 @@ public class AuctionHouseGUI implements AkarianInventory {
                 break;
             }
             Listing listing = listings.get(i);
-            listing.setupActive(player);
+            if (adminMode)
+                listing.setupAdminListing(player);
+            else
+                listing.setupActive(player);
             inv.setItem(slot, listing.getDisplay());
             viewable++;
             slot++;

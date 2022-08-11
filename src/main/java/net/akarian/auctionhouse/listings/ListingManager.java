@@ -968,7 +968,7 @@ public class ListingManager {
                                         ret.set(-1);
                                     } else {
                                         InventoryHandler.addItem(player, itemStack[0]);
-                                        chat.sendMessage(player, "&fYou have reclaimed your listing of &e" + chat.formatItem(listing.getItemStack()) + "&f.");
+                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
                                     }
                                 }
                             }
