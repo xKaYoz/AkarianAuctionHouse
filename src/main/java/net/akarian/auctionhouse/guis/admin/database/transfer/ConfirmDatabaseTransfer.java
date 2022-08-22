@@ -1,7 +1,8 @@
-package net.akarian.auctionhouse.guis.admin.database;
+package net.akarian.auctionhouse.guis.admin.database.transfer;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;

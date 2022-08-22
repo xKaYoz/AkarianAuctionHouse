@@ -121,6 +121,10 @@ public final class AuctionHouse extends JavaPlugin {
         registerCommands();
         registerEvents();
 
+        if (getServer().getPluginManager().getPlugin("Citizens") != null && getServer().getPluginManager().getPlugin("Citizens").isEnabled()) {
+            net.citizensnpcs.api.CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(AuctionHouseTrait.class));
+        }
+
         int pluginId = 15488;
         Metrics metrics = new Metrics(this, pluginId);
 
@@ -135,7 +139,10 @@ public final class AuctionHouse extends JavaPlugin {
         new CommandManager();
         new AdminCommandManager();
         this.getCommand("auctionhouse").setExecutor(new AuctionHouseCommand());
+        this.getCommand("auctionhouse").setTabCompleter(new AuctionHouseCommand());
         this.getCommand("ahadmin").setExecutor(new AHAdminCommand());
+        this.getCommand("ahadmin").setTabCompleter(new AHAdminCommand());
+
 
     }
 

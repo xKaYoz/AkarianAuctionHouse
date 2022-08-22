@@ -2,6 +2,10 @@ package net.akarian.auctionhouse.guis.admin.database;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.database.active.ActiveListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.completed.CompletedListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.expired.ExpiredListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.transfer.ConfirmDatabaseTransfer;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -38,10 +42,10 @@ public class MainDatabaseGUI implements AkarianInventory {
                 p.openInventory(new ActiveListingsGUI(player, 1).getInventory());
                 break;
             case 31:
-                //TODO Open expired listings
+                p.openInventory(new ExpiredListingsGUI(player, 1).getInventory());
                 break;
             case 33:
-                //TODO Open completed auctions
+                p.openInventory(new CompletedListingsGUI(player, 1).getInventory());
                 break;
         }
 

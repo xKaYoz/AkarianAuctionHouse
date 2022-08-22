@@ -17,24 +17,28 @@ import java.util.List;
 public class SortGUI implements AkarianInventory {
 
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final int mainPage;
     private SortType sortType;
     private boolean sortBool;
-    private final String search;
 
-    /**
+    private final AuctionHouseGUI auctionHouseGUI;
+
+    /*
      * Select how to sort the Auction House
      *
      * @param sortType Main page sort type
      * @param sortBool Main page Greater than or Less than
      * @param mainPage Main page's page number
      * @param search   Main page's search query
-     */
+     *
     public SortGUI(SortType sortType, boolean sortBool, int mainPage, String search) {
         this.sortType = sortType;
         this.sortBool = sortBool;
         this.mainPage = mainPage;
         this.search = search;
+    } */
+
+    public SortGUI(AuctionHouseGUI auctionHouseGUI) {
+        this.auctionHouseGUI = auctionHouseGUI;
     }
 
     @Override
@@ -42,7 +46,7 @@ public class SortGUI implements AkarianInventory {
 
         switch (slot) {
             case 8:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 10:
                 if (sortType == SortType.OVERALL_PRICE) {

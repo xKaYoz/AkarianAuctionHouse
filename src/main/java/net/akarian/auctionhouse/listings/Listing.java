@@ -2,9 +2,11 @@ package net.akarian.auctionhouse.listings;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.UUIDDataType;
 import net.akarian.auctionhouse.utils.Chat;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.ShulkerBox;
@@ -32,9 +34,6 @@ public class Listing {
     private ItemStack itemStack;
     @Getter
     @Setter
-    private ItemStack display;
-    @Getter
-    @Setter
     private double price;
     @Getter
     @Setter
@@ -60,7 +59,7 @@ public class Listing {
         this.reclaimed = false;
     }
 
-    public ItemStack createAdminListing() {
+    public ItemStack createAdminActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -107,9 +106,8 @@ public class Listing {
         return itemStack;
     }
 
-    public void setupAdminListing(Player p) {
-        setDisplay(itemStack.clone());
-
+    public ItemStack createAdminCompleteListing(Player player) {
+        ItemStack itemStack = getItemStack().clone();
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
@@ -125,7 +123,7 @@ public class Listing {
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
 
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_aha_listing()) {
+        for (String s : AuctionHouse.getInstance().getMessages().getCompletedAdminLore()) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -143,20 +141,24 @@ public class Listing {
                     }
                 }
             } else {
-                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
-                        .replace("%price%", chat.formatMoney(price)));
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                    tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price))));
+                else
+                    tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
             }
         }
-
         itemMeta.setLore(chat.formatList(tlore
         ));
-        itemMeta.setDisplayName(chat.formatItem(display));
+        itemMeta.setDisplayName(chat.formatItem(itemStack));
 
-        display.setItemMeta(itemMeta);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 
-    public void setupExpired(Player p) {
-        setDisplay(itemStack.clone());
+    public ItemStack createExpiredListing(Player player) {
+        ItemStack itemStack = getItemStack().clone();
 
         List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -169,26 +171,60 @@ public class Listing {
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();
 
+        assert itemMeta != null;
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        //Stuff
-
         for (String s : AuctionHouse.getInstance().getMessages().getExpiredLore()) {
-
-            lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                    .replace("%price%", chat.formatMoney(price)));
-
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                        .replace("%price%", chat.formatMoney(price))));
+            else
+                lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                        .replace("%price%", chat.formatMoney(price)));
         }
 
         itemMeta.setLore(chat.formatList(lore));
-        itemMeta.setDisplayName(chat.formatItem(display));
+        itemMeta.setDisplayName(chat.formatItem(itemStack));
 
-        display.setItemMeta(itemMeta);
-
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 
-    public void setupActive(Player p) {
-        setDisplay(itemStack.clone());
+    public ItemStack createAdminExpiredListing(Player player) {
+        ItemStack itemStack = getItemStack().clone();
+
+        List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+
+        if (itemStack.getType() == Material.SHULKER_BOX) {
+            lore = new ArrayList<>();
+        }
+
+        assert lore != null;
+
+        NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        assert itemMeta != null;
+        itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
+
+        for (String s : AuctionHouse.getInstance().getMessages().getExpiredAdminLore()) {
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                        .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
+            else
+                lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                        .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
+        }
+
+        itemMeta.setLore(chat.formatList(lore));
+        itemMeta.setDisplayName(chat.formatItem(itemStack));
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public ItemStack createActiveListing(Player player) {
+        ItemStack itemStack = getItemStack().clone();
 
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -223,7 +259,7 @@ public class Listing {
                     }
                 }
             } else if (s.equalsIgnoreCase("%self_info%")) {
-                if (getCreator().toString().equals(p.getUniqueId().toString())) {
+                if (getCreator().toString().equals(player.getUniqueId().toString())) {
                     tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoCreator());
                 } else
                     tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
@@ -235,9 +271,10 @@ public class Listing {
 
         itemMeta.setLore(chat.formatList(tlore
         ));
-        itemMeta.setDisplayName(chat.formatItem(display));
+        itemMeta.setDisplayName(chat.formatItem(itemStack));
 
-        display.setItemMeta(itemMeta);
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
     }
 
 }

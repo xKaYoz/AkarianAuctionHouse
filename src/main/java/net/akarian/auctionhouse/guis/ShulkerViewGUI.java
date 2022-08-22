@@ -22,30 +22,21 @@ public class ShulkerViewGUI implements AkarianInventory {
     private final Listing listing;
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final Player player;
-    private final int mainPage;
-    private final SortType sortType;
-    private final boolean sortBool;
-    private final String search;
+    private final AuctionHouseGUI auctionHouseGUI;
     @Getter
     private Inventory inv;
 
     /**
      * View shulker box listing
      *
-     * @param player   Player viewing listing
-     * @param listing  Listing viewing
-     * @param sortType Main page search type
-     * @param sortBool Main page Greater than or Less than
-     * @param mainPage Main page's page number
-     * @param search   Main page search query
+     * @param player          Player viewing listing
+     * @param listing         Listing viewing
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
      */
-    public ShulkerViewGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
+    public ShulkerViewGUI(Player player, Listing listing, AuctionHouseGUI auctionHouseGUI) {
         this.player = player;
         this.listing = listing;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.auctionHouseGUI = auctionHouseGUI;
     }
 
     @Override
@@ -76,7 +67,7 @@ public class ShulkerViewGUI implements AkarianInventory {
                 }
                 break;
             case RED_STAINED_GLASS_PANE:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(auctionHouseGUI.getInventory());
                 break;
         }
 
@@ -109,8 +100,7 @@ public class ShulkerViewGUI implements AkarianInventory {
         inv.setItem(38, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(39, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
 
-        listing.setupActive(player);
-        inv.setItem(40, listing.getDisplay());
+        inv.setItem(40, listing.createActiveListing(player));
 
         inv.setItem(41, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
         inv.setItem(42, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
@@ -121,8 +111,7 @@ public class ShulkerViewGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listing.setupActive(player);
-        inv.setItem(40, listing.getDisplay());
+        inv.setItem(40, listing.createActiveListing(player));
     }
 
 }

@@ -4,7 +4,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.ListingEditGUI;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
-import net.akarian.auctionhouse.guis.admin.database.ConfirmDatabaseTransfer;
+import net.akarian.auctionhouse.guis.admin.database.transfer.ConfirmDatabaseTransfer;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.Bukkit;

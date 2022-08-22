@@ -18,31 +18,22 @@ public class ConfirmBuyGUI implements AkarianInventory {
     @Getter
     private final Listing listing;
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final SortType sortType;
-    private final boolean sortBool;
-    private final int mainPage;
-    private final String search;
-    private final Player player;
     @Getter
     private Inventory inv;
+    private final Player player;
+    private final AuctionHouseGUI auctionHouseGUI;
 
     /**
      * Confirm you want to buy the listing
      *
-     * @param player   Player buying the listing
-     * @param listing  Listing item
-     * @param sortType Main page sort type
-     * @param sortBool Main page Greater than or Less than
-     * @param mainPage Main page's page number
-     * @param search   Main page search query
+     * @param player          Player buying the listing
+     * @param listing         Listing item
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
      */
-    public ConfirmBuyGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
+    public ConfirmBuyGUI(Player player, Listing listing, AuctionHouseGUI auctionHouseGUI) {
         this.player = player;
         this.listing = listing;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.auctionHouseGUI = auctionHouseGUI;
     }
 
     @Override
@@ -69,7 +60,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
                 }
                 break;
             case RED_STAINED_GLASS_PANE:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(auctionHouseGUI.getInventory());
                 break;
         }
 
@@ -84,8 +75,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
         inv.setItem(2, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(3, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
 
-        listing.setupActive(player);
-        inv.setItem(4, listing.getDisplay());
+        inv.setItem(4, listing.createActiveListing(player));
 
         inv.setItem(5, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
         inv.setItem(6, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
@@ -97,7 +87,6 @@ public class ConfirmBuyGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listing.setupActive(player);
-        inv.setItem(4, listing.getDisplay());
+        inv.setItem(4, listing.createActiveListing(player));
     }
 }

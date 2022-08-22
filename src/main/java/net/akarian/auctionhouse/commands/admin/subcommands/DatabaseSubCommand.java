@@ -1,8 +1,8 @@
 package net.akarian.auctionhouse.commands.admin.subcommands;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.admin.database.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
+import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.Bukkit;

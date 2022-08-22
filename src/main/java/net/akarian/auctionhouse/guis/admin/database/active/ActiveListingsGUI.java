@@ -1,7 +1,8 @@
-package net.akarian.auctionhouse.guis.admin.database;
+package net.akarian.auctionhouse.guis.admin.database.active;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.UUIDDataType;
+import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -41,6 +42,9 @@ public class ActiveListingsGUI implements AkarianInventory {
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
         switch (slot) {
+            case 8:
+                p.openInventory(new MainDatabaseGUI(player).getInventory());
+                return;
             case 45:
                 p.openInventory(new ActiveListingsGUI(player, page - 1).getInventory());
                 return;
@@ -70,7 +74,7 @@ public class ActiveListingsGUI implements AkarianInventory {
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
         for (int i = 45; i <= 53; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }

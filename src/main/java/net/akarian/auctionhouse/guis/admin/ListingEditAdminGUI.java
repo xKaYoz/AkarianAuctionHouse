@@ -3,8 +3,7 @@ package net.akarian.auctionhouse.guis.admin;
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
-import net.akarian.auctionhouse.guis.SortType;
-import net.akarian.auctionhouse.guis.admin.database.PlayerActiveListings;
+import net.akarian.auctionhouse.guis.admin.database.active.PlayerActiveListings;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -28,62 +27,49 @@ public class ListingEditAdminGUI implements AkarianInventory {
     @Getter
     private static final HashMap<UUID, ListingEditAdminGUI> amountMap = new HashMap<>();
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final int mainPage;
-    private final SortType sortType;
     private final Player player;
-    private final boolean sortBool;
     @Getter
     private final Listing listing;
-    private final String search;
     @Getter
     private Inventory inv;
-    private final UUID activeListings;
+    private final AuctionHouseGUI auctionHouseGUI;
+    private final PlayerActiveListings playerActiveListings;
 
     /**
-     * Edit Listing in AuctionHouseAdminGUI
+     * Admin Edit Listing in AuctionHouseGUI
      *
-     * @param listing  Listing to edit
-     * @param sortType The type to sort by
-     * @param sortBool Whether to sort by Greater to Least or visa versa
-     * @param mainPage The page number of the page coming from
-     * @param search   Search query of Main AuctionHouse GUI
+     * @param listing         Listing to edit
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
      */
-    public ListingEditAdminGUI(Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
+    public ListingEditAdminGUI(Listing listing, AuctionHouseGUI auctionHouseGUI) {
         this.listing = listing;
         this.player = null;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
-        this.activeListings = null;
+        this.auctionHouseGUI = auctionHouseGUI;
+        this.playerActiveListings = null;
     }
 
     /**
      * Edit listing in PlayerActiveListings
      *
-     * @param listing Listing to edit
-     * @param player  Admin player
-     * @param uuid    UUID of player whose listings are being viewed
-     * @param page    Main page number
+     * @param listing              Listing to edit
+     * @param player               Admin player
+     * @param playerActiveListings Instance of PlayerActiveListings
      */
-    public ListingEditAdminGUI(Listing listing, Player player, UUID uuid, int page) {
+    public ListingEditAdminGUI(Listing listing, Player player, PlayerActiveListings playerActiveListings) {
         this.listing = listing;
         this.player = player;
-        this.mainPage = page;
-        this.activeListings = uuid;
-        this.sortType = null;
-        this.sortBool = false;
-        this.search = null;
+        this.playerActiveListings = playerActiveListings;
+        this.auctionHouseGUI = null;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
         switch (slot) {
             case 8:
-                if (activeListings != null)
-                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
                 else
-                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).adminMode().getInventory());
+                    player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 10:
                 chat.sendMessage(player, "&eLeft click to cancel");
@@ -96,8 +82,8 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&4You have unsafely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&4.");
                 AuctionHouse.getInstance().getListingManager().remove(listing);
-                if (activeListings != null)
-                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
                 else player.closeInventory();
                 break;
             case 14:
@@ -105,8 +91,8 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&cYou have safely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&c.");
                 AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing);
-                if (activeListings != null)
-                    player.openInventory(new PlayerActiveListings(this.player, activeListings, mainPage).getInventory());
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
                 else player.closeInventory();
                 break;
             case 16:
@@ -125,7 +111,7 @@ public class ListingEditAdminGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, "&4Price", Collections.singletonList("&7&oClick to edit the price.")));
         inv.setItem(12, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lUnsafe Remove", Arrays.asList(
@@ -150,14 +136,12 @@ public class ListingEditAdminGUI implements AkarianInventory {
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
-        listing.setupAdminListing(player);
-        inv.setItem(22, listing.getDisplay());
+        inv.setItem(22, listing.createAdminActiveListing(player));
         return inv;
     }
 
     public void updateInventory() {
-        listing.setupAdminListing(player);
-        inv.setItem(22, listing.getDisplay());
+        inv.setItem(22, listing.createAdminActiveListing(player));
     }
 
 }

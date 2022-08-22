@@ -3,7 +3,7 @@ package net.akarian.auctionhouse.utils;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.admin.database.DatabaseTransferStatusGUI;
+import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 

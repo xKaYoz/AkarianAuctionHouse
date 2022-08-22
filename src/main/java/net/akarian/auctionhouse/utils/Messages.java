@@ -11,9 +11,9 @@ public class Messages {
 
     private final FileManager fm;
     @Getter
-    private String prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings;
+    private String safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings;
     @Getter
-    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredLore;
+    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore;
     @Getter
     private YamlConfiguration messagesFile;
 
@@ -124,6 +124,12 @@ public class Messages {
                     messagesFile.set("Messages.Expired Reclaimed", "&fYou have reclaimed your listing of &e%item%&f.");
                 }
                 expiredReclaim = messagesFile.getString("Messages.Expired Reclaimed");
+
+                if (!messagesFile.contains("Messages.Safe Remove")) {
+                    messagesFile.set("Messages.Safe Remove", "&fYou have successfully removed the listing of &e%item%&f.");
+                }
+                safeRemove = messagesFile.getString("Messages.Safe Remove");
+
             }
         }
 
@@ -186,8 +192,16 @@ public class Messages {
 
                 if (!messagesFile.contains("GUIs.Buttons.Return.Description")) {
                     List<String> lore = new ArrayList<>();
-                    lore.add("&7&oReturn the AuctionHouse.");
+                    lore.add("&7&oGo back to the previous page.");
                     messagesFile.set("GUIs.Buttons.Return.Description", lore);
+                } else {
+                    if (messagesFile.getStringList("GUIs.Buttons.Return.Description").size() == 1) {
+                        if (messagesFile.getStringList("GUIs.Buttons.Return.Description").get(0).equalsIgnoreCase("&7&oReturn the AuctionHouse.")) {
+                            List<String> lore = new ArrayList<>();
+                            lore.add("&7&oGo back to the previous page.");
+                            messagesFile.set("GUIs.Buttons.Return.Description", lore);
+                        }
+                    }
                 }
                 gui_buttons_rd = messagesFile.getStringList("GUIs.Buttons.Return.Description");
             }
@@ -329,6 +343,44 @@ public class Messages {
 
                 }
                 expiredLore = messagesFile.getStringList("GUIs.AuctionHouse.Expired.Description");
+
+                if (!messagesFile.contains("GUIs.AuctionHouse.Expired.Admin Description")) {
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------------");
+                    lore.add("");
+                    lore.add("  &fStarted &8&m&l-&e %start%");
+                    lore.add("  &fExpired &8&m&l-&e %end%");
+                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fReclaimed &8&m&l-&e %reclaimed%");
+                    lore.add("%shulker%");
+                    lore.add("");
+                    lore.add("  &7Shift + Right Click to remove listing.");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Expired.Admin Description", lore);
+
+                }
+                expiredAdminLore = messagesFile.getStringList("GUIs.AuctionHouse.Expired.Admin Description");
+
+                if (!messagesFile.contains("GUIs.AuctionHouse.Completed.Admin Description")) {
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------------");
+                    lore.add("");
+                    lore.add("  &fStarted &8&m&l-&e %start%");
+                    lore.add("  &fBought &8&m&l-&e %end%");
+                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fBuyer &8&m&l-&e %buyer%");
+                    lore.add("");
+                    lore.add("%shulker%");
+                    lore.add("  &7Shift + Right Click to remove and refund listing.");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Completed.Admin Description", lore);
+
+                }
+                completedAdminLore = messagesFile.getStringList("GUIs.AuctionHouse.Completed.Admin Description");
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Seller Tag")) {
                     messagesFile.set("GUIs.AuctionHouse.Seller Tag", "seller");
@@ -489,7 +541,7 @@ public class Messages {
             /* Auction House Admin*/
             {
                 if (!messagesFile.contains("GUIs.Auction House Admin.Title")) {
-                    messagesFile.set("GUIs.Auction House Admin.Title", "&6&lAuction&f&lHouse &4Admin Menu");
+                    messagesFile.set("GUIs.Auction House Admin.Title", null);
                 }
                 gui_aha_title = messagesFile.getString("GUIs.Auction House Admin.Title");
 
@@ -534,7 +586,6 @@ public class Messages {
         */
 
         fm.saveFile(messagesFile, "messages");
-
     }
 
 }

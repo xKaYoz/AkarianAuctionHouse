@@ -24,40 +24,31 @@ public class ListingEditGUI implements AkarianInventory {
     @Getter
     private static final HashMap<UUID, ListingEditGUI> amountMap = new HashMap<>();
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final int mainPage;
-    private final SortType sortType;
     private final Player player;
-    private final boolean sortBool;
     @Getter
     private final Listing listing;
-    private final String search;
     @Getter
     private Inventory inv;
+    private final AuctionHouseGUI auctionHouseGUI;
 
     /**
      * Edit listing GUI
      *
-     * @param player   Player editing listing
-     * @param listing  Listing to edit
-     * @param sortType Main page sort type
-     * @param sortBool Main page Greater than or less than
-     * @param mainPage Main page's page number
-     * @param search   Main page search query
+     * @param player          Player editing listing
+     * @param listing         Listing to edit
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
      */
-    public ListingEditGUI(Player player, Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
+    public ListingEditGUI(Player player, Listing listing, AuctionHouseGUI auctionHouseGUI) {
         this.listing = listing;
         this.player = player;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.auctionHouseGUI = auctionHouseGUI;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
         switch (slot) {
             case 8:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 11:
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_pc());
@@ -82,8 +73,7 @@ public class ListingEditGUI implements AkarianInventory {
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_le_pn(), AuctionHouse.getInstance().getMessages().getGui_le_pd()));
-        listing.setupActive(player);
-        inv.setItem(13, listing.getDisplay());
+        inv.setItem(13, listing.createActiveListing(player));
         inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessages().getGui_le_an(), AuctionHouse.getInstance().getMessages().getGui_le_ad()));
 
         for (int i = 18; i <= 26; i++) {
@@ -93,8 +83,7 @@ public class ListingEditGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listing.setupActive(player);
-        inv.setItem(13, listing.getDisplay());
+        inv.setItem(13, listing.createActiveListing(player));
     }
 
 }
