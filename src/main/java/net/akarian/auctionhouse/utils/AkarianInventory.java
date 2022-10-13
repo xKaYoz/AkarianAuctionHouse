@@ -10,4 +10,6 @@ public interface AkarianInventory extends InventoryHolder {
 
     void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type);
 
+    void updateInventory();
+
 }

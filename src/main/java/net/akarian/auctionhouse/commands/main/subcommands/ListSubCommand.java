@@ -4,6 +4,8 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -104,6 +106,7 @@ public class ListSubCommand extends AkarianCommand {
 
         Listing l = AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
 
+        Bukkit.getServer().getPluginManager().callEvent(new ListingCreateEvent(l));
 
     }
 }

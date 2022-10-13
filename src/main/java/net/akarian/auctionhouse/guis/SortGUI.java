@@ -85,6 +85,11 @@ public class SortGUI implements AkarianInventory {
     }
 
     @Override
+    public void updateInventory() {
+
+    }
+
+    @Override
     public Inventory getInventory() {
         Inventory inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_st_title()));
         for (int i = 0; i <= 7; i++) {

@@ -71,6 +71,11 @@ public class DatabaseTransferStatusGUI implements AkarianInventory {
     }
 
     @Override
+    public void updateInventory() {
+
+    }
+
+    @Override
     public Inventory getInventory() {
         Inventory inv = Bukkit.createInventory(this, 27, chat.format("&a&lBegin Data Transfer"));
 

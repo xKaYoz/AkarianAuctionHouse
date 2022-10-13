@@ -61,6 +61,11 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
     }
 
     @Override
+    public void updateInventory() {
+
+    }
+
+    @Override
     public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 27, chat.format("&6&lConfirm Transfer"));
         for (int i = 0; i <= 9; i++) {

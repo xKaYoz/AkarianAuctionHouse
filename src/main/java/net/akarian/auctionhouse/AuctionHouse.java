@@ -10,8 +10,10 @@ import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
 import net.akarian.auctionhouse.events.ExpireJoinEvent;
 import net.akarian.auctionhouse.events.UpdateJoinEvent;
+import net.akarian.auctionhouse.events.aahEvents.ListingCreateEvents;
 import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
+import net.akarian.auctionhouse.users.UserManager;
 import net.akarian.auctionhouse.utils.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -64,6 +66,8 @@ public final class AuctionHouse extends JavaPlugin {
     private Configuration configFile;
     @Getter
     private CooldownManager cooldownManager;
+    @Getter
+    private UserManager userManager;
 
     @Override
     public void onEnable() {
@@ -117,7 +121,10 @@ public final class AuctionHouse extends JavaPlugin {
         }
         getLogger().log(Level.INFO, "Loading listings...");
         this.listingManager = new ListingManager();
-        getLogger().log(Level.INFO, "Listing loaded successfully.");
+        getLogger().log(Level.INFO, "Listings loaded successfully.");
+        getLogger().log(Level.INFO, "Loading users...");
+        this.userManager = new UserManager();
+        getLogger().log(Level.INFO, "Users loaded successfully.");
         registerCommands();
         registerEvents();
 
@@ -151,6 +158,8 @@ public final class AuctionHouse extends JavaPlugin {
         pm.registerEvents(new AuctionHouseGUIEvents(), this);
         pm.registerEvents(new ExpireJoinEvent(), this);
         pm.registerEvents(new UpdateJoinEvent(), this);
+        pm.registerEvents(new ListingCreateEvents(), this);
+
         pm.registerEvents(guiManager, this);
     }
 

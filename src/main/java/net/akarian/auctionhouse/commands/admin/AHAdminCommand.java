@@ -27,7 +27,11 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                p.openInventory(new AuctionHouseAdminGUI().getInventory());
+                if (p.hasPermission("auctionhouseadmin.manage"))
+                    p.openInventory(new AuctionHouseAdminGUI().getInventory());
+                else {
+                    chat.noPermission(sender);
+                }
                 return false;
             }
             AdminCommandManager.getInstance().find("help").execute(sender, args);
@@ -55,7 +59,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
                 }
             }
 
-            chat.sendMessage(sender, "&cInvalid Command. Use /ah help for more info.");
+            chat.sendMessage(sender, "&cInvalid Command. Use /aha help for more info.");
             log(start, sender, null, args);
             return false;
         }

@@ -111,6 +111,11 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
     }
 
     @Override
+    public void updateInventory() {
+
+    }
+
+    @Override
     public Inventory getInventory() {
 
         Inventory inv = Bukkit.createInventory(this, 36, chat.format("&4Admin Shulker View"));

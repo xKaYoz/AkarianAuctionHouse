@@ -58,8 +58,14 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 }
                 return;
             case 31:
+                player.openInventory(new NPCAdminGUI(player, 1).getInventory());
                 return;
         }
+    }
+
+    @Override
+    public void updateInventory() {
+
     }
 
     @Override
