@@ -1,7 +1,10 @@
 package net.akarian.auctionhouse.guis.admin;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.SortType;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
+import net.akarian.auctionhouse.guis.admin.database.active.PlayerActiveListings;
+import net.akarian.auctionhouse.guis.admin.database.completed.PlayerCompletedListings;
+import net.akarian.auctionhouse.guis.admin.database.expired.PlayerExpiredListings;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -21,27 +24,94 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
 
     private final Listing listing;
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final int mainPage;
-    private final SortType sortType;
-    private final boolean sortBool;
-    private final String search;
+    private Player player;
+    private final AuctionHouseGUI auctionHouseGUI;
+    private final PlayerActiveListings playerActiveListings;
+    private final PlayerExpiredListings playerExpiredListings;
+    private final PlayerCompletedListings playerCompletedListings;
+    private int adminGUI;
 
-    public ShulkerViewAdminGUI(Listing listing, SortType sortType, boolean sortBool, int mainPage, String search) {
+    /**
+     * Shulker view admin GUI
+     *
+     * @param listing         Listing viewing
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
+     */
+    public ShulkerViewAdminGUI(Listing listing, AuctionHouseGUI auctionHouseGUI) {
         this.listing = listing;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.auctionHouseGUI = auctionHouseGUI;
+        this.playerActiveListings = null;
+        this.playerExpiredListings = null;
+        this.playerCompletedListings = null;
+    }
+
+    /**
+     * Shulker view admin GUI from Player Active Listings
+     *
+     * @param listing              Listing viewing
+     * @param player               Player viewing listing
+     * @param playerActiveListings Instance of PlayerActiveListings
+     */
+    public ShulkerViewAdminGUI(Listing listing, Player player, PlayerActiveListings playerActiveListings) {
+        this.listing = listing;
+        this.playerActiveListings = playerActiveListings;
+        this.player = player;
+        this.playerExpiredListings = null;
+        this.auctionHouseGUI = null;
+        this.playerCompletedListings = null;
+    }
+
+    /**
+     * Shulker view admin GUI from Player Active Listings
+     *
+     * @param listing               Listing viewing
+     * @param player                Player viewing listing
+     * @param playerExpiredListings Instance of PlayerExpiredListings
+     */
+    public ShulkerViewAdminGUI(Listing listing, Player player, PlayerExpiredListings playerExpiredListings) {
+        this.listing = listing;
+        this.playerActiveListings = null;
+        this.player = player;
+        this.playerExpiredListings = playerExpiredListings;
+        this.auctionHouseGUI = null;
+        this.playerCompletedListings = null;
+    }
+
+    /**
+     * Shulker view admin GUI from Player Active Listings
+     *
+     * @param listing                 Listing viewing
+     * @param player                  Player viewing listing
+     * @param playerCompletedListings Instance of PlayerCompletedListings
+     */
+    public ShulkerViewAdminGUI(Listing listing, Player player, PlayerCompletedListings playerCompletedListings) {
+        this.listing = listing;
+        this.playerActiveListings = null;
+        this.player = player;
+        this.playerExpiredListings = null;
+        this.auctionHouseGUI = null;
+        this.playerCompletedListings = playerCompletedListings;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         if (slot == 8) {
-            player.openInventory(new AuctionHouseAdminGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
-        } else {
-            return;
+            if (playerExpiredListings != null) {
+                player.openInventory(playerExpiredListings.getInventory());
+            } else if (playerActiveListings != null) {
+                player.openInventory(playerActiveListings.getInventory());
+            } else if (auctionHouseGUI != null) {
+                player.openInventory(auctionHouseGUI.getInventory());
+            } else if (playerCompletedListings != null) {
+                player.openInventory(playerCompletedListings.getInventory());
+            }
         }
+
+    }
+
+    @Override
+    public void updateInventory() {
 
     }
 
@@ -54,7 +124,7 @@ public class ShulkerViewAdminGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         int start = 9;
 

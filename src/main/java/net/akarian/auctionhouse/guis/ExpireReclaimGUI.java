@@ -21,11 +21,8 @@ import java.util.List;
 public class ExpireReclaimGUI implements AkarianInventory {
 
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final SortType sortType;
-    private final boolean sortBool;
-    private final int mainPage;
-    private final String search;
     private final Player player;
+    private final AuctionHouseGUI auctionHouseGUI;
     private final int page;
     @Getter
     @Setter
@@ -35,12 +32,17 @@ public class ExpireReclaimGUI implements AkarianInventory {
     @Getter
     private int viewable;
 
-    public ExpireReclaimGUI(Player player, SortType sortType, boolean sortBool, int mainPage, String search, int page) {
+    /**
+     * Reclaim expired listings
+     *
+     * @param player          Player reclaiming listings
+     * @param auctionHouseGUI Instance of AuctionH
+     *                        ouseGUI
+     * @param page            Page number
+     */
+    public ExpireReclaimGUI(Player player, AuctionHouseGUI auctionHouseGUI, int page) {
         this.player = player;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.auctionHouseGUI = auctionHouseGUI;
         this.listings = new ArrayList<>();
         this.page = page;
     }
@@ -49,23 +51,31 @@ public class ExpireReclaimGUI implements AkarianInventory {
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
         switch (slot) {
             case 8:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 45:
-                player.openInventory(new ExpireReclaimGUI(player, sortType, sortBool, mainPage, search, (page - 1)).getInventory());
+                player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page - 1)).getInventory());
                 return;
             case 53:
-                player.openInventory(new ExpireReclaimGUI(player, sortType, sortBool, mainPage, search, (page + 1)).getInventory());
+                player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page + 1)).getInventory());
                 return;
         }
         if (slot == 8) {
-            player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+            player.openInventory(auctionHouseGUI.getInventory());
         }
 
         //Is an Expired Listing
         if (slot >= 9 && slot <= 45) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(item);
-            AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true);
+            if (listing == null) return;
+            switch (AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true)) {
+                case -2:
+                    chat.sendMessage(player, "&cThat listing is already reclaimed!");
+                    break;
+                case -1:
+                    chat.sendMessage(player, "&cYou cannot hold that item.");
+                    break;
+            }
 
 
         }
@@ -127,8 +137,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
                 break;
             }
             Listing listing = listings.get(i);
-            listing.setupExpired(player);
-            inv.setItem(slot, listing.getDisplay());
+            inv.setItem(slot, listing.createExpiredListing(player));
             viewable++;
             slot++;
             t++;

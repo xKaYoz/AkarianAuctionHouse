@@ -20,10 +20,13 @@ public class Configuration {
     private DatabaseType databaseType;
     @Getter
     @Setter
-    private boolean updates;
+    private boolean updates, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, creativeListing;
     @Getter
     @Setter
     private double minListing, maxListing;
+    @Getter
+    @Setter
+    private long dps_expireTime;
     @Getter
     @Setter
     private int listingDelay, listingTime, db_port;
@@ -56,7 +59,7 @@ public class Configuration {
         header.add("updates: Whether or not to enable updates.");
         header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
         header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
-        header.add("Listing Fee: For percentage of listing, use \"5%\". To take a flat rate, use \"$5\".");
+        header.add("Listing Fee: For percentage of listing, use \"5%\". To take a flat rate, use \"5\".");
         configFile.setHeader(header);
 
         /* Defaults */
@@ -107,6 +110,43 @@ public class Configuration {
                 configFile.set("Listing Fee", "0%");
             }
             listingFee = configFile.getString("Listing Fee");
+
+            if(!configFile.contains("Default Player Settings.Admin Mode")) {
+                configFile.set("Default Player Settings.Admin Mode", false);
+            }
+            dps_adminMode = configFile.getBoolean("Default Player Settings.Admin Mode");
+
+            if(!configFile.contains("Default Player Settings.Expire Notify")) {
+                configFile.set("Default Player Settings.Expire Notify", false);
+            }
+            dps_expire = configFile.getBoolean("Default Player Settings.Expire Notify");
+
+            if(!configFile.contains("Default Player Settings.Expire Time")) {
+                configFile.set("Default Player Settings.Expire Time", 300);
+            }
+            dps_expireTime = configFile.getLong("Default Player Settings.Expire Time");
+
+            if(!configFile.contains("Default Player Settings.Bought Notify")) {
+                configFile.set("Default Player Settings.Bought Notify", false);
+            }
+            dps_bought = configFile.getBoolean("Default Player Settings.Bought Notify");
+
+            if(!configFile.contains("Default Player Settings.Create Notify")) {
+                configFile.set("Default Player Settings.Create Notify", true);
+            }
+            dps_create = configFile.getBoolean("Default Player Settings.Create Notify");
+
+            if(!configFile.contains("Default Player Settings.Auto Confirm Listing")) {
+                configFile.set("Default Player Settings.Auto Confirm Listing", false);
+            }
+            dps_autoConfirm = configFile.getBoolean("Default Player Settings.Auto Confirm Listing");
+
+            if(!configFile.contains("Creative Listing")) {
+                configFile.set("Creative Listing", false);
+            }
+            creativeListing = configFile.getBoolean("Creative Listing");
+
+
         }
         /* MySQL */
         {
@@ -201,6 +241,12 @@ public class Configuration {
             configFile.set("Listing Delay", listingDelay);
             configFile.set("Listing Time", listingTime);
             configFile.set("Listing Fee", listingFee);
+            configFile.set("Default Player Settings.Admin Mode", dps_adminMode);
+            configFile.set("Default Player Settings.Expire Notify", dps_expire);
+            configFile.set("Default Player Settings.Expire Time", dps_expireTime);
+            configFile.set("Default Player Settings.Bought Notify", dps_bought);
+            configFile.set("Default Player Settings.Auto Confirm Listing", dps_autoConfirm);
+            configFile.set("Creative Listing", creativeListing);
         }
         /* MySQL */
         {
@@ -225,15 +271,11 @@ public class Configuration {
 
     public double calculateListingFee(double price) {
         if (listingFee.contains("%")) {
-            double percentage = Double.parseDouble(listingFee.split("%")[0]) / 100;
+            double percentage = Double.parseDouble(listingFee.replace("%", "")) / 100;
 
             return price * percentage;
-        } else if (listingFee.contains("$")) {
-            return Double.parseDouble(listingFee.split("\\$")[1]);
         } else {
-            AuctionHouse.getInstance().getChat().log("Tried to calculate a listing fee but was unable to find correct syntax. Please set to $0 for none.");
-            return 0;
+            return Double.parseDouble(listingFee.replace("$", ""));
         }
     }
-
 }

@@ -2,6 +2,10 @@ package net.akarian.auctionhouse.guis.admin.database;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.database.active.ActiveListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.completed.CompletedListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.expired.ExpiredListingsGUI;
+import net.akarian.auctionhouse.guis.admin.database.transfer.ConfirmDatabaseTransfer;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -20,6 +24,7 @@ public class MainDatabaseGUI implements AkarianInventory {
     @Getter
     private final Player player;
     private final Chat chat = AuctionHouse.getInstance().getChat();
+    private Inventory inv;
 
     public MainDatabaseGUI(Player player) {
         this.player = player;
@@ -34,22 +39,31 @@ public class MainDatabaseGUI implements AkarianInventory {
                 if (type.isRightClick() && type.isShiftClick())
                     p.openInventory(new ConfirmDatabaseTransfer(p).getInventory());
                 break;
-            case 38:
-                //TODO Open active listings
+            case 29:
+                p.openInventory(new ActiveListingsGUI(player, 1).getInventory());
                 break;
-            case 40:
-                //TODO Open expired listings
+            case 31:
+                p.openInventory(new ExpiredListingsGUI(player, 1).getInventory());
                 break;
-            case 42:
-                //TODO Open completed auctions
+            case 33:
+                p.openInventory(new CompletedListingsGUI(player, 1).getInventory());
                 break;
         }
 
     }
 
     @Override
+    public void updateInventory() {
+        inv.setItem(29, ItemBuilder.build(Material.LIME_WOOL, 1, "&a&lActive Listings &e&l(" + AuctionHouse.getInstance().getListingManager().getActive().size() + ")", Collections.singletonList("&7Click to view a list of all active listings.")));
+
+        inv.setItem(31, ItemBuilder.build(Material.RED_WOOL, 1, "&c&lExpired Listings &e&l(" + AuctionHouse.getInstance().getListingManager().getExpired().size() + ")", Arrays.asList("&7There are &e" + AuctionHouse.getInstance().getListingManager().getUnclaimed().size() + "&7 unclaimed expired listings.", "&7Click to see all expired auctions.")));
+
+        inv.setItem(33, ItemBuilder.build(Material.GREEN_WOOL, 1, "&6&lCompleted Auctions &e(" + AuctionHouse.getInstance().getListingManager().getCompleted().size() + ")", Collections.singletonList("&7Click to see all completed auctions.")));
+    }
+
+    @Override
     public Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 45, chat.format("&6&lDatabase Menu"));
+        inv = Bukkit.createInventory(this, 45, chat.format("&6&lDatabase Menu"));
 
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));

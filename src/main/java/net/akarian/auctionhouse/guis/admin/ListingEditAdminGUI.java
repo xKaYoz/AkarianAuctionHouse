@@ -2,7 +2,8 @@ package net.akarian.auctionhouse.guis.admin;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.SortType;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
+import net.akarian.auctionhouse.guis.admin.database.active.PlayerActiveListings;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -26,34 +27,53 @@ public class ListingEditAdminGUI implements AkarianInventory {
     @Getter
     private static final HashMap<UUID, ListingEditAdminGUI> amountMap = new HashMap<>();
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    private final int mainPage;
-    private final SortType sortType;
     private final Player player;
-    private final boolean sortBool;
     @Getter
     private final Listing listing;
-    private final String search;
     @Getter
     private Inventory inv;
+    private final AuctionHouseGUI auctionHouseGUI;
+    private final PlayerActiveListings playerActiveListings;
 
-    public ListingEditAdminGUI(Listing listing, Player player, SortType sortType, boolean sortBool, int mainPage, String search) {
+    /**
+     * Admin Edit Listing in AuctionHouseGUI
+     *
+     * @param listing         Listing to edit
+     * @param auctionHouseGUI Instance of AuctionHouseGUI
+     */
+    public ListingEditAdminGUI(Listing listing, AuctionHouseGUI auctionHouseGUI) {
+        this.listing = listing;
+        this.player = null;
+        this.auctionHouseGUI = auctionHouseGUI;
+        this.playerActiveListings = null;
+    }
+
+    /**
+     * Edit listing in PlayerActiveListings
+     *
+     * @param listing              Listing to edit
+     * @param player               Admin player
+     * @param playerActiveListings Instance of PlayerActiveListings
+     */
+    public ListingEditAdminGUI(Listing listing, Player player, PlayerActiveListings playerActiveListings) {
         this.listing = listing;
         this.player = player;
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
+        this.playerActiveListings = playerActiveListings;
+        this.auctionHouseGUI = null;
     }
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
         switch (slot) {
             case 8:
-                player.openInventory(new AuctionHouseAdminGUI(player, sortType, sortBool, mainPage).search(search).getInventory());
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
+                else
+                    player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 10:
                 chat.sendMessage(player, "&eLeft click to cancel");
-                chat.sendMessage(player, "&eEnter the new price of your auction...");
+                chat.sendMessage(player, "&eEnter the new price of the auction...");
                 priceMap.put(player.getUniqueId(), this);
                 player.closeInventory();
                 break;
@@ -62,18 +82,22 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 chat.sendMessage(player, "&4You have unsafely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&4.");
                 AuctionHouse.getInstance().getListingManager().remove(listing);
-                player.closeInventory();
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
+                else player.closeInventory();
                 break;
             case 14:
                 if (!clickType.isRightClick()) return;
                 chat.sendMessage(player, "&cYou have safely removed " + AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())
                         + "'s auction of " + chat.formatItem(listing.getItemStack()) + "&c.");
                 AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing);
-                player.closeInventory();
+                if (playerActiveListings != null)
+                    player.openInventory(playerActiveListings.getInventory());
+                else player.closeInventory();
                 break;
             case 16:
                 chat.sendMessage(player, "&eLeft click to cancel");
-                chat.sendMessage(player, "&eEnter the new amount of your auction...");
+                chat.sendMessage(player, "&eEnter the new amount of the auction...");
                 amountMap.put(player.getUniqueId(), this);
                 player.closeInventory();
                 break;
@@ -87,7 +111,7 @@ public class ListingEditAdminGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, "&c&lReturn", Collections.singletonList("&7&oReturn the AuctionHouse.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
 
         inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, "&4Price", Collections.singletonList("&7&oClick to edit the price.")));
         inv.setItem(12, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lUnsafe Remove", Arrays.asList(
@@ -112,12 +136,12 @@ public class ListingEditAdminGUI implements AkarianInventory {
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
-        inv.setItem(22, listing.createAdminListing());
+        inv.setItem(22, listing.createAdminActiveListing(player));
         return inv;
     }
 
     public void updateInventory() {
-        inv.setItem(22, listing.createAdminListing());
+        inv.setItem(22, listing.createAdminActiveListing(player));
     }
 
 }

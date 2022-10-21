@@ -1,7 +1,8 @@
-package net.akarian.auctionhouse.guis.admin.database;
+package net.akarian.auctionhouse.guis.admin.database.transfer;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -57,6 +58,11 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
         } else if (slot >= 14 && slot <= 16) {
             p.openInventory(new MainDatabaseGUI(p).getInventory());
         }
+    }
+
+    @Override
+    public void updateInventory() {
+
     }
 
     @Override

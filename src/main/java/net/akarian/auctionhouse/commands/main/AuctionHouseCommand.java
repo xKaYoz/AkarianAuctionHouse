@@ -1,16 +1,24 @@
-package net.akarian.auctionhouse.commands;
+package net.akarian.auctionhouse.commands.main;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.SortType;
+import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class AuctionHouseCommand implements CommandExecutor {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String str, String[] args) {
@@ -19,9 +27,13 @@ public class AuctionHouseCommand implements CommandExecutor {
         long start = System.currentTimeMillis();
 
         if (args.length == 0) {
-            if(sender instanceof Player) {
+            if (sender instanceof Player) {
                 Player p = (Player) sender;
-                p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).getInventory());
+                User user = AuctionHouse.getInstance().getUserManager().getUser(p);
+                if(p.hasPermission("auctionhouse.admin.manage") && user.getUserSettings().isOpenAdminMode())
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).adminMode().getInventory());
+                else
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).getInventory());
                 return false;
             }
             CommandManager.getInstance().find("help").execute(sender, args);
@@ -74,4 +86,30 @@ public class AuctionHouseCommand implements CommandExecutor {
     }
 
 
+    @Nullable
+    @Override
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        List<String> result = new ArrayList<>();
+        if (args.length == 1) {
+            result.add("expired");
+            result.add("help");
+            result.add("list");
+            result.add("search");
+            result.add("settings");
+            result.add(" ");
+        }
+
+        if (args.length == 2) {
+            if (args[0].equalsIgnoreCase("list")) {
+                if (sender instanceof Player)
+                    result.add(AuctionHouse.getInstance().getEcon().getBalance(((Player) sender)) + "");
+            }
+            if (args[0].equalsIgnoreCase("search")) {
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    result.add(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":" + p.getName());
+                }
+            }
+        }
+        return result;
+    }
 }

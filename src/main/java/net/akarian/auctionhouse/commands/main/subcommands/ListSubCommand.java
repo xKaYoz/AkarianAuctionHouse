@@ -1,9 +1,13 @@
-package net.akarian.auctionhouse.commands.subcommands;
+package net.akarian.auctionhouse.commands.main.subcommands;
 
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.ConfirmListGUI;
 import net.akarian.auctionhouse.listings.Listing;
+import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,17 +25,18 @@ public class ListSubCommand extends AkarianCommand {
 
         Chat chat = AuctionHouse.getInstance().getChat();
 
-        if(!(sender instanceof Player)) {
+        if (!(sender instanceof Player)) {
             chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
             return;
         }
 
-        if(args.length != 2) {
+        if (args.length != 2) {
             chat.usage(sender, AuctionHouse.getInstance().getMessages().getList_syntax());
             return;
         }
 
         Player p = (Player) sender;
+        User user = AuctionHouse.getInstance().getUserManager().getUser(p);
         ItemStack itemStack = p.getInventory().getItemInMainHand();
 
         //Check if the player is holding an item
@@ -101,9 +106,10 @@ public class ListSubCommand extends AkarianCommand {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
             return;
         }
-
-        Listing l = AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
-
+        if (user.getUserSettings().isAutoConfirmListing())
+            AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
+        else
+            p.openInventory(new ConfirmListGUI(p, itemStack, price).getInventory());
 
     }
 }

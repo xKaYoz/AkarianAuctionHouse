@@ -2,8 +2,11 @@ package net.akarian.auctionhouse.guis;
 
 import lombok.Getter;
 import lombok.Setter;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.comparators.*;
+import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
+import net.akarian.auctionhouse.guis.admin.ShulkerViewAdminGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -41,14 +44,36 @@ public class AuctionHouseGUI implements AkarianInventory {
     private Inventory inv;
     @Getter
     private int viewable;
+    @Getter
+    private boolean adminMode;
 
+    /**
+     * Auction House GUI
+     *
+     * @param player   Admin Player
+     * @param sortType SortType to sort by
+     * @param sortBool Greater than or Less than
+     * @param page     Auction House page
+     */
     public AuctionHouseGUI(Player player, SortType sortType, boolean sortBool, int page) {
         this.player = player;
         this.sortType = sortType;
         this.sortBool = sortBool;
         this.page = page;
+        this.adminMode = false;
     }
 
+    public AuctionHouseGUI adminMode() {
+        this.adminMode = true;
+        return this;
+    }
+
+    /**
+     * Search the Auction House
+     *
+     * @param search Search query
+     * @return instance of this class with the search query
+     */
     public AuctionHouseGUI search(String search) {
         this.search = !search.equals("");
         this.searchStr = search;
@@ -60,26 +85,46 @@ public class AuctionHouseGUI implements AkarianInventory {
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         switch (slot) {
+            //Admin Button
+            case 1:
+                if (itemStack.getType() == Material.GRAY_DYE && player.hasPermission("auctionhouse.admin.manage")) {
+                    inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+                    adminMode = true;
+                } else if (itemStack.getType() == Material.LIME_DYE && player.hasPermission("auctionhouse.admin.manage")) {
+                    inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
+                    adminMode = false;
+                }
+                return;
+            //Close Button
             case 8:
                 player.closeInventory();
                 return;
+            //Previous Page Button
             case 45:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
+                if (adminMode)
+                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
+                else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
                 return;
+            //Search Button
             case 46:
                 player.closeInventory();
                 searchMap.put(player.getUniqueId(), this);
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
                 chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
                 return;
+            //Expired Reclaim Button
             case 50:
-                player.openInventory(new ExpireReclaimGUI(player, sortType, sortBool, page, searchStr, 1).getInventory());
+                player.openInventory(new ExpireReclaimGUI(player, this, 1).getInventory());
                 break;
+            //Sort Button
             case 52:
-                player.openInventory(new SortGUI(sortType, sortBool, page, searchStr).getInventory());
+                player.openInventory(new SortGUI(this).getInventory());
                 return;
+            //Next Page Button
             case 53:
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
+                if (adminMode)
+                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
+                else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
                 return;
         }
 
@@ -87,11 +132,43 @@ public class AuctionHouseGUI implements AkarianInventory {
         if (slot >= 8 && slot <= 45) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(itemStack);
 
+            if (listing == null) return;
+
+            //Is in admin mode
+            if (adminMode) {
+
+                if (clickType.isLeftClick()) {
+                    if (clickType.isShiftClick()) {
+                        if (itemStack.getType() == Material.SHULKER_BOX) {
+                            player.openInventory(new ShulkerViewAdminGUI(listing, this).getInventory());
+                            return;
+                        }
+                    }
+                    player.openInventory(new ListingEditAdminGUI(listing, this).getInventory());
+                } else if (clickType.isRightClick() && clickType.isShiftClick()) {
+                    switch (AuctionHouse.getInstance().getListingManager().safeRemove(player.getUniqueId().toString(), listing)) {
+                        case -1:
+                            chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
+                            break;
+                        case 0:
+                            chat.log("Tried to safe remove listing " + listing.getId().toString() + " but it is not active.");
+                            break;
+                        case 1:
+                            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getSafeRemove());
+                    }
+                }
+                return;
+            }
+
+            //Is the creator of the listing
             if (listing.getCreator().toString().equals(player.getUniqueId().toString())) {
                 if (clickType.isLeftClick()) {
-                    player.openInventory(new ListingEditGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
+                    player.openInventory(new ListingEditGUI(player, listing, this).getInventory());
                 } else if (clickType.isRightClick() && clickType.isShiftClick()) {
                     switch (AuctionHouse.getInstance().getListingManager().expire(listing, false, true, player.getUniqueId().toString())) {
+                        case -3:
+                            chat.sendMessage(player, "&eThat item is already expired.");
+                            break;
                         case -1:
                             chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
                             break;
@@ -103,10 +180,11 @@ public class AuctionHouseGUI implements AkarianInventory {
                 return;
             }
 
+            //View shulker or confirm buy
             if (itemStack.getType() == Material.SHULKER_BOX)
-                player.openInventory(new ShulkerViewGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
+                player.openInventory(new ShulkerViewGUI(player, listing, this).getInventory());
             else
-                player.openInventory(new ConfirmBuyGUI(player, listing, sortType, sortBool, page, searchStr).getInventory());
+                player.openInventory(new ConfirmBuyGUI(player, listing, this).getInventory());
         }
 
     }
@@ -118,6 +196,14 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Top Lining
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+        }
+        //Admin Button
+        if (player.hasPermission("auctionhouse.admin.manage")) {
+            if (!adminMode)
+                inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
+            else {
+                inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+            }
         }
         //Close Button
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
@@ -149,7 +235,10 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Info Item
         List<String> infoDesc = new ArrayList<>();
         for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))));
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)))));
+            else
+                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))));
         }
         inv.setItem(48, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
 
@@ -163,12 +252,15 @@ public class AuctionHouseGUI implements AkarianInventory {
     }
 
     public boolean search(Listing listing) {
+        //Checking if player is searching
         if(this.search) {
+            //Check if the search is searching by seller
             if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
                 String playerName = searchStr.split(":")[1];
                 UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
                 return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
             } else {
+                //Returning whether the listing's item contains the search query
                 return chat.formatItem(listing.getItemStack()).toLowerCase(Locale.ROOT).contains(searchStr.toLowerCase(Locale.ROOT));
             }
         }
@@ -233,8 +325,10 @@ public class AuctionHouseGUI implements AkarianInventory {
                 break;
             }
             Listing listing = listings.get(i);
-            listing.setupActive(player);
-            inv.setItem(slot, listing.getDisplay());
+            if (adminMode)
+                inv.setItem(slot, listing.createAdminActiveListing(player));
+            else
+                inv.setItem(slot, listing.createActiveListing(player));
             viewable++;
             slot++;
             t++;
