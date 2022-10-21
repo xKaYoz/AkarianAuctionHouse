@@ -2,14 +2,17 @@ package net.akarian.auctionhouse;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.akarian.auctionhouse.commands.AuctionHouseCommand;
-import net.akarian.auctionhouse.commands.CommandManager;
+import net.akarian.auctionhouse.commands.admin.AHAdminCommand;
+import net.akarian.auctionhouse.commands.admin.AdminCommandManager;
+import net.akarian.auctionhouse.commands.main.AuctionHouseCommand;
+import net.akarian.auctionhouse.commands.main.CommandManager;
 import net.akarian.auctionhouse.cooldowns.CooldownManager;
-import net.akarian.auctionhouse.events.AuctionHouseGUIEvents;
-import net.akarian.auctionhouse.events.ExpireJoinEvent;
-import net.akarian.auctionhouse.events.UpdateJoinEvent;
+import net.akarian.auctionhouse.events.*;
+import net.akarian.auctionhouse.events.aahEvents.ListingBoughtEvents;
+import net.akarian.auctionhouse.events.aahEvents.ListingCreateEvents;
 import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
+import net.akarian.auctionhouse.users.UserManager;
 import net.akarian.auctionhouse.utils.*;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -54,6 +57,7 @@ public final class AuctionHouse extends JavaPlugin {
     @Getter
     private UpdateManager updateManager;
     @Getter
+    @Setter
     private boolean update;
     @Getter
     private Messages messages;
@@ -61,9 +65,13 @@ public final class AuctionHouse extends JavaPlugin {
     private Configuration configFile;
     @Getter
     private CooldownManager cooldownManager;
+    @Getter
+    private UserManager userManager;
+    private boolean loaded;
 
     @Override
     public void onEnable() {
+        loaded = false;
         getLogger().log(Level.INFO, "========== Akarian Auction House ==========");
         getLogger().log(Level.INFO, " ");
         getLogger().log(Level.INFO, "Loading Akarian Auction House v" + getDescription().getVersion() + "...");
@@ -80,7 +88,7 @@ public final class AuctionHouse extends JavaPlugin {
         cooldownManager = new CooldownManager();
         getLogger().log(Level.INFO, "Setting up Economy...");
         if (!setupEconomy()) {
-            chat.alert("&cAuctionHouse has Failed to detect an economy.");
+            chat.alert("&cAuctionHouse has failed to detect an economy. The plugin is now disabling");
             chat.log("AuctionHouse disabled due to no found economy.");
             setEnabled(false);
             return;
@@ -114,9 +122,16 @@ public final class AuctionHouse extends JavaPlugin {
         }
         getLogger().log(Level.INFO, "Loading listings...");
         this.listingManager = new ListingManager();
-        getLogger().log(Level.INFO, "Listing loaded successfully.");
+        getLogger().log(Level.INFO, "Listings loaded successfully.");
+        getLogger().log(Level.INFO, "Loading users...");
+        this.userManager = new UserManager();
+        getLogger().log(Level.INFO, "Users loaded successfully.");
         registerCommands();
         registerEvents();
+
+        if (getServer().getPluginManager().getPlugin("Citizens") != null && getServer().getPluginManager().getPlugin("Citizens").isEnabled()) {
+            net.citizensnpcs.api.CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(AuctionHouseTrait.class));
+        }
 
         int pluginId = 15488;
         Metrics metrics = new Metrics(this, pluginId);
@@ -126,11 +141,18 @@ public final class AuctionHouse extends JavaPlugin {
         metrics.addCustomChart(new Metrics.SingleLineChart("completed_listings", () -> listingManager.getCompleted().size()));
         metrics.addCustomChart(new Metrics.SimplePie("database_type", () -> databaseType.getStr()));
         getLogger().log(Level.INFO, "=================================================");
+        loaded = true;
     }
 
     private void registerCommands() {
         new CommandManager();
+        new AdminCommandManager();
         this.getCommand("auctionhouse").setExecutor(new AuctionHouseCommand());
+        this.getCommand("auctionhouse").setTabCompleter(new AuctionHouseCommand());
+        this.getCommand("ahadmin").setExecutor(new AHAdminCommand());
+        this.getCommand("ahadmin").setTabCompleter(new AHAdminCommand());
+
+
     }
 
     private void registerEvents() {
@@ -138,18 +160,30 @@ public final class AuctionHouse extends JavaPlugin {
         pm.registerEvents(new AuctionHouseGUIEvents(), this);
         pm.registerEvents(new ExpireJoinEvent(), this);
         pm.registerEvents(new UpdateJoinEvent(), this);
+        pm.registerEvents(new ListingCreateEvents(), this);
+        pm.registerEvents(new ListingBoughtEvents(), this);
+        pm.registerEvents(new UserEvents(), this);
+        pm.registerEvents(new SettingsGUIEvents(), this);
+
         pm.registerEvents(guiManager, this);
     }
 
     @Override
     public void onDisable() {
+        if (!loaded) {
+            zipLog();
+            getLogger().log(Level.INFO, "=================================================");
+            return;
+        }
         listingManager.cancelExpireTimer();
         listingManager.cancelRefreshTimer();
+        userManager.saveUsers();
         if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();
         }
         guiManager.closeAllInventories();
         cooldownManager.saveCooldowns();
+        configFile.saveConfig();
         zipLog();
     }
 

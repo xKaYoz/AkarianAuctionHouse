@@ -1,8 +1,8 @@
 package net.akarian.auctionhouse.guis;
 
-import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.listings.Listing;
+import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -12,70 +12,61 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
-public class ConfirmBuyGUI implements AkarianInventory {
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-    @Getter
-    private final Listing listing;
+public class ConfirmListGUI implements AkarianInventory {
+
     private final Chat chat = AuctionHouse.getInstance().getChat();
-    @Getter
-    private Inventory inv;
     private final Player player;
-    private final AuctionHouseGUI auctionHouseGUI;
+    private final ItemStack itemStack;
+    private final double price;
+    private Inventory inv;
 
-    /**
-     * Confirm you want to buy the listing
-     *
-     * @param player          Player buying the listing
-     * @param listing         Listing item
-     * @param auctionHouseGUI Instance of AuctionHouseGUI
-     */
-    public ConfirmBuyGUI(Player player, Listing listing, AuctionHouseGUI auctionHouseGUI) {
+    public ConfirmListGUI(Player player, ItemStack itemStack, double price) {
         this.player = player;
-        this.listing = listing;
-        this.auctionHouseGUI = auctionHouseGUI;
+        this.itemStack = itemStack;
+        this.price = price;
     }
 
     @Override
-    public void onGUIClick(Inventory inventory, Player player, int i, ItemStack itemStack, ClickType clickType) {
+    public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
-        switch (itemStack.getType()) {
-
+        switch (item.getType()) {
             case LIME_STAINED_GLASS_PANE:
                 player.closeInventory();
-
-                switch (AuctionHouse.getInstance().getListingManager().buy(listing, player)) {
-                    case -1:
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_deleted());
-                        break;
-                    case 0:
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_poor());
-                        break;
-                    case 1:
-                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator offline.");
-                        break;
-                    case 2:
-                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator online.");
-                        break;
-                }
+                AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
                 break;
             case RED_STAINED_GLASS_PANE:
-                player.openInventory(auctionHouseGUI.getInventory());
+                player.closeInventory();
                 break;
         }
-
     }
 
     @Override
+    public void updateInventory() {
+
+    }
+
+    @NotNull
+    @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessages().getGui_cb_title()));
+        inv = Bukkit.createInventory(this, 9, chat.format("&6Confirm Listing"));
 
         inv.setItem(0, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(1, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(2, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(3, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
 
-        inv.setItem(4, listing.createActiveListing(player));
+        List<String> lore = new ArrayList<>();
+        for(String s : AuctionHouse.getInstance().getMessages().getGui_cl_lore()) {
+            lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%", AuctionHouse.getInstance().getConfigFile().calculateListingFee(price) + ""));
+        }
+
+        inv.setItem(4, ItemBuilder.build(itemStack.getType(), 1, chat.formatItem(itemStack), lore));
 
         inv.setItem(5, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
         inv.setItem(6, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
@@ -84,9 +75,5 @@ public class ConfirmBuyGUI implements AkarianInventory {
 
 
         return inv;
-    }
-
-    public void updateInventory() {
-        inv.setItem(4, listing.createActiveListing(player));
     }
 }

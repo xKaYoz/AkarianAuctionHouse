@@ -1,4 +1,4 @@
-package net.akarian.auctionhouse.guis.admin.database;
+package net.akarian.auctionhouse.guis.admin.database.transfer;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
@@ -68,6 +68,11 @@ public class DatabaseTransferStatusGUI implements AkarianInventory {
         } else {
             p.closeInventory();
         }
+    }
+
+    @Override
+    public void updateInventory() {
+
     }
 
     @Override

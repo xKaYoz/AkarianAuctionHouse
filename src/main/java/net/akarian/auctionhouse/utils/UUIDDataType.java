@@ -1,4 +1,4 @@
-package net.akarian.auctionhouse;
+package net.akarian.auctionhouse.utils;
 
 import org.bukkit.persistence.PersistentDataAdapterContext;
 import org.bukkit.persistence.PersistentDataType;

@@ -1,6 +1,7 @@
-package net.akarian.auctionhouse.commands.subcommands;
+package net.akarian.auctionhouse.commands.main.subcommands;
 
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.ExpireReclaimGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.utils.AkarianCommand;
@@ -25,6 +26,6 @@ public class ExpiredSubCommand extends AkarianCommand {
         }
 
         Player p = (Player) sender;
-        p.openInventory(new ExpireReclaimGUI(p, SortType.TIME_LEFT, true, 1, "", 1).getInventory());
+        p.openInventory(new ExpireReclaimGUI(p, new AuctionHouseGUI(p, SortType.TIME_LEFT, true, 1), 1).getInventory());
     }
 }

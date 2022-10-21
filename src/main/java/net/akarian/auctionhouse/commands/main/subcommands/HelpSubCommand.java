@@ -1,7 +1,7 @@
-package net.akarian.auctionhouse.commands.subcommands;
+package net.akarian.auctionhouse.commands.main.subcommands;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.commands.CommandManager;
+import net.akarian.auctionhouse.commands.main.CommandManager;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.command.CommandSender;
