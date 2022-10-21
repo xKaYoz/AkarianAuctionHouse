@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.0.0_PRE-3
+version: 1.0.0
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -10,15 +10,17 @@ depend:
 softdepend:
   - Citizens
   - PlaceholderAPI
+  - GemsEconomy
 commands:
   auctionhouse:
-    description: Main AuctionHouse command.
+    description: Main Auction House command.
     aliases:
       - ah
       - ahouse
       - auction
   ahadmin:
-    description: AuctionHouse Admin command.
+    description: Auction House Admin command.
+    permission: auctionhouse.admin
     aliases:
       - aha
       - ahouseadmin
@@ -26,14 +28,11 @@ commands:
       - auctionhouseadmin
 permissions:
   auctionhouse.help:
-    description: AuctionHouse help command.
+    description: Auction House help command.
     default: true
-  auctionhouse.admin:
-    default: op
-    description: AuctionHouse Admin command.
   auctionhouse.list:
     default: false
-    description: AuctionHouse List command.
+    description: Auction House List command.
   auctionhouse.delay.bypass:
     default: op
     description: Bypass the delay in-between listings.
@@ -43,4 +42,28 @@ permissions:
   auctionhouse.expired:
     description: View your expired Listings.
     default: false
+  auctionhouse.settings:
+    description: View your expired Listings.
+    default: false
+  auctionhouse.admin:
+      default: op
+      description: Auction House Admin command.
+  auctionhouse.admin.help:
+    default: op
+    description: Auction House Admin help menu.
+  auctionhouse.admin.update:
+    default: false
+    description: Auction House Admin update command.
+  auctionhouse.admin.database:
+    default: false
+    description: Auction House Admin database command.
+  auctionhouse.admin.reload:
+    default: false
+    description: Auction House Admin reload command.
+  auctionhouse.admin.settings:
+    default: false
+    description: Edit Auction House server and default player settings.
+  auctionhouse.admin.npc:
+    default: false
+    description: Edit the Auction House NPCs.
 

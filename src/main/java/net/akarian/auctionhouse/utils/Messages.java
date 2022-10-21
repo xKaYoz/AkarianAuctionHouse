@@ -11,9 +11,12 @@ public class Messages {
 
     private final FileManager fm;
     @Getter
-    private String safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings;
+    private String safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings,
+            st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message;
+
     @Getter
-    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore;
+    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore,
+            st_admin_lore, st_expire_lore, st_expireTime_lore, st_created_lore, st_bought_lore, st_autoConfirm_lore, gui_npc_lore, st_creativeListing_lore, st_listingFee_lore, st_listingTime_lore, gui_cl_lore;
     @Getter
     private YamlConfiguration messagesFile;
 
@@ -68,6 +71,166 @@ public class Messages {
                     messagesFile.set("Messages.Errors.Too Poor", "&cYou do not have enough money to purchase that.");
                 }
                 error_poor = messagesFile.getString("Messages.Errors.Too Poor");
+            }
+            /*Settings*/
+            {
+                //Admin Button
+                if(!messagesFile.contains("Settings.Admin Mode.Name")) {
+                    messagesFile.set("Settings.Admin Mode.Name", "&eAdmin Mode");
+                }
+                st_admin_name = messagesFile.getString("Settings.Admin Mode.Name");
+
+                if(!messagesFile.contains("Settings.Admin Mode.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Open the auction house in admin mode automatically.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Admin Mode.Lore", lore);
+                }
+                st_admin_lore = messagesFile.getStringList("Settings.Admin Mode.Lore");
+
+                //Expiration Button
+                if(!messagesFile.contains("Settings.Expiration Notification.Name")) {
+                    messagesFile.set("Settings.Expiration Notification.Name", "&eNotify when near expiration");
+                }
+                st_expire_name = messagesFile.getString("Settings.Expiration Notification.Name");
+
+                if(!messagesFile.contains("Settings.Expiration Notification.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Notify you when an auction is about to expire.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Expiration Notification.Lore", lore);
+                }
+                st_expire_lore = messagesFile.getStringList("Settings.Expiration Notification.Lore");
+
+                if(!messagesFile.contains("Settings.Expiration Notification.Message")) {
+                    messagesFile.set("Settings.Expiration Notification.Message", "&e%seller%&f's listing of &e%listing% &fis about to expire in &e%time%&f.");
+                }
+                st_expire_message = messagesFile.getString("Settings.Expiration Notification.Message");
+
+                //Expiration Time Button
+                if(!messagesFile.contains("Settings.Expiration Time.Name")) {
+                    messagesFile.set("Settings.Expiration Time.Name", "&eWhen to notify");
+                }
+                st_expireTime_name = messagesFile.getString("Settings.Expiration Time.Name");
+
+                if(!messagesFile.contains("Settings.Expiration Time.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Select how long an auction should have");
+                    lore.add("&7left before you are notified.");
+                    lore.add("&7Currently: &e%time%");
+                    messagesFile.set("Settings.Expiration Time.Lore", lore);
+                }
+                st_expireTime_lore = messagesFile.getStringList("Settings.Expiration Time.Lore");
+
+                if(!messagesFile.contains("Settings.Expiration Time.Message")) {
+                    messagesFile.set("Settings.Expiration Time.Message", "&eEnter how many seconds should be left on an auction before you are notified. ");
+                }
+                st_expireTime_message = messagesFile.getString("Settings.Expiration Time.Message");
+
+                //Listing Bought Button
+                if(!messagesFile.contains("Settings.Listing Bought.Name")) {
+                    messagesFile.set("Settings.Listing Bought.Name", "&eNotify when bought");
+                }
+                st_bought_name = messagesFile.getString("Settings.Listing Bought.Name");
+
+                if(!messagesFile.contains("Settings.Listing Bought.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Notify you when an auction is bought.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Listing Bought.Lore", lore);
+                }
+                st_bought_lore = messagesFile.getStringList("Settings.Listing Bought.Lore");
+
+                if(!messagesFile.contains("Settings.Listing Bought.Message")) {
+                    messagesFile.set("Settings.Listing Bought.Message", "&e%buyer%&f has bought &e%seller%&f's listing of &e%listing%&f for &2$%price%&f.");
+                }
+                st_bought_message = messagesFile.getString("Settings.Listing Bought.Message");
+
+                //Listing Created Button
+                if(!messagesFile.contains("Settings.Listing Created.Name")) {
+                    messagesFile.set("Settings.Listing Created.Name", "&eNotify when created");
+                }
+                st_created_name = messagesFile.getString("Settings.Listing Created.Name");
+
+                if(!messagesFile.contains("Settings.Listing Created.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Notify you when an auction is created.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Listing Created.Lore", lore);
+                }
+                st_created_lore = messagesFile.getStringList("Settings.Listing Created.Lore");
+
+                if(!messagesFile.contains("Settings.Listing Created.Message")) {
+                    messagesFile.set("Settings.Listing Created.Message", "&e%seller%&f has created a listing for &e%listing%&f for &2$%price%&f.");
+                }
+                st_created_message = messagesFile.getString("Settings.Listing Created.Message");
+
+                //Auto Confirm Button
+                if(!messagesFile.contains("Settings.Auto Confirm.Name")) {
+                    messagesFile.set("Settings.Auto Confirm.Name", "&eAutomatically confirm listings");
+                }
+                st_autoConfirm_name = messagesFile.getString("Settings.Auto Confirm.Name");
+
+                if(!messagesFile.contains("Settings.Auto Confirm.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Automatically confirm the creation of your listing.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Auto Confirm.Lore", lore);
+                }
+                st_autoConfirm_lore = messagesFile.getStringList("Settings.Auto Confirm.Lore");
+
+                //Listing Fee Button
+                if(!messagesFile.contains("Settings.Listing Fee.Name")) {
+                    messagesFile.set("Settings.Listing Fee.Name", "&eListing Fee");
+                }
+                st_listingFee_name = messagesFile.getString("Settings.Listing Fee.Name");
+
+                if(!messagesFile.contains("Settings.Listing Fee.Message")) {
+                    messagesFile.set("Settings.Listing Fee.Message", "&eEnter the new listing fee or left click to cancel.");
+                }
+                st_listingFee_message = messagesFile.getString("Settings.Listing Fee.Message");
+
+                if(!messagesFile.contains("Settings.Listing Fee.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Change the listing fee amount or percentage.");
+                    lore.add("&fCurrent Fee: &e%fee%");
+                    messagesFile.set("Settings.Listing Fee.Lore", lore);
+                }
+                st_listingFee_lore = messagesFile.getStringList("Settings.Listing Fee.Lore");
+
+                //Creative Listing Button
+                if(!messagesFile.contains("Settings.Creative Listing.Name")) {
+                    messagesFile.set("Settings.Creative Listing.Name", "&eCreative Listing");
+                }
+                st_creativeListing_name = messagesFile.getString("Settings.Creative Listing.Name");
+
+                if(!messagesFile.contains("Settings.Creative Listing.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Allow players to list items while in creative.");
+                    lore.add("%status%");
+                    messagesFile.set("Settings.Creative Listing.Lore", lore);
+                }
+                st_creativeListing_lore = messagesFile.getStringList("Settings.Creative Listing.Lore");
+
+                //Listing Time Button
+                if(!messagesFile.contains("Settings.Listing Time.Name")) {
+                    messagesFile.set("Settings.Listing Time.Name", "&eListing Time");
+                }
+                st_listingTime_name = messagesFile.getString("Settings.Listing Time.Name");
+
+                if(!messagesFile.contains("Settings.Listing Time.Message")) {
+                    messagesFile.set("Settings.Listing Time.Message", "&eEnter the new listing time in seconds or left click to cancel.");
+                }
+                st_listingTime_message = messagesFile.getString("Settings.Listing Time.Message");
+
+                if(!messagesFile.contains("Settings.Listing Time.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&7Change the amount of time a listing will be posted for.");
+                    lore.add("&fCurrent Time: &e%time%");
+                    messagesFile.set("Settings.Listing Time.Lore", lore);
+                }
+                st_listingTime_lore = messagesFile.getStringList("Settings.Listing Time.Lore");
+
             }
             /*Core*/
             {
@@ -541,7 +704,7 @@ public class Messages {
             /* Auction House Admin*/
             {
                 if (!messagesFile.contains("GUIs.Auction House Admin.Title")) {
-                    messagesFile.set("GUIs.Auction House Admin.Title", null);
+                    messagesFile.set("GUIs.Auction House Admin.Title", "&6&lAuctionHouse Admin Menu");
                 }
                 gui_aha_title = messagesFile.getString("GUIs.Auction House Admin.Title");
 
@@ -562,9 +725,37 @@ public class Messages {
                 }
                 gui_aha_listing = messagesFile.getStringList("GUIs.Auction House Admin.Listing");
             }
-            /* Listing Edit Admin*/
+            /* NPC Menu*/
             {
-
+                if (!messagesFile.contains("GUIs.NPC.Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&fLocation:");
+                    lore.add("&fX: &e%x%");
+                    lore.add("&fY: &e%y%");
+                    lore.add("&fZ: &e%z%");
+                    lore.add(" ");
+                    lore.add("&7Left click to teleport");
+                    lore.add("&7Shift + Left Click to remove auctioneer trait");
+                    lore.add("&7Shift + Right Click to delete NPC");
+                    messagesFile.set("GUIs.NPC.Lore", lore);
+                }
+                gui_npc_lore = messagesFile.getStringList("GUIs.NPC.Lore");
+            }
+            /* Confirm List GUI */
+            {
+                if(!messagesFile.contains("GUIs.Confirm List.Display Lore")) {
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l-------------------------------");
+                    lore.add(" ");
+                    lore.add(" &fListing Amount: &e%amount%");
+                    lore.add(" &fListing Fee: &e%fee%");
+                    lore.add(" ");
+                    lore.add("&7&oListing fee will be removed when listing is posted");
+                    lore.add(" ");
+                    lore.add("&8&m&l-------------------------------");
+                    messagesFile.set("GUIs.Confirm List.Display Lore", lore);
+                }
+                gui_cl_lore = messagesFile.getStringList("GUIs.Confirm List.Display Lore");
             }
         }
 

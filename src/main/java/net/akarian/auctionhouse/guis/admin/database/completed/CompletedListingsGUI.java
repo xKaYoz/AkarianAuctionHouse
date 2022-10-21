@@ -126,7 +126,7 @@ public class CompletedListingsGUI implements AkarianInventory {
             NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "uuid");
             meta.getPersistentDataContainer().set(key, new UUIDDataType(), uuid);
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(uuid));
-            meta.setDisplayName(chat.format("&a&l" + AuctionHouse.getInstance().getNameManager().getName(uuid) + " &e&l(" + AuctionHouse.getInstance().getListingManager().getActive(uuid).size() + ")"));
+            meta.setDisplayName(chat.format("&a&l" + AuctionHouse.getInstance().getNameManager().getName(uuid)));
             List<String> lore = new ArrayList<>();
             lore.add("&7Click to view all &e" + AuctionHouse.getInstance().getListingManager().getCompleted(uuid).size() + " &7listings.");
             meta.setLore(chat.formatList(lore));

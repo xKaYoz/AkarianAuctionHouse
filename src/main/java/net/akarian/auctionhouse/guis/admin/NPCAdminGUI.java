@@ -159,8 +159,19 @@ public class NPCAdminGUI implements AkarianInventory {
             meta.setOwningPlayer(Bukkit.getOfflinePlayer(npc.getOrAddTrait(SkinTrait.class).getSkinName() == null ? npc.getName() : npc.getOrAddTrait(SkinTrait.class).getSkinName()));
             NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "id");
             meta.getPersistentDataContainer().set(key, new IntegerDataType(), npc.getId());
+
+            List<String> lore = new ArrayList<>();
+
+            for(String s : AuctionHouse.getInstance().getMessages().getGui_npc_lore()) {
+                lore.add(s.replace("%x%", npc.getStoredLocation().getBlockX() + "").replace("%y%", ((int) npc.getStoredLocation().getY()) + "").replace("%z%", npc.getStoredLocation().getBlockZ() + ""));
+            }
+
+            meta.setLore(chat.formatList(lore));
+
             itemStack.setItemMeta(meta);
             inv.setItem(slot, itemStack);
+
+
 
             slot++;
             t++;

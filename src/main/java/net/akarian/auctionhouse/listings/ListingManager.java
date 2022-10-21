@@ -3,7 +3,9 @@ package net.akarian.auctionhouse.listings;
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
+import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.events.ListingBoughtEvent;
 import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -19,6 +21,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 public class ListingManager {
 
@@ -670,11 +673,12 @@ public class ListingManager {
 
         chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
+        Bukkit.getServer().getPluginManager().callEvent(new ListingBoughtEvent(listing));
+        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".");
         if (creator != null) {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
             return 2;
         }
-        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".");
         return 1;
     }
 
@@ -902,6 +906,7 @@ public class ListingManager {
         active.clear();
         chat.log("Loading listings...");
         AtomicInteger num = new AtomicInteger();
+        AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
@@ -939,6 +944,11 @@ public class ListingManager {
                 Map<String, Object> map = listingsFile.getValues(false);
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
+                    if(listingsFile.getString(str + ".ItemStack") == null) {
+                         chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                         errors.incrementAndGet();
+                        continue;
+                    }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
                     double price = listingsFile.getDouble(str + ".Price");
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
@@ -955,6 +965,10 @@ public class ListingManager {
         startExpireCheck();
         startAuctionHouseRefresh();
         chat.log("Loaded " + num.get() + " active listings.");
+        if(errors.get() > 0) {
+            AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " auctions. Please review console to see which.");
+            chat.log("There was an error loading " + errors.get() + " auctions. Please review console to see which.");
+        }
     }
 
     /**
@@ -962,6 +976,7 @@ public class ListingManager {
      */
     public void loadExpired() {
         chat.log("Loading Expired listings...");
+        AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
@@ -1009,6 +1024,11 @@ public class ListingManager {
                 for (String str : map.keySet()) {
 
                     UUID id = UUID.fromString(str);
+                    if(listingsFile.getString(str + ".ItemStack") == null) {
+                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
                     double price = listingsFile.getDouble(str + ".Price");
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
@@ -1032,12 +1052,17 @@ public class ListingManager {
 
                 }
                 chat.log("Loaded " + expired.size() + " expired listings and " + unclaimed.size() + " unclaimed expired listings.");
+                if(errors.get() > 0) {
+                    AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " expired auctions. Please review console to see which.");
+                    chat.log("There was an error loading " + errors.get() + " expired auctions. Please review console to see which.");
+                }
                 break;
         }
     }
 
     public void loadCompleted() {
         chat.log("Loading Completed listings...");
+        AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
@@ -1079,6 +1104,11 @@ public class ListingManager {
                 for (String str : map.keySet()) {
 
                     UUID id = UUID.fromString(str);
+                    if(completedFile.getString(str + ".ItemStack") == null) {
+                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(completedFile.getString(str + ".ItemStack")));
                     double price = completedFile.getDouble(str + ".Price");
                     UUID creator = UUID.fromString(Objects.requireNonNull(completedFile.getString(str + ".Creator")));
@@ -1097,6 +1127,10 @@ public class ListingManager {
 
                 }
                 chat.log("Loaded " + completed.size() + " completed listings.");
+                if(errors.get() > 0) {
+                    AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
+                    chat.log("There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
+                }
                 break;
         }
     }
@@ -1219,6 +1253,13 @@ public class ListingManager {
                     long end = (listing.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
 
                     ItemStack item = listing.getItemStack();
+
+                    for(User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
+                        if(!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime()) {
+                            user.getUserSettings().getNotified().add(listing);
+                            chat.sendMessage(Bukkit.getPlayer(user.getUuid()), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())));
+                        }
+                    }
 
                     if (now > end) {
                         switch (expire(listing, true, false, "TIME")) {

@@ -87,10 +87,10 @@ public class AuctionHouseGUI implements AkarianInventory {
         switch (slot) {
             //Admin Button
             case 1:
-                if (itemStack.getType() == Material.GRAY_DYE && player.hasPermission("auctionhouseadmin.manage")) {
+                if (itemStack.getType() == Material.GRAY_DYE && player.hasPermission("auctionhouse.admin.manage")) {
                     inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
                     adminMode = true;
-                } else if (itemStack.getType() == Material.LIME_DYE && player.hasPermission("auctionhouseadmin.manage")) {
+                } else if (itemStack.getType() == Material.LIME_DYE && player.hasPermission("auctionhouse.admin.manage")) {
                     inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
                     adminMode = false;
                 }
@@ -198,7 +198,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
         //Admin Button
-        if (player.hasPermission("auctionhouseadmin.manage")) {
+        if (player.hasPermission("auctionhouse.admin.manage")) {
             if (!adminMode)
                 inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
             else {

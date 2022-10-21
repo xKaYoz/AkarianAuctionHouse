@@ -57,7 +57,9 @@ public class Chat {
      */
     public String formatMoney(Object obj) {
 
-        return String.format("%,.2f", Double.parseDouble(obj.toString()));
+        return AuctionHouse.getInstance().getEcon().format(Double.parseDouble(obj.toString()));
+
+        //return String.format("%,.2f", Double.parseDouble(obj.toString()));
 
     }
 

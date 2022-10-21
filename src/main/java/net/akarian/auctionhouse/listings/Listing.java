@@ -143,7 +143,7 @@ public class Listing {
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
                     tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price))));
+                            .replace("%price%", chat.formatMoney(price))).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
                 else
                     tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
                             .replace("%price%", chat.formatMoney(price)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));

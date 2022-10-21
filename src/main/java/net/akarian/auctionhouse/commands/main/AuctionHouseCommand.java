@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.commands.main;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.SortType;
+import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.Bukkit;
@@ -28,7 +29,11 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).getInventory());
+                User user = AuctionHouse.getInstance().getUserManager().getUser(p);
+                if(p.hasPermission("auctionhouse.admin.manage") && user.getUserSettings().isOpenAdminMode())
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).adminMode().getInventory());
+                else
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).getInventory());
                 return false;
             }
             CommandManager.getInstance().find("help").execute(sender, args);
@@ -90,6 +95,7 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
             result.add("help");
             result.add("list");
             result.add("search");
+            result.add("settings");
             result.add(" ");
         }
 

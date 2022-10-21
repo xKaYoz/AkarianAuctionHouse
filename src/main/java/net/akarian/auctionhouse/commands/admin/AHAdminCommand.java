@@ -27,7 +27,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                if (p.hasPermission("auctionhouseadmin.manage"))
+                if (p.hasPermission("auctionhouse.admin.manage"))
                     p.openInventory(new AuctionHouseAdminGUI().getInventory());
                 else {
                     chat.noPermission(sender);
@@ -88,12 +88,13 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         List<String> result = new ArrayList<>();
-
+        if(!sender.hasPermission("auctionhouse.admin")) return result;
         if (args.length == 1) {
             result.add("database");
             result.add("help");
             result.add("reload");
             result.add("update");
+            result.add("settings");
         }
 
         if (args.length == 2) {

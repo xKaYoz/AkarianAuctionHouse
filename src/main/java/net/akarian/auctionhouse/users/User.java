@@ -2,9 +2,11 @@ package net.akarian.auctionhouse.users;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.FileManager;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.util.List;
 import java.util.UUID;
 
 public class User {
@@ -25,15 +27,11 @@ public class User {
     }
 
     public UserSettings loadUserSettings() {
-        switch (AuctionHouse.getInstance().getDatabaseType()) {
-            case FILE:
-                YamlConfiguration usersFile = fm.getConfig("/database/users");
-                if (!usersFile.isConfigurationSection(uuid.toString())) {
-                    return createUserSettings();
-                }
-                return new UserSettings(this).load();
+        YamlConfiguration usersFile = fm.getConfig("/database/users");
+        if (!usersFile.isConfigurationSection(uuid.toString())) {
+            return userSettings = createUserSettings().load();
         }
-        return null;
+        return userSettings = new UserSettings(this).load();
     }
 
 }
