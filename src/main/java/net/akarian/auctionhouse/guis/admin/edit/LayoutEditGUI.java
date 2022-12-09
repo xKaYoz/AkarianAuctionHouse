@@ -1,12 +1,14 @@
 package net.akarian.auctionhouse.guis.admin.edit;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -32,6 +34,27 @@ public class LayoutEditGUI implements AkarianInventory {
     private int updateItems;
     private boolean clear = false;
 
+    @Getter @Setter
+    private boolean spacerItem;
+    @Getter @Setter
+    private boolean adminButton;
+    @Getter @Setter
+    private boolean closeButton;
+    @Getter @Setter
+    private boolean listingItem;
+    @Getter @Setter
+    private boolean previousPageButton;
+    @Getter @Setter
+    private boolean nextPageButton;
+    @Getter @Setter
+    private boolean sortButton;
+    @Getter @Setter
+    private boolean searchButton;
+    @Getter @Setter
+    private boolean informationButton;
+    @Getter @Setter
+    private boolean expiredListingsButton;
+
     public LayoutEditGUI(Player player, Layout layout) {
         this.player = player;
         this.playerInventory = new HashMap<>();
@@ -47,30 +70,66 @@ public class LayoutEditGUI implements AkarianInventory {
             switch (slot) {
                 case 54:  //Spacer Page Items
                     layout.setSpacerPageItems(!layout.isSpacerPageItems());
+                    break;
+                case 76:  //Return Button
+                    isSettings = false;
+                    clear = true;
+                    updateItems = 4;
+                    break;
+            }
+
+        } else if(isItems) {
+            switch (slot) {
+                case 54:  //Spacer Item
+                    spacerItem = true;
+                    break;
+                case 55:  //Admin Button
+                    adminButton = true;
+                    break;
+                case 56:  //Close Button
+                    closeButton = true;
+                    break;
+                case 57:  //Listing Item
+                    listingItem = true;
+                    break;
+                case 58:  //Previous Page Button
+                    previousPageButton = true;
+                    break;
+                case 59:  //Next Page Button
+                    nextPageButton = true;
+                    break;
+                case 60:  //Search Button
+                    searchButton = true;
+                    break;
+                case 61:  //Information Button
+                    informationButton = true;
+                    break;
+                case 62:  //Sort Button
+                    sortButton = true;
+                    break;
+                case 63:  //Expired Listings
+                    expiredListingsButton = true;
+                    break;
+                case 76:  //Return Button
+                    isItems = false;
+                    clear = true;
+                    updateItems = 4;
+                    break;
+            }
+        } else {
+            switch (slot) {
+                case 65:
+                    isSettings = true;
+                    clear = true;
+                    break;
+                case 69:
+                    isItems = true;
+                    clear = true;
+                    break;
             }
         }
 
         switch (slot) {
-            case 65:
-                if(!isSettings && !isItems) {
-                    isSettings = true;
-                    clear = true;
-                }
-                break;
-            case 69:
-                if(!isItems && !isSettings) {
-                    isItems = true;
-                    clear = true;
-                }
-                break;
-            case 76:
-                if(isItems || isSettings) {
-                    isSettings = isItems = false;
-                    clear = true;
-                    updateItems = 4;
-                }
-            case 80:
-                break;
             case 82:
                 break;
             case 84:
@@ -103,7 +162,7 @@ public class LayoutEditGUI implements AkarianInventory {
                 player.getInventory().setItem(i, null);
             }
             clear = false;
-            if(isSettings) {
+            if(isSettings || isItems) {
                 for(int i = 27; i <= 35; i++){
                     player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
                 }
@@ -153,6 +212,17 @@ public class LayoutEditGUI implements AkarianInventory {
             }
         } else if(isSettings) {
             player.getInventory().setItem(9, ItemBuilder.build(layout.isSpacerPageItems() ? Material.LIME_DYE : Material.GRAY_DYE, 1, "&6Spacer Items on Page Items", Collections.singletonList("&7Whether to replace page items with spacers if there are no other pages.")));
+        } else {
+            player.getInventory().setItem(9, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1,"&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
+            player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Collections.singletonList("&7Click to get the Admin Mode button.")));
+            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, "&cClose", Collections.singletonList("&7Click to get the Close button.")));
+            player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
+            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1,AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Collections.singletonList("&7Click to get a Previous Page button.")));
+            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Collections.singletonList("&7Click to get the Next Page button.")));
+            player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), Collections.singletonList("&7Click to get the Search button.")));
+            player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), Collections.singletonList("&7Click to get the Information button.")));
+            player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), Collections.singletonList("&7Click to get the Sort button.")));
+            player.getInventory().setItem(18, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), Collections.singletonList("&7Click to get the Expired Listings button.")));
         }
     }
 
@@ -165,9 +235,6 @@ public class LayoutEditGUI implements AkarianInventory {
         for (Integer i : layout.getSpacerItems()) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
-
-
-        inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
 
         inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
 
@@ -212,7 +279,7 @@ public class LayoutEditGUI implements AkarianInventory {
         inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
 
 
-        //Top Lining
+        //Bottom Lining
         for (int i = 0; i <= 8; i++) {
             player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
