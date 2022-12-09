@@ -1,8 +1,7 @@
 # AkarianAuctionHouse
 Akarian's Auction House plugin
 
-![Players](https://img.shields.io/bstats/players/15488?style=plastic)
-![Servers](https://img.shields.io/bstats/servers/15488?style=plastic)
+![Stats](https://bstats.org/signatures/bukkit/Akarian%20Auction%20House.svg)
 
 Downloads
 
