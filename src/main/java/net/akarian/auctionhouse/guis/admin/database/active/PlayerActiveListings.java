@@ -73,10 +73,10 @@ public class PlayerActiveListings implements AkarianInventory {
             } else {
                 switch (AuctionHouse.getInstance().getListingManager().safeRemove(p.getUniqueId().toString(), listing)) {
                     case -1:
-                        chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()));
+                        chat.log("Error while trying to safe remove " + chat.formatItem(listing.getItemStack()), AuctionHouse.getInstance().isDebug());
                         break;
                     case 0:
-                        chat.log("Tried to safe remove listing " + listing.getId().toString() + " but it is not active.");
+                        chat.log("Tried to safe remove listing " + listing.getId().toString() + " but it is not active.", AuctionHouse.getInstance().isDebug());
                         break;
                 }
             }

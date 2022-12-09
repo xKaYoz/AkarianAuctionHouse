@@ -244,12 +244,12 @@ public class Messages {
                 }
                 prefixIcon = messagesFile.getString("Messages.Prefix Icon");
                 if (!messagesFile.contains("Messages.Listing.Bought.Buyer")) {
-                    messagesFile.set("Messages.Listing.Bought.Buyer", "&fYou have bought &e%item%&f for &2$%price%&f.");
+                    messagesFile.set("Messages.Listing.Bought.Buyer", "&fYou have bought &e%item%&f for &2%price%&f.");
                 }
                 listingBoughtBuyer = messagesFile.getString("Messages.Listing.Bought.Buyer");
 
                 if (!messagesFile.contains("Messages.Listing.Bought.Creator")) {
-                    messagesFile.set("Messages.Listing.Bought.Creator", "&c%buyer%&f has bought &e%item%&f for &2$%price%&f.");
+                    messagesFile.set("Messages.Listing.Bought.Creator", "&c%buyer%&f has bought &e%item%&f for &2%price%&f.");
                 }
                 listingBoughtCreator = messagesFile.getString("Messages.Listing.Bought.Creator");
 
@@ -259,7 +259,7 @@ public class Messages {
                 listingRemoved = messagesFile.getString("Messages.Listing.Removed");
 
                 if (!messagesFile.contains("Messages.Listing.Create")) {
-                    messagesFile.set("Messages.Listing.Create", "&fYou have created an auction for &e%item%&f with the price of &2$%price%&f.");
+                    messagesFile.set("Messages.Listing.Create", "&fYou have created an auction for &e%item%&f with the price of &2%price%&f.");
                 }
                 createListing = messagesFile.getString("Messages.Listing.Create");
 
@@ -269,12 +269,12 @@ public class Messages {
                 expiredJoinMessage = messagesFile.getString("Messages.Expired Join Message");
 
                 if (!messagesFile.contains("Messages.Minimum Listing")) {
-                    messagesFile.set("Messages.Minimum Listing", "&cYour listing price is too low! It must be above $%price%.");
+                    messagesFile.set("Messages.Minimum Listing", "&cYour listing price is too low! It must be above %price%.");
                 }
                 minimumListing = messagesFile.getString("Messages.Minimum Listing");
 
                 if (!messagesFile.contains("Messages.Maximum Listing")) {
-                    messagesFile.set("Messages.Maximum Listing", "&cYour listing price is too high! It must be below $%price%.");
+                    messagesFile.set("Messages.Maximum Listing", "&cYour listing price is too high! It must be below %price%.");
                 }
                 maximumListing = messagesFile.getString("Messages.Maximum Listing");
 
@@ -425,11 +425,16 @@ public class Messages {
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Info Item.Description")) {
                     List<String> lore = new ArrayList<>();
-                    lore.add("&8&m&l--------------------");
+                    lore.add("&8&m&l-----------------------------------");
                     lore.add("");
-                    lore.add("  &fYour Balance &8&m&l-&2 $%balance%");
+                    lore.add("  &7Welcome to the Auction House!");
+                    lore.add("  &7There are &e%items% &7for sale.");
+                    lore.add("  &7You can list an item on the auction house with");
+                    lore.add("  &e/ah list <price>");
                     lore.add("");
-                    lore.add("&8&m&l--------------------");
+                    lore.add("  &7Your Balance &8&m&l-&e %balance%");
+                    lore.add("");
+                    lore.add("&8&m&l-----------------------------------");
                     messagesFile.set("GUIs.AuctionHouse.Info Item.Description", lore);
                 }
                 gui_ah_id = messagesFile.getStringList("GUIs.AuctionHouse.Info Item.Description");
@@ -469,7 +474,7 @@ public class Messages {
                         lore.add("");
                         lore.add("  &fTime Left &8&m&l-&e %time%");
                         lore.add("  &fCreator &8&m&l-&e %creator%");
-                        lore.add("  &fPrice &8&m&l-&2 $%price%");
+                        lore.add("  &fPrice &8&m&l-&2 %price%");
                         lore.add("");
                         lore.add("%shulker%");
                         lore.add("%self_info%");
@@ -502,7 +507,7 @@ public class Messages {
                     lore.add("");
                     lore.add("  &fStarted &8&m&l-&e %start%");
                     lore.add("  &fExpired &8&m&l-&e %end%");
-                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
                     lore.add("");
                     lore.add("  &7Click to reclaim item.");
                     lore.add("");
@@ -519,7 +524,7 @@ public class Messages {
                     lore.add("");
                     lore.add("  &fStarted &8&m&l-&e %start%");
                     lore.add("  &fExpired &8&m&l-&e %end%");
-                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
                     lore.add("  &fReclaimed &8&m&l-&e %reclaimed%");
                     lore.add("%shulker%");
                     lore.add("");
@@ -538,7 +543,7 @@ public class Messages {
                     lore.add("");
                     lore.add("  &fStarted &8&m&l-&e %start%");
                     lore.add("  &fBought &8&m&l-&e %end%");
-                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
                     lore.add("  &fBuyer &8&m&l-&e %buyer%");
                     lore.add("");
                     lore.add("%shulker%");
@@ -719,7 +724,7 @@ public class Messages {
                     lore.add("");
                     lore.add("  &fTime Left &8&m&l-&e %time%");
                     lore.add("  &fCreator &8&m&l-&e %creator%");
-                    lore.add("  &fPrice &8&m&l-&2 $%price%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
                     lore.add("");
                     lore.add("%shulker%");
                     lore.add("  &cLeft click to edit listing");

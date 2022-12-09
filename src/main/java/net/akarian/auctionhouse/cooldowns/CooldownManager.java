@@ -63,7 +63,7 @@ public class CooldownManager {
                 saved++;
             }
         }
-        AuctionHouse.getInstance().getChat().log("Saved " + saved + " cooldowns.");
+        AuctionHouse.getInstance().getChat().log("Saved " + saved + " cooldowns.", AuctionHouse.getInstance().isDebug());
         fm.saveFile(cooldownFile, "/database/cooldowns");
     }
 
@@ -77,7 +77,7 @@ public class CooldownManager {
                 loaded++;
             }
         }
-        AuctionHouse.getInstance().getChat().log("Loaded " + loaded + " cooldowns.");
+        AuctionHouse.getInstance().getChat().log("Loaded " + loaded + " cooldowns.", AuctionHouse.getInstance().isDebug());
     }
 
 }

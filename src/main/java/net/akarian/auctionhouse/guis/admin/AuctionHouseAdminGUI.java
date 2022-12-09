@@ -6,6 +6,8 @@ import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
+import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
+import net.akarian.auctionhouse.guis.admin.edit.LayoutSelectGUI;
 import net.akarian.auctionhouse.guis.admin.settings.MainSettingsGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -68,11 +70,15 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                     }
                 }
                 break;
-            case 31:
+            case 29:
                 if(player.hasPermission("auctionhouse.admin.settings")) {
                     player.openInventory(new MainSettingsGUI().getInventory());
                 }
                 break;
+            case 33:
+                if(player.hasPermission("auctionhouse.admin.edit")) {
+                    player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
+                }
         }
     }
 
@@ -97,7 +103,8 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
         inv.setItem(21, ItemBuilder.build(Material.BOOKSHELF, 1, "&6Database", Collections.singletonList("&7Click to manage and view the plugin's database.")));
         inv.setItem(23, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Manage Auction House", Collections.singletonList("&7Click to open the Auction House in Admin Mode.")));
         inv.setItem(25, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4Reload Plugin Files", Collections.singletonList("&7Shift + Right Click to reload plugin files.")));
-        inv.setItem(31, ItemBuilder.build(Material.BOOK, 1,"&6Admin Settings", Collections.singletonList("&7Click to manage the server and default player settings.")));
+        inv.setItem(29, ItemBuilder.build(Material.BOOK, 1,"&6Admin Settings", Collections.singletonList("&7Click to manage the server and default player settings.")));
+        inv.setItem(33, ItemBuilder.build(Material.ANVIL, 1,"&6Edit Auction House", Collections.singletonList("&7Click to edit the layout of the auction house.")));
 
 
         //Bottom Lining

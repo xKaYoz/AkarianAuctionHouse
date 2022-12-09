@@ -4,6 +4,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.SettingsGUI;
 import net.akarian.auctionhouse.guis.admin.settings.DefaultPlayerSettingsGUI;
 import net.akarian.auctionhouse.guis.admin.settings.ServerSettingsGUI;
+import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.Bukkit;
@@ -13,7 +14,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
+
 public class SettingsGUIEvents implements Listener {
+
+    HashMap<UUID, Integer> willExpireCheck = new HashMap<>();
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
@@ -50,7 +58,22 @@ public class SettingsGUIEvents implements Listener {
                 p.openInventory(DefaultPlayerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
                 DefaultPlayerSettingsGUI.getTimeMap().remove(p.getUniqueId());
             });
-        } else if(ServerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
+        } else if(willExpireCheck.containsKey(p.getUniqueId())) {
+            e.setCancelled(true);
+            if(input.equalsIgnoreCase("Y")) {
+                AuctionHouse.getInstance().getConfigFile().setListingTime(willExpireCheck.get(p.getUniqueId()));
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+                });
+            } else {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+                });
+            }
+            willExpireCheck.remove(p.getUniqueId());
+        }else if(ServerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
             try {
                 Integer.parseInt(input);
@@ -59,6 +82,19 @@ public class SettingsGUIEvents implements Listener {
                 return;
             }
             int sec = Integer.parseInt(input);
+            long now = System.currentTimeMillis() / 1000;
+            int willExpire = 0;
+            for(Listing listing : AuctionHouse.getInstance().getListingManager().getActive()) {
+                long end = (listing.getStart() + (sec * 1000L)) / 1000;
+                if(now > end)
+                    willExpire++;
+            }
+            if(willExpire != 0) {
+                chat.sendMessage(p, "&e&l! &c&lCAUTION &fChanging the the listing time to &e" + chat.formatTime(sec) + "&f will cause &e" + willExpire + "&f auction(s) to expire.");
+                chat.sendMessage(p, "&fType Y to continue or N to cancel.");
+                willExpireCheck.put(p.getUniqueId(), sec);
+                return;
+            }
             AuctionHouse.getInstance().getConfigFile().setListingTime(sec);
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());

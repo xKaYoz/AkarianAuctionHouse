@@ -63,7 +63,7 @@ public class ConfirmListGUI implements AkarianInventory {
 
         List<String> lore = new ArrayList<>();
         for(String s : AuctionHouse.getInstance().getMessages().getGui_cl_lore()) {
-            lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%", AuctionHouse.getInstance().getConfigFile().calculateListingFee(price) + ""));
+            lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%", chat.formatMoney(AuctionHouse.getInstance().getConfigFile().calculateListingFee(price))));
         }
 
         inv.setItem(4, ItemBuilder.build(itemStack.getType(), 1, chat.formatItem(itemStack), lore));

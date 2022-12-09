@@ -52,10 +52,10 @@ public class ConfirmBuyGUI implements AkarianInventory {
                         chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_poor());
                         break;
                     case 1:
-                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator offline.");
+                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator offline.", AuctionHouse.getInstance().isDebug());
                         break;
                     case 2:
-                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator online.");
+                        chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator online.", AuctionHouse.getInstance().isDebug());
                         break;
                 }
                 break;

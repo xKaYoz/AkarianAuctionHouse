@@ -10,6 +10,7 @@ import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.*;
 import net.akarian.auctionhouse.events.aahEvents.ListingBoughtEvents;
 import net.akarian.auctionhouse.events.aahEvents.ListingCreateEvents;
+import net.akarian.auctionhouse.layouts.LayoutManager;
 import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
 import net.akarian.auctionhouse.users.UserManager;
@@ -68,6 +69,10 @@ public final class AuctionHouse extends JavaPlugin {
     @Getter
     private UserManager userManager;
     private boolean loaded;
+    @Getter @Setter
+    private boolean debug;
+    @Getter
+    private LayoutManager layoutManager;
 
     @Override
     public void onEnable() {
@@ -79,17 +84,29 @@ public final class AuctionHouse extends JavaPlugin {
         this.fileManager = new FileManager(this);
         this.configFile = new Configuration();
         chat = new Chat(this, getConfigFile().getPrefix());
+        chat.log("ChatManager Successfully Loaded", debug);
+        chat.log("Loading NameManager...", debug);
         nameManager = new NameManager();
+        chat.log("NameManager Successfully Loaded", debug);
+        chat.log("Loading Messages...", debug);
         this.messages = new Messages();
+        chat.log("Messages Successfully Loaded", debug);
+        chat.log("Loading MySQL...", debug);
         mySQL = new MySQL();
+        chat.log("MySQL Successfully Loaded", debug);
+        chat.log("Loading UpdateManager...", debug);
         update = getConfigFile().isUpdates();
         updateManager = new UpdateManager(this);
+        chat.log("UpdateManager Successfully Loaded", debug);
+        chat.log("Loading GUIManager...", debug);
         guiManager = new GUIManager();
+        chat.log("GUIManager Successfully Loaded", debug);
+        chat.log("Loading CooldownManager...", debug);
         cooldownManager = new CooldownManager();
         getLogger().log(Level.INFO, "Setting up Economy...");
         if (!setupEconomy()) {
             chat.alert("&cAuctionHouse has failed to detect an economy. The plugin is now disabling");
-            chat.log("AuctionHouse disabled due to no found economy.");
+            chat.log("AuctionHouse disabled due to no found economy.", debug);
             setEnabled(false);
             return;
         }
@@ -126,6 +143,8 @@ public final class AuctionHouse extends JavaPlugin {
         getLogger().log(Level.INFO, "Loading users...");
         this.userManager = new UserManager();
         getLogger().log(Level.INFO, "Users loaded successfully.");
+        getLogger().log(Level.INFO, "Loading layouts...");
+        layoutManager = new LayoutManager();
         registerCommands();
         registerEvents();
 
@@ -177,6 +196,7 @@ public final class AuctionHouse extends JavaPlugin {
         }
         listingManager.cancelExpireTimer();
         listingManager.cancelRefreshTimer();
+        layoutManager.saveAllLayouts();
         userManager.saveUsers();
         if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();
@@ -278,7 +298,7 @@ public final class AuctionHouse extends JavaPlugin {
             fos.close();
             if (fileToZip.delete()) AuctionHouse.getInstance().getLogger().log(Level.INFO, "Zipped log " + cName + ".");
         } catch (IOException ex) {
-            chat.log("Error while zipping latest log.");
+            chat.log("Error while zipping latest log.", debug);
         }
     }
 
