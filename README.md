@@ -1,4 +1,3 @@
-# AkarianAuctionHouse
-Akarian's Auction House plugin
+Unreleased 1.1.0 Update Branch
 
-SpigotMC Link : https://www.spigotmc.org/resources/akarian-auction-house-1-17-x.97504/
+Feel free to test and see if you can find any bugs :)
