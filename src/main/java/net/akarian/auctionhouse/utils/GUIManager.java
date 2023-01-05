@@ -86,7 +86,6 @@ public class GUIManager implements Listener {
 
         Player p = (Player) e.getWhoClicked();
         ItemStack item = e.getCurrentItem();
-        chat.alert("hit click " + e.getRawSlot());
 
         int slot = e.getRawSlot();
         if((e.getInventory().getHolder() instanceof AkarianInventory)) {

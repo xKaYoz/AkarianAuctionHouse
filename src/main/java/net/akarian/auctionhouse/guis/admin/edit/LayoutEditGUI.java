@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.events.LayoutEditEvents;
 import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
@@ -54,6 +55,9 @@ public class LayoutEditGUI implements AkarianInventory {
     private boolean informationButton;
     @Getter @Setter
     private boolean expiredListingsButton;
+
+    Layout startingLayout;
+    //TODO Make it so the layout does not reset back to the original when using the Editor Guide
 
     public LayoutEditGUI(Player player, Layout layout) {
         this.player = player;
@@ -133,26 +137,33 @@ public class LayoutEditGUI implements AkarianInventory {
             case 82:
                 break;
             case 84:
-                player.openInventory(getInventory());
-                player.updateInventory();
+                isItems = false;
+                isSettings = false;
+                clear = true;
+                resetInventory();
                 break;
             case 85:
-                p.closeInventory();
-                chat.sendMessage(p, "&eType \"next\" for next page, \"previous\" for previous page, and \"cancel\" to go go back to the editor.");
-                helpMessage.put(p.getUniqueId(), this);
-                helpPage.put(p.getUniqueId(), 1);
+                helpMessage();
                 break;
             case 86:
                 save();
                 player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
                 layout.saveLayout();
                 restoreInventory(true);
+                break;
             case 88:
                 player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
                 restoreInventory(true);
                 break;
         }
 
+    }
+
+    public void helpMessage() {
+        player.closeInventory();
+        LayoutEditEvents.sendHelpMessage(player, 1);
+        helpMessage.put(player.getUniqueId(), this);
+        helpPage.put(player.getUniqueId(), 1);
     }
 
     @Override
@@ -214,8 +225,8 @@ public class LayoutEditGUI implements AkarianInventory {
             player.getInventory().setItem(9, ItemBuilder.build(layout.isSpacerPageItems() ? Material.LIME_DYE : Material.GRAY_DYE, 1, "&6Spacer Items on Page Items", Collections.singletonList("&7Whether to replace page items with spacers if there are no other pages.")));
         } else {
             player.getInventory().setItem(9, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1,"&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
-            player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Collections.singletonList("&7Click to get the Admin Mode button.")));
-            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, "&cClose", Collections.singletonList("&7Click to get the Close button.")));
+            player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&7Click to get the Admin Mode button.")));
+            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Collections.singletonList("&7Click to get the Close button.")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
             player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1,AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Collections.singletonList("&7Click to get a Previous Page button.")));
             player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Collections.singletonList("&7Click to get the Next Page button.")));
@@ -226,11 +237,7 @@ public class LayoutEditGUI implements AkarianInventory {
         }
     }
 
-    @NotNull
-    @Override
-    public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, layout.getInventorySize(), chat.format(layout.getInventoryName()));
-
+    public void resetInventory() {
         //Spacer Items
         for (Integer i : layout.getSpacerItems()) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
@@ -291,6 +298,83 @@ public class LayoutEditGUI implements AkarianInventory {
 
         player.getInventory().setItem(20, ItemBuilder.build(Material.LIME_DYE, 1, "&6Layout Settings", Collections.singletonList("&7Click to edit the settings of this layout.")));
         player.getInventory().setItem(24, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
+    }
+
+    @NotNull
+    @Override
+    public Inventory getInventory() {
+        inv = Bukkit.createInventory(this, layout.getInventorySize(), chat.format(layout.getInventoryName()));
+
+        //Spacer Items
+        for (Integer i : layout.getSpacerItems()) {
+            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+        }
+
+        if(layout.getAdminButton() != -1)
+            inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+
+
+        //Close Button
+        if(layout.getExitButton() != -1)
+            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+
+        //Listings
+        for (Integer i : layout.getListingItems()) {
+            inv.setItem(i, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Place where you want listings to be placed.")));
+        }
+
+        //Previous Page
+        if(layout.getPreviousPageButton() != -1) {
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            inv.setItem(layout.getPreviousPageButton(), previous);
+        }
+
+
+        //Next Page
+        if(layout.getNextPageButton() != -1) {
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            inv.setItem(layout.getNextPageButton(), next);
+        }
+
+
+        //Search Item
+        if(layout.getSearchButton() != -1) {
+            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+        }
+
+        //Info Item
+        if(layout.getInfoButton() != -1) {
+            List<String> infoDesc = new ArrayList<>();
+            for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                    infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
+                else
+                    infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
+            }
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+        }
+
+        //Expired Reclaim Item
+        if(layout.getExpiredItemsButton() != -1)
+            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+
+        //Sort Item
+        if(layout.getSortButton() != -1)
+            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+
+
+        //Bottom Lining
+        for (int i = 0; i <= 8; i++) {
+            player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+        }
+        player.getInventory().setItem(1, ItemBuilder.build(Material.LAVA_BUCKET, 1, "&cReset to Default", Collections.singletonList("&7Set the layout to the default layout.")));
+        player.getInventory().setItem(3, ItemBuilder.build(Material.WATER_BUCKET, 1, "&aReset to Current", Collections.singletonList("&7Reset the layout to the current layout.")));
+        player.getInventory().setItem(4, ItemBuilder.build(Material.BOOK, 1, "&6Editor Guide", Collections.singletonList("&7Click to open a book explaining how to use the editor.")));
+        player.getInventory().setItem(5, ItemBuilder.build(Material.SUNFLOWER, 1, "&6Exit and Save", Collections.singletonList("&7Exit and save the current layout.")));
+        player.getInventory().setItem(7, ItemBuilder.build(Material.BARRIER, 1, "&cExit", Collections.singletonList("&cExit and do not save&7.")));
+
+        player.getInventory().setItem(20, ItemBuilder.build(Material.LIME_DYE, 1, "&6Layout Settings", Collections.singletonList("&7Click to edit the settings of this layout.")));
+        player.getInventory().setItem(24, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
 
 
         return inv;
@@ -322,8 +406,17 @@ public class LayoutEditGUI implements AkarianInventory {
         List<Integer> listings = new ArrayList<>();
         List<Integer> spacers = new ArrayList<>();
 
+        layout.setAdminButton(-1);
+        layout.setExitButton(-1);
+        layout.setPreviousPageButton(-1);
+        layout.setNextPageButton(-1);
+        layout.setSearchButton(-1);
+        layout.setInfoButton(-1);
+        layout.setExpiredItemsButton(-1);
+        layout.setSortButton(-1);
+
         for (int i = 0; i < layout.getInventorySize(); i++) {
-            if (inv.getItem(i) == null) return;
+            if (inv.getItem(i) == null) continue;
             switch (Objects.requireNonNull(inv.getItem(i)).getType()) {
                 case LIME_DYE:
                 case GRAY_DYE:
