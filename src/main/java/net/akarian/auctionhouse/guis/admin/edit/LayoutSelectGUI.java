@@ -1,6 +1,7 @@
 package net.akarian.auctionhouse.guis.admin.edit;
 
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
@@ -35,6 +36,11 @@ public class LayoutSelectGUI implements AkarianInventory {
 
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
+
+        if(slot == 8) {
+            player.openInventory(new AuctionHouseAdminGUI().getInventory());
+            return;
+        }
 
         //Is listing
         if(slot >= 9 && slot <= 26) {

@@ -175,12 +175,30 @@ public class Listing {
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
         for (String s : AuctionHouse.getInstance().getMessages().getExpiredLore()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                        .replace("%price%", chat.formatMoney(price))));
-            else
-                lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                        .replace("%price%", chat.formatMoney(price)));
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                            lore.add(shulkers.replace("%amount%", amount + ""));
+                        }
+                    }
+                }
+            } else {
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price))));
+                else
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price)));
+            }
         }
 
         itemMeta.setLore(chat.formatList(lore));
@@ -208,12 +226,30 @@ public class Listing {
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
         for (String s : AuctionHouse.getInstance().getMessages().getExpiredAdminLore()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                        .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
-            else
-                lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                        .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                            lore.add(shulkers.replace("%amount%", amount + ""));
+                        }
+                    }
+                }
+            } else {
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
+                } else
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
+                            .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
+            }
         }
 
         itemMeta.setLore(chat.formatList(lore));

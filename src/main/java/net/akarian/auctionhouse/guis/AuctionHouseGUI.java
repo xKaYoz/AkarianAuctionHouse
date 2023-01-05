@@ -195,45 +195,53 @@ public class AuctionHouseGUI implements AkarianInventory {
         inv = Bukkit.createInventory(this, layout.getInventorySize(), chat.format(layout.getInventoryName()));
 
         //Spacer Items
-        for(Integer i : layout.getSpacerItems()) {
+        for (Integer i : layout.getSpacerItems()) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
         }
 
         //Admin Button
-        if (player.hasPermission("auctionhouse.admin.manage")) {
-            if (!adminMode)
-                inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
-            else {
-                inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+        if(layout.getAdminButton() != -1) {
+            if (player.hasPermission("auctionhouse.admin.manage")) {
+                if (!adminMode)
+                    inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
+                else {
+                    inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+                }
             }
         }
 
         //Close Button
-        inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+        if(layout.getExitButton() != -1)
+            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
 
         //Listings
         updateInventory();
 
         //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(layout.getPreviousPageButton(), previous);
-        } else {
-            if(layout.isSpacerPageItems())
-                inv.setItem(layout.getPreviousPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+        if (layout.getPreviousPageButton() != -1) {
+            if (page != 1) {
+                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+                inv.setItem(layout.getPreviousPageButton(), previous);
+            } else {
+                if (layout.isSpacerPageItems())
+                    inv.setItem(layout.getPreviousPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+            }
         }
 
         //Next Page
-        if (listings.size() > layout.getListingItems().size() * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(layout.getNextPageButton(), next);
-        } else {
-            if(layout.isSpacerPageItems())
-                inv.setItem(layout.getNextPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+        if (layout.getNextPageButton() != -1) {
+            if (listings.size() > layout.getListingItems().size() * page) {
+                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+                inv.setItem(layout.getNextPageButton(), next);
+            } else {
+                if (layout.isSpacerPageItems())
+                    inv.setItem(layout.getNextPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+            }
         }
 
         //Search Item
-        inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+        if (layout.getSearchButton() != -1)
+            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
 
         //Info Item
         List<String> infoDesc = new ArrayList<>();
@@ -243,13 +251,16 @@ public class AuctionHouseGUI implements AkarianInventory {
             else
                 infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
         }
-        inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+        if (layout.getInfoButton() != -1)
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
 
         //Expired Reclaim Item
-        inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+        if (layout.getExpiredItemsButton() != -1)
+            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
 
         //Sort Item
-        inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+        if (layout.getSortButton() != -1)
+            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
 
         /* OLD
 
@@ -313,7 +324,7 @@ public class AuctionHouseGUI implements AkarianInventory {
 
     public boolean search(Listing listing) {
         //Checking if player is searching
-        if(this.search) {
+        if (this.search) {
             //Check if the search is searching by seller
             if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
                 String playerName = searchStr.split(":")[1];
@@ -326,6 +337,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         }
         return true;
     }
+
     private Listing[] sortedList() {
 
         Listing[] listings = AuctionHouse.getInstance().getListingManager().getActive().toArray(new Listing[0]);
@@ -334,7 +346,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             case OVERALL_PRICE:
                 if (!sortBool)
                     Arrays.sort(listings, new PriceComparatorLG());
-                 else
+                else
                     Arrays.sort(listings, new PriceComparatorGL());
 
                 break;
@@ -372,10 +384,10 @@ public class AuctionHouseGUI implements AkarianInventory {
         int end = page * layout.getListingItems().size();
         int t = end - layout.getListingItems().size();
         int list = 0;
-        for(Integer i : layout.getListingItems()) {
+        for (Integer i : layout.getListingItems()) {
             inv.setItem(i, null);
         }
-        for(Integer i : layout.getListingItems()) {
+        for (Integer i : layout.getListingItems()) {
             if (listings.size() == t || t >= end) {
                 break;
             }
