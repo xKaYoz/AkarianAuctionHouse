@@ -10,7 +10,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -55,19 +57,11 @@ public class LayoutEditEvents implements Listener {
                     chat.sendRawMessage(player, "                  &6&lAuction House Editor Guide &7(3/3) ");
                     chat.sendRawMessage(player, "&7> &fWhile in the editor, you can &e&nRight Click&f am item to remove it.");
                     chat.sendRawMessage(player, "&7> &fYou can also click the &e&nMiddle Mouse Button&f to get another of the clicked item.");
+                    chat.sendRawMessage(player, "&7> &fTo get rid of an item that you have on your cursor, just drop it outside of the inventory.");
                     chat.sendRawMessage(player, " ");
                     chat.sendRawMessage(player, "&eType \"previous\" for previous page or \"cancel\" to go back to the editor.");
                 }, 0, 20 * 30));
                 break;
-        }
-    }
-
-    @EventHandler
-    public static void onPlace(PlayerInteractEvent e) {
-        Player player = e.getPlayer();
-        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId())
-                || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId())) {
-            e.setCancelled(true);
         }
     }
 
@@ -78,8 +72,7 @@ public class LayoutEditEvents implements Listener {
         for (Integer i : layout.getSpacerItems()) {
             if (i >= 27) return true;
         }
-        return layout.getAdminButton() >= 27 || layout.getExitButton() >= 27 || layout.getPreviousPageButton() >= 27 || layout.getNextPageButton() >= 27
-                || layout.getSearchButton() >= 27 || layout.getExpiredItemsButton() >= 27 || layout.getInfoButton() >= 27 || layout.getSortButton() >= 27;
+        return layout.getAdminButton() >= 27 || layout.getExitButton() >= 27 || layout.getPreviousPageButton() >= 27 || layout.getNextPageButton() >= 27 || layout.getSearchButton() >= 27 || layout.getExpiredItemsButton() >= 27 || layout.getInfoButton() >= 27 || layout.getSortButton() >= 27;
     }
 
     public static boolean needsReset36(Layout layout) {
@@ -89,8 +82,7 @@ public class LayoutEditEvents implements Listener {
         for (Integer i : layout.getSpacerItems()) {
             if (i >= 36) return true;
         }
-        return layout.getAdminButton() >= 36 || layout.getExitButton() >= 36 || layout.getPreviousPageButton() >= 36 || layout.getNextPageButton() >= 36
-                || layout.getSearchButton() >= 36 || layout.getExpiredItemsButton() >= 36 || layout.getInfoButton() >= 36 || layout.getSortButton() >= 36;
+        return layout.getAdminButton() >= 36 || layout.getExitButton() >= 36 || layout.getPreviousPageButton() >= 36 || layout.getNextPageButton() >= 36 || layout.getSearchButton() >= 36 || layout.getExpiredItemsButton() >= 36 || layout.getInfoButton() >= 36 || layout.getSortButton() >= 36;
     }
 
     public static boolean needsReset45(Layout layout) {
@@ -100,8 +92,7 @@ public class LayoutEditEvents implements Listener {
         for (Integer i : layout.getSpacerItems()) {
             if (i >= 45) return true;
         }
-        return layout.getAdminButton() >= 45 || layout.getExitButton() >= 45 || layout.getPreviousPageButton() >= 45 || layout.getNextPageButton() >= 45
-                || layout.getSearchButton() >= 45 || layout.getExpiredItemsButton() >= 45 || layout.getInfoButton() >= 45 || layout.getSortButton() >= 45;
+        return layout.getAdminButton() >= 45 || layout.getExitButton() >= 45 || layout.getPreviousPageButton() >= 45 || layout.getNextPageButton() >= 45 || layout.getSearchButton() >= 45 || layout.getExpiredItemsButton() >= 45 || layout.getInfoButton() >= 45 || layout.getSortButton() >= 45;
     }
 
     public static void setDefault27(Layout layout) {
@@ -261,6 +252,48 @@ public class LayoutEditEvents implements Listener {
     }
 
     @EventHandler
+    public void onPlace(PlayerInteractEvent e) {
+        Player player = e.getPlayer();
+        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onDrop(PlayerDropItemEvent e) {
+        Player player = e.getPlayer();
+        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent e) {
+        Player player = e.getPlayer();
+        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
+
+            LayoutEditGUI gui;
+
+            if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId())) {
+                gui = LayoutEditGUI.getLayoutNameEdit().get(player.getUniqueId());
+            } else if (LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId())) {
+                gui = LayoutEditGUI.getHelpMessage().get(player.getUniqueId());
+            } else if (LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId())) {
+                gui = LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId());
+            } else {
+                gui = LayoutEditGUI.getInventorySizeEdit().get(player.getUniqueId());
+            }
+
+            gui.restoreInventory(false);
+
+            LayoutEditGUI.getLayoutNameEdit().remove(player.getUniqueId());
+            LayoutEditGUI.getHelpMessage().remove(player.getUniqueId());
+            LayoutEditGUI.getDisplayNameEdit().remove(player.getUniqueId());
+            LayoutEditGUI.getInventorySizeEdit().remove(player.getUniqueId());
+        }
+    }
+
+    @EventHandler
     public void onChat(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
         String input = e.getMessage();
@@ -349,8 +382,7 @@ public class LayoutEditEvents implements Listener {
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
                     if (needsReset27(layout)) {
-                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 27. To set this layout to the default size 27 inventory, type \"confirm\". If not " +
-                                "please select another size or use \"cancel\" to return to the editor.");
+                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 27. To set this layout to the default size 27 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm27.add(player.getUniqueId());
                         return;
                     } else {
@@ -363,8 +395,7 @@ public class LayoutEditEvents implements Listener {
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
                     if (needsReset36(layout)) {
-                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 36. To set this layout to the default size 36 inventory, type \"confirm\". If not " +
-                                "please select another size or use \"cancel\" to return to the editor.");
+                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 36. To set this layout to the default size 36 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm36.add(player.getUniqueId());
                         return;
                     } else {
@@ -377,8 +408,7 @@ public class LayoutEditEvents implements Listener {
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
                     if (needsReset45(layout)) {
-                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 45. To set this layout to the default size 45 inventory, type \"confirm\". If not " +
-                                "please select another size or use \"cancel\" to return to the editor.");
+                        chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 45. To set this layout to the default size 45 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm45.add(player.getUniqueId());
                         return;
                     } else {
