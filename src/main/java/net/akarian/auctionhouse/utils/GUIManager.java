@@ -42,10 +42,17 @@ public class GUIManager implements Listener {
 
             if(e.getInventory().getHolder() instanceof LayoutEditGUI) {
                 LayoutEditGUI gui = (LayoutEditGUI) e.getInventory().getHolder();
-
-                gui.restoreInventory(true);
+                if(LayoutEditGUI.getHelpMessage().containsKey(p.getUniqueId())
+                    || LayoutEditGUI.getLayoutNameEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(p.getUniqueId())) {
+                    chat.alert("hit false");
+                    Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), gui::giveEditorMenu, 1);
+                } else {
+                    chat.alert("restoring inv");
+                    Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), () -> {
+                        gui.restoreInventory(false);
+                    }, 1);
+                }
             }
-
             getGui().remove(e.getPlayer().getUniqueId().toString(), (AkarianInventory) e.getInventory().getHolder());
             //chat.alert("REMOVED " + e.getPlayer().getUniqueId() + " with " + ((AkarianInventory) e.getInventory().getHolder()).getClass());
         }

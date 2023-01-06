@@ -23,14 +23,14 @@ public class Layout {
 
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final FileManager fm = AuctionHouse.getInstance().getFileManager();
-    @Getter
+    @Getter @Setter
     private String name;
     @Getter @Setter
     private boolean active;
     @Getter @Setter
     private Material displayType;
     @Getter
-    private UUID uuid;
+    private final UUID uuid;
     @Getter @Setter
     private boolean spacerPageItems;
 
@@ -40,9 +40,9 @@ public class Layout {
     }
 
     public void loadLayout() {
-        YamlConfiguration config = fm.getConfig("/layouts/" + name);
+        YamlConfiguration config = fm.getConfig("/layouts/" + uuid.toString());
 
-        uuid = UUID.fromString(config.getString("UUID"));
+        name = config.getString("Name");
         inventoryName = config.getString("Inventory Name");
         inventorySize = config.getInt("Inventory Size");
 
@@ -64,12 +64,12 @@ public class Layout {
     }
 
     public void saveLayout() {
-        if(!fm.getFile("/layouts/" + name).exists()) {
-            fm.createFile("/layouts/" + name);
+        if(!fm.getFile("/layouts/" + uuid.toString()).exists()) {
+            fm.createFile("/layouts/" + uuid.toString());
         }
-        YamlConfiguration config = fm.getConfig(name);
+        YamlConfiguration config = fm.getConfig(uuid.toString());
 
-        config.set("UUID", uuid.toString());
+        config.set("Name", name);
         config.set("Active", active);
         config.set("Inventory Name", inventoryName);
         config.set("Inventory Size", inventorySize);
@@ -87,12 +87,12 @@ public class Layout {
         config.set("Display Type", displayType.name());
         config.set("Spacer Page Items", spacerPageItems);
 
-        fm.saveFile(config, "/layouts/" + name);
+        fm.saveFile(config, "/layouts/" + uuid.toString());
     }
 
     public void delete() {
-        if(fm.getFile("/layouts/" + name).delete()) {
-            chat.log("Deleted layout " + name + ".", true);
+        if(fm.getFile("/layouts/" + uuid.toString()).delete()) {
+            chat.log("Deleted layout " + name + " (" + uuid.toString() + ").", true);
         }
     }
 

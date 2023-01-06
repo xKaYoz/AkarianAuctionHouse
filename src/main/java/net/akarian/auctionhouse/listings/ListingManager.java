@@ -1025,7 +1025,7 @@ public class ListingManager {
                             chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                         }
-                        chat.log("Loaded " + expired.size() + " expired listings and " + unclaimed.size() + " unclaimed expired listings.", AuctionHouse.getInstance().isDebug());
+                        chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }

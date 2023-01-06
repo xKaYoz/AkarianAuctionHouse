@@ -35,7 +35,7 @@ public class LayoutManager {
         }
         int loaded = 0;
         for(File file : new File(AuctionHouse.getInstance().getDataFolder() + File.separator + "layouts").listFiles()) {
-            Layout layout = new Layout(null, file.getName().replace(".yml", ""));
+            Layout layout = new Layout(UUID.fromString(file.getName().replace(".yml", "")), "");
             layout.loadLayout();
             register(layout);
             if(layout.isActive()) {
