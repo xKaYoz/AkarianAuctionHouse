@@ -5,7 +5,6 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -44,13 +43,9 @@ public class GUIManager implements Listener {
                 LayoutEditGUI gui = (LayoutEditGUI) e.getInventory().getHolder();
                 if(LayoutEditGUI.getHelpMessage().containsKey(p.getUniqueId())
                     || LayoutEditGUI.getLayoutNameEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(p.getUniqueId())) {
-                    chat.alert("hit false");
                     Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), gui::giveEditorMenu, 1);
                 } else {
-                    chat.alert("restoring inv");
-                    Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), () -> {
-                        gui.restoreInventory(false);
-                    }, 1);
+                    Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), () -> gui.restoreInventory(false), 1);
                 }
             }
             getGui().remove(e.getPlayer().getUniqueId().toString(), (AkarianInventory) e.getInventory().getHolder());
@@ -115,6 +110,11 @@ public class GUIManager implements Listener {
                          p.setItemOnCursor(e.getCurrentItem());
                          e.getInventory().setItem(e.getRawSlot(), null);
                      } else if(e.getCurrentItem() != null && e.getCursor() != null) {
+                         if (e.getClick() == ClickType.MIDDLE) {
+                             p.setItemOnCursor(e.getCurrentItem());
+                             e.getInventory().setItem(e.getRawSlot(), e.getCurrentItem());
+                             return;
+                         }
                          ItemStack cursor = e.getCursor();
                          ItemStack current = e.getCurrentItem();
                          p.setItemOnCursor(current);
