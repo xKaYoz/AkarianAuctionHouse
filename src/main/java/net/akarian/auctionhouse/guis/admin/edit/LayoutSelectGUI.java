@@ -3,7 +3,6 @@ package net.akarian.auctionhouse.guis.admin.edit;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.layouts.Layout;
-import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -68,8 +67,14 @@ public class LayoutSelectGUI implements AkarianInventory {
             }
         }
 
-        if(slot == 31) {
+        if (slot == 31) {
             AuctionHouse.getInstance().getLayoutManager().createDefaultLayout(cloned.size() + 1 + "", false);
+        } else if (slot == 34 && item.getType() == Material.NETHER_STAR) {
+            page++;
+            updateInventory();
+        } else if (slot == 28 && item.getType() == Material.NETHER_STAR) {
+            page--;
+            updateInventory();
         }
     }
 
@@ -97,9 +102,18 @@ public class LayoutSelectGUI implements AkarianInventory {
             t++;
         }
 
+        if (page != 1) {
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            inv.setItem(28, previous);
+        } else {
+            inv.setItem(28, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+        }
+
         if (cloned.size() > 18 * page) {
             ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(34, next);
+        } else {
+            inv.setItem(34, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
         }
     }
 
