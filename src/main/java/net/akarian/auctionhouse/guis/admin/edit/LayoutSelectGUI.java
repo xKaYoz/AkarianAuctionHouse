@@ -63,7 +63,7 @@ public class LayoutSelectGUI implements AkarianInventory {
                 }
             } else {
                 if (type.isLeftClick()) {
-                    p.openInventory(new LayoutEditGUI(p, AuctionHouse.getInstance().getLayoutManager().getLayout(uuid)).getInventory());
+                    p.openInventory(new LayoutEditGUI(p, AuctionHouse.getInstance().getLayoutManager().getLayout(uuid)).cloneInventory(true).getInventory());
                 }
             }
         }
@@ -91,7 +91,7 @@ public class LayoutSelectGUI implements AkarianInventory {
             if (cloned.size() == t || t >= end) {
                 break;
             }
-            inv.setItem(slot, ItemBuilder.build(cloned.get(i).getDisplayType(), 1, "&e" + cloned.get(i).getInventoryName(), Arrays.asList("&7Left click to edit", "&7Shift + Left click to set to active", cloned.get(i).isActive() ? null : "&7Shift + Right click to delete"),
+            inv.setItem(slot, ItemBuilder.build(cloned.get(i).getDisplayType(), 1, "&e" + cloned.get(i).getName(), Arrays.asList("&7Display Name: &f" + cloned.get(i).getInventoryName(), "&7Left click to edit", "&7Shift + Left click to set to active", cloned.get(i).isActive() ? null : "&7Shift + Right click to delete"),
                     cloned.get(i).isActive() ? "shine" : "", "uuid_" + cloned.get(i).getUuid().toString()));
             slot++;
             t++;

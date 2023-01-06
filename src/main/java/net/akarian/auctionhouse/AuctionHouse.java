@@ -183,6 +183,7 @@ public final class AuctionHouse extends JavaPlugin {
         pm.registerEvents(new ListingBoughtEvents(), this);
         pm.registerEvents(new UserEvents(), this);
         pm.registerEvents(new SettingsGUIEvents(), this);
+        pm.registerEvents(new LayoutEditEvents(), this);
 
         pm.registerEvents(guiManager, this);
     }
