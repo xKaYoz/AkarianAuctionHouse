@@ -6,7 +6,9 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.events.LayoutEditEvents;
 import net.akarian.auctionhouse.layouts.Layout;
-import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.AkarianInventory;
+import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -83,29 +85,29 @@ public class LayoutEditGUI implements AkarianInventory {
 
         int i = layout.getInventorySize();
 
-        if(isSettings) {
-            if(slot == i) { //Spacer page item
+        if (isSettings) {
+            if (slot == i) { //Spacer page item
                 layout.setSpacerPageItems(!layout.isSpacerPageItems());
                 return;
-            } else if(slot == i + 1) { //Layout Name
+            } else if (slot == i + 1) { //Layout Name
                 layoutNameEdit.put(player.getUniqueId(), this);
                 chat.sendMessage(player, "&eEnter the new name for this layout...");
                 player.closeInventory();
                 isSettings = false;
                 return;
-            } else if(slot == i + 2) { // Display Name
+            } else if (slot == i + 2) { // Display Name
                 displayNameEdit.put(player.getUniqueId(), this);
                 chat.sendMessage(player, "&eEnter the new display name for this layout...");
                 player.closeInventory();
                 isSettings = false;
                 return;
-            } else if(slot == i + 3) { //Inventory size
+            } else if (slot == i + 3) { //Inventory size
                 inventorySizeEdit.put(player.getUniqueId(), this);
                 chat.sendMessage(player, "&ePlease enter whether you'd like a 27, 36, 45, or 54 size Auction House...");
                 player.closeInventory();
                 isSettings = false;
                 return;
-            } else if(slot == i + 22) { //Return button
+            } else if (slot == i + 22) { //Return button
                 isSettings = false;
                 clear = true;
                 updateItems = 4;
@@ -139,7 +141,7 @@ public class LayoutEditGUI implements AkarianInventory {
             } else if (slot == i + 8) {
                 sortButton = true;
                 return;
-            } else if(slot == i + 9) {
+            } else if (slot == i + 9) {
                 expiredListingsButton = true;
                 return;
             } else if (slot == i + 22) {
@@ -149,32 +151,63 @@ public class LayoutEditGUI implements AkarianInventory {
                 return;
             }
         } else {
-            if(slot == i + 11) {
+            if (slot == i + 11) {
                 isSettings = true;
                 clear = true;
                 return;
-            } else if(slot == i + 15) {
+            } else if (slot == i + 15) {
                 isItems = true;
                 clear = true;
                 return;
             }
         }
 
-        if(slot == i + 28) {// Reset to Default
-            //TODO Rest to default
-        } else if(slot == i + 30) {
+        if (slot == i + 28) {// Reset to Default
+            if (type.isShiftClick() && type.isRightClick()) {
+                switch (layout.getInventorySize()) {
+                    case 27:
+                        inventorySizeEdit.put(p.getUniqueId(), this);
+                        LayoutEditEvents.setDefault27(layout);
+                        player.openInventory(getInventory());
+                        giveEditorMenu();
+                        inventorySizeEdit.remove(p.getUniqueId());
+                        break;
+                    case 36:
+                        inventorySizeEdit.put(p.getUniqueId(), this);
+                        LayoutEditEvents.setDefault36(layout);
+                        player.openInventory(getInventory());
+                        giveEditorMenu();
+                        inventorySizeEdit.remove(p.getUniqueId());
+                        break;
+                    case 45:
+                        inventorySizeEdit.put(p.getUniqueId(), this);
+                        LayoutEditEvents.setDefault45(layout);
+                        player.openInventory(getInventory());
+                        giveEditorMenu();
+                        inventorySizeEdit.remove(p.getUniqueId());
+                        break;
+                    case 54:
+                        inventorySizeEdit.put(p.getUniqueId(), this);
+                        LayoutEditEvents.setDefault54(layout);
+                        player.openInventory(getInventory());
+                        giveEditorMenu();
+                        inventorySizeEdit.remove(p.getUniqueId());
+                        break;
+                }
+            }
+        } else if (slot == i + 30) {
             isItems = false;
             isSettings = false;
             clear = true;
             resetInventory();
-        } else if(slot == i + 31) {
+        } else if (slot == i + 31) {
             sendHelpMessage();
-        } else if(slot == i + 32) {
+        } else if (slot == i + 32) {
             save();
             player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
             layout.saveLayout();
             resetInventory();
-        } else if(slot == i + 35) {
+        } else if (slot == i + 34) {
             player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
             restoreInventory(true);
         }
@@ -197,6 +230,7 @@ public class LayoutEditGUI implements AkarianInventory {
         helpMessage.remove(player.getUniqueId());
         helpPage.remove(player.getUniqueId());
     }
+
     public void returnFromLayoutName() {
         player.openInventory(getInv());
         giveEditorMenu();
@@ -204,6 +238,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
         layoutNameEdit.remove(player.getUniqueId());
     }
+
     public void returnFromDisplayName() {
         player.openInventory(getInv());
         giveEditorMenu();
@@ -211,18 +246,23 @@ public class LayoutEditGUI implements AkarianInventory {
 
         displayNameEdit.remove(player.getUniqueId());
     }
+
     public void returnFromInventorySizeEdit() {
         player.openInventory(getInventory());
         inventorySizeEdit.remove(player.getUniqueId());
+        giveEditorMenu();
     }
 
     public void giveEditorMenu() {
+        for (int i = 0; i <= 35; i++) {
+            player.getInventory().setItem(i, null);
+        }
         for (int i = 0; i <= 8; i++) {
             player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
         }
-        player.getInventory().setItem(1, ItemBuilder.build(Material.LAVA_BUCKET, 1, "&cReset to Default", Collections.singletonList("&7Set the layout to the default layout.")));
+        player.getInventory().setItem(1, ItemBuilder.build(Material.LAVA_BUCKET, 1, "&cReset to Default", Arrays.asList("&7Set the layout to the default layout.", "&7Shift + Right Click to use", "", "&cCAUTION: This action cannot be undone!")));
         player.getInventory().setItem(3, ItemBuilder.build(Material.WATER_BUCKET, 1, "&aReset to Current", Collections.singletonList("&7Reset the layout to the current layout.")));
-        player.getInventory().setItem(4, ItemBuilder.build(Material.BOOK, 1, "&6Editor Guide", Collections.singletonList("&7Click to open a book explaining how to use the editor.")));
+        player.getInventory().setItem(4, ItemBuilder.build(Material.BOOK, 1, "&6Editor Guide", Collections.singletonList("&7Click to open a prompt explaining how to use the editor.")));
         player.getInventory().setItem(5, ItemBuilder.build(Material.SUNFLOWER, 1, "&6Exit and Save", Collections.singletonList("&7Exit and save the current layout.")));
         player.getInventory().setItem(7, ItemBuilder.build(Material.BARRIER, 1, "&cExit", Collections.singletonList("&cExit and do not save&7.")));
 
@@ -299,15 +339,15 @@ public class LayoutEditGUI implements AkarianInventory {
         //Layout Items Menu
         else {
             player.getInventory().setItem(9, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, "&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
-            player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&7Click to get the Admin Mode button.")));
-            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Collections.singletonList("&7Click to get the Close button.")));
+            player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Arrays.asList("&7Click to get the Admin Mode button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Arrays.asList("&7Click to get the Close button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
-            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Collections.singletonList("&7Click to get a Previous Page button.")));
-            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Collections.singletonList("&7Click to get the Next Page button.")));
-            player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), Collections.singletonList("&7Click to get the Search button.")));
-            player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), Collections.singletonList("&7Click to get the Information button.")));
-            player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), Collections.singletonList("&7Click to get the Sort button.")));
-            player.getInventory().setItem(18, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), Collections.singletonList("&7Click to get the Expired Listings button.")));
+            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Arrays.asList("&7Click to get a Previous Page button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Arrays.asList("&7Click to get the Next Page button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), Arrays.asList("&7Click to get the Search button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), Arrays.asList("&7Click to get the Information button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), Arrays.asList("&7Click to get the Sort button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(18, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), Arrays.asList("&7Click to get the Expired Listings button.", "&eYou can only have one of these items!")));
         }
     }
 
@@ -440,7 +480,6 @@ public class LayoutEditGUI implements AkarianInventory {
         for (int i = 0; i <= 35; i++) {
             if (player.getInventory().getItem(i) != null) {
                 playerInventory.put(i, player.getInventory().getItem(i));
-                chat.alert("cloned " + player.getInventory().getItem(i).getType().name() + " at " + i);
                 if (clear) player.getInventory().setItem(i, null);
             }
         }
@@ -455,7 +494,7 @@ public class LayoutEditGUI implements AkarianInventory {
      */
     public void restoreInventory(boolean clear) {
         HashMap<Integer, ItemStack> cloned = (HashMap<Integer, ItemStack>) playerInventory.clone();
-        for(int i = 0; i <= 35; i++) {
+        for (int i = 0; i <= 35; i++) {
             player.getInventory().setItem(i, null);
         }
         player.updateInventory();
@@ -463,8 +502,7 @@ public class LayoutEditGUI implements AkarianInventory {
             ItemStack itemStack = set.getValue();
             int slot = set.getKey();
             player.getInventory().setItem(slot, itemStack);
-            chat.alert("restored "+ itemStack.getType().name() + " at " + slot);
-            if (clear) playerInventory.remove(itemStack, slot);
+            if (clear) playerInventory.remove(slot, itemStack);
         }
     }
 

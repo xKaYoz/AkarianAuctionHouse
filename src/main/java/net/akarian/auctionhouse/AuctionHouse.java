@@ -10,6 +10,7 @@ import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.*;
 import net.akarian.auctionhouse.events.aahEvents.ListingBoughtEvents;
 import net.akarian.auctionhouse.events.aahEvents.ListingCreateEvents;
+import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
 import net.akarian.auctionhouse.layouts.LayoutManager;
 import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
@@ -30,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Base64;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -203,6 +205,18 @@ public final class AuctionHouse extends JavaPlugin {
             mySQL.shutdown();
         }
         guiManager.closeAllInventories();
+        for (UUID uuid : LayoutEditGUI.getLayoutNameEdit().keySet()) {
+            LayoutEditGUI.getLayoutNameEdit().get(uuid).restoreInventory(true);
+        }
+        for (UUID uuid : LayoutEditGUI.getHelpMessage().keySet()) {
+            LayoutEditGUI.getHelpMessage().get(uuid).restoreInventory(true);
+        }
+        for (UUID uuid : LayoutEditGUI.getInventorySizeEdit().keySet()) {
+            LayoutEditGUI.getInventorySizeEdit().get(uuid).restoreInventory(true);
+        }
+        for (UUID uuid : LayoutEditGUI.getDisplayNameEdit().keySet()) {
+            LayoutEditGUI.getDisplayNameEdit().get(uuid).restoreInventory(true);
+        }
         cooldownManager.saveCooldowns();
         configFile.saveConfig();
         zipLog();
