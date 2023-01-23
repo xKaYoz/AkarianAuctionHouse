@@ -43,34 +43,34 @@ public class MySQL {
             expiredTable = AuctionHouse.getInstance().getConfigFile().getDb_expired();
             completedTable = AuctionHouse.getInstance().getConfigFile().getDb_completed();
 
-            chat.log("---------- Akarian Auction House MySQL Manager ----------");
-            chat.log("");
+            chat.log("---------- Akarian Auction House MySQL Manager ----------", AuctionHouse.getInstance().isDebug());
+            chat.log("", AuctionHouse.getInstance().isDebug());
 
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
-                chat.log("Connecting to the MySQL database...");
+                chat.log("Connecting to the MySQL database...", AuctionHouse.getInstance().isDebug());
                 setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
-                chat.log("");
-                chat.log(plugin.getName() + " has successfully established a connection to the MySQL database.");
-                chat.log("");
-                chat.log("Checking Tables...");
-                chat.log("");
+                chat.log("", AuctionHouse.getInstance().isDebug());
+                chat.log(plugin.getName() + " has successfully established a connection to the MySQL database.", AuctionHouse.getInstance().isDebug());
+                chat.log("", AuctionHouse.getInstance().isDebug());
+                chat.log("Checking Tables...", AuctionHouse.getInstance().isDebug());
+                chat.log("", AuctionHouse.getInstance().isDebug());
                 if (checkTable(listingsTable, "ID VARCHAR(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) DEFAULT '0', BUYER varchar(255) DEFAULT NULL"))
-                    chat.log("Listings table checked.");
+                    chat.log("Listings table checked.", AuctionHouse.getInstance().isDebug());
                 else
-                    chat.log("!! Listings Table Failed Check !!");
+                    chat.log("!! Listings Table Failed Check !!", AuctionHouse.getInstance().isDebug());
                 if (checkTable(expiredTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, REASON varchar(255) NOT NULL, RECLAIMED BOOLEAN DEFAULT '0'"))
-                    chat.log("Expired table checked.");
+                    chat.log("Expired table checked.", AuctionHouse.getInstance().isDebug());
                 else
-                    chat.log("!! Expired Table Failed Check !!");
+                    chat.log("!! Expired Table Failed Check !!", AuctionHouse.getInstance().isDebug());
                 if (checkTable(completedTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, BUYER varchar(255) NOT NULL"))
-                    chat.log("Completed table checked.");
+                    chat.log("Completed table checked.", AuctionHouse.getInstance().isDebug());
                 else
-                    chat.log("!! Completed Table Failed Check !!");
-                chat.log("");
-                chat.log("Starting connection timer.");
+                    chat.log("!! Completed Table Failed Check !!", AuctionHouse.getInstance().isDebug());
+                chat.log("", AuctionHouse.getInstance().isDebug());
+                chat.log("Starting connection timer.", AuctionHouse.getInstance().isDebug());
                 startConnectionTimer();
-                chat.log("---------------------------------------------");
+                chat.log("---------------------------------------------", AuctionHouse.getInstance().isDebug());
                 if (transferring != null) {
                     Bukkit.getPlayer(transferring).openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).getInventory());
                 }
@@ -78,8 +78,8 @@ public class MySQL {
             } catch (Exception e) {
                 e.printStackTrace();
                 plugin.getLogger().log(Level.SEVERE, "An error has occurred while connecting to the database. Please see stacktrace above.");
-                chat.log("");
-                chat.log("---------------------------------------------");
+                chat.log("", AuctionHouse.getInstance().isDebug());
+                chat.log("---------------------------------------------", AuctionHouse.getInstance().isDebug());
                 if (transferring != null) {
                     Bukkit.getPlayer(transferring).openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).connectionDisapproved());
                 }
@@ -122,9 +122,9 @@ public class MySQL {
 
         Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
             if(reconnect())
-                chat.log("Successfully established reconnection timer to the database.");
+                chat.log("Successfully established reconnection timer to the database.", AuctionHouse.getInstance().isDebug());
             else
-                chat.log("Failed to establish reconnection timer.");
+                chat.log("Failed to establish reconnection timer.", AuctionHouse.getInstance().isDebug());
         }, 0, 20 * 60 * 60);
     }
 
@@ -132,14 +132,14 @@ public class MySQL {
         try {
             if(getConnection().isClosed()) {
                 setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
-                chat.log("Successfully reconnected to MySQL Database.");
+                chat.log("Successfully reconnected to MySQL Database.", AuctionHouse.getInstance().isDebug());
             } else {
-                chat.log("Connection to Database not closed. Not reconnecting.");
+                chat.log("Connection to Database not closed. Not reconnecting.", AuctionHouse.getInstance().isDebug());
             }
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
-            chat.log("!! Failed to reconnect to MySQL Database.");
+            chat.log("!! Failed to reconnect to MySQL Database.", AuctionHouse.getInstance().isDebug());
             return false;
         }
     }
@@ -147,10 +147,10 @@ public class MySQL {
     public boolean shutdown() {
         try {
             this.connection.close();
-            chat.log("MySQL Connection has successfully shut down.");
+            chat.log("MySQL Connection has successfully shut down.", AuctionHouse.getInstance().isDebug());
         } catch (SQLException e) {
             e.printStackTrace();
-            chat.log("!! MySQL Connection failed to shut down.");
+            chat.log("!! MySQL Connection failed to shut down.", AuctionHouse.getInstance().isDebug());
             return false;
         }
         this.connected = false;

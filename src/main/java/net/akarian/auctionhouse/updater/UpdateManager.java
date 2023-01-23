@@ -23,10 +23,10 @@ public class UpdateManager {
             reloadUpdater();
             if (isUpdate() == 2) {
                 chat.alert("&eAn update has been found.");
-                chat.log("Update found");
+                chat.log("Update found", AuctionHouse.getInstance().isDebug());
             }
         } else {
-            chat.log("Updates are disabled. Disabling Update Manager");
+            chat.log("Updates are disabled. Disabling Update Manager", AuctionHouse.getInstance().isDebug());
         }
     }
 

@@ -80,7 +80,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
         for (String s : args) {
             builder.append(s).append(" ");
         }
-        AuctionHouse.getInstance().getChat().log(sender.getName() + " executed " + str + " in " + (System.currentTimeMillis() - time) + "ms. (" + builder.toString().trim() + ")");
+        AuctionHouse.getInstance().getChat().log(sender.getName() + " executed " + str + " in " + (System.currentTimeMillis() - time) + "ms. (" + builder.toString().trim() + ")", AuctionHouse.getInstance().isDebug());
     }
 
 

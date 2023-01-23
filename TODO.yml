@@ -1,27 +1,3 @@
-#TODO v1.0.0 Checklist
-
-#DONE Listing Fees
-#DONE Add database GUI
-#DONE Add Active Listing GUI
-#DONE Add Expired Listing GUI
-#DONE Add Completed Listing GUI
-#DONE Make all expired items go into the expired listings instead of their inventory by default.
-  Add a settings menu for server admins to set the defaults and players to set their own settings.
-  #DONE Create a cache system to ease loads. Improvements have been made but there is room for more
-  Add option to tax the sale of the auction.
-  #DONE NPCs
-  NPC Edit Menu
-  #DONE Implement new AH admin menu. Make a toggle button at the top of the screen to toggle admin mode.
-  Add Messages Edit Menu
-#DONE Make back buttons work on GUIs
-
-Settings:
-  - Open in admin mode
-  - Alert create listing
-  - Alert near expire listing & set time before expire
-  - Alert bought listing
-
-Admin Settings:
-  - Set the value for listing fee
-  - Set the value for listing buy tax
-  -
+Customizable Inventories?
+Ability to change the time a listing is posted for but under the default listing time
+Add when changing default listing time to check all listings and find which ones are above the selected time and suggest to set them to the new time

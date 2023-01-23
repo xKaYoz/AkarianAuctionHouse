@@ -65,8 +65,8 @@ public class ListingManager {
      */
     public boolean transferToFile(Player player, DatabaseTransferStatusGUI inv) {
         transferring = true;
-        chat.log("&eStarting transfer from MySQL to File initiated by " + player.getName() + ".");
-        chat.log("Creating Files...");
+        chat.log("&eStarting transfer from MySQL to File initiated by " + player.getName() + ".", false);
+        chat.log("Creating Files...", false);
         chat.alert("&eStarting transfer from MySQL to File initiated by " + player.getName() + ".");
         chat.alert("Creating Files...");
         if (!fm.getFile("/database/listings").exists()) {
@@ -78,7 +78,7 @@ public class ListingManager {
         if (!fm.getFile("/database/completed").exists()) {
             fm.createFile("/database/completed");
         }
-        chat.log("Files created. Starting Transferring Process...");
+        chat.log("Files created. Starting Transferring Process...", false);
         chat.alert("Files created. Starting Transferring Process...");
         long startTime = System.currentTimeMillis();
         AtomicInteger lt = new AtomicInteger(0);
@@ -111,13 +111,13 @@ public class ListingManager {
 
                 }
                 fm.saveFile(listingsFile, "/database/listings");
-                chat.log("Transferred " + lt + " active listings from MySQL.");
+                chat.log("Transferred " + lt + " active listings from MySQL.", false);
                 chat.alert("Transferred " + lt + " active listings from MySQL.");
                 statement.closeOnCompletion();
 
             } catch (Exception e) {
                 e.printStackTrace();
-                chat.log("Error while transferring active listings.");
+                chat.log("Error while transferring active listings.", false);
                 chat.alert("Error while transferring active listings.");
             }
 
@@ -147,13 +147,13 @@ public class ListingManager {
 
                 }
                 fm.saveFile(expiredFile, "/database/expired");
-                chat.log("Transferred " + et + " expired listings from MySQL.");
+                chat.log("Transferred " + et + " expired listings from MySQL.", false);
                 chat.alert("Transferred " + et + " expired listings from MySQL.");
                 statement.closeOnCompletion();
 
             } catch (Exception e) {
                 e.printStackTrace();
-                chat.log("Error while transferring expired listings.");
+                chat.log("Error while transferring expired listings.", false);
                 chat.alert("Error while transferring expired listings.");
             }
 
@@ -253,7 +253,7 @@ public class ListingManager {
 
                     listingsFile.set(s, null);
 
-                    chat.log("Transferred listing " + s);
+                    chat.log("Transferred listing " + s, AuctionHouse.getInstance().isDebug());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -286,7 +286,7 @@ public class ListingManager {
 
                     expiredFile.set(s, null);
 
-                    chat.log("Transferred expired listing " + s);
+                    chat.log("Transferred expired listing " + s, AuctionHouse.getInstance().isDebug());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -317,7 +317,7 @@ public class ListingManager {
 
                     completedFile.set(s, null);
 
-                    chat.log("Transferred complete listing " + s);
+                    chat.log("Transferred complete listing " + s, AuctionHouse.getInstance().isDebug());
                     ct.getAndIncrement();
 
                 } catch (Exception e) {
@@ -365,7 +365,7 @@ public class ListingManager {
         if (expire == 1) {
             if (creator != null)
                 chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingRemoved().replace("%item%", chat.formatItem(listing.getItemStack())));
-            chat.log("Safe Removed " + chat.formatItem(listing.getItemStack()) + " by " + remover + ". ID: " + listing.getId().toString());
+            chat.log("Safe Removed " + chat.formatItem(listing.getItemStack()) + " by " + remover + ". ID: " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
             return 1;
         }
         return expire;
@@ -385,7 +385,7 @@ public class ListingManager {
                         statement.executeUpdate();
                         statement.closeOnCompletion();
 
-                        chat.log("Removed expired listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                        chat.log("Removed expired listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         expired.remove(listing);
                         unclaimed.remove(listing);
@@ -402,7 +402,7 @@ public class ListingManager {
                 YamlConfiguration listingsFile = fm.getConfig("/database/expired");
                 listingsFile.set(listing.getId().toString(), null);
                 fm.saveFile(listingsFile, "/database/expired");
-                chat.log("Removed expired listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                chat.log("Removed expired listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 expired.remove(listing);
                 unclaimed.remove(listing);
@@ -426,7 +426,7 @@ public class ListingManager {
                         statement.executeUpdate();
                         statement.closeOnCompletion();
 
-                        chat.log("Removed completed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                        chat.log("Removed completed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         completed.remove(listing);
 
@@ -442,7 +442,7 @@ public class ListingManager {
                 YamlConfiguration completedFile = fm.getConfig("/database/completed");
                 completedFile.set(listing.getId().toString(), null);
                 fm.saveFile(completedFile, "/database/completed");
-                chat.log("Removed completed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                chat.log("Removed completed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 completed.remove(listing);
                 return true;
@@ -471,7 +471,7 @@ public class ListingManager {
                         statement.executeUpdate();
                         statement.closeOnCompletion();
 
-                        chat.log("Removed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                        chat.log("Removed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         active.remove(listing);
 
@@ -487,7 +487,7 @@ public class ListingManager {
                 YamlConfiguration listingsFile = fm.getConfig("/database/listings");
                 listingsFile.set(listing.getId().toString(), null);
                 fm.saveFile(listingsFile, "/database/listings");
-                chat.log("Removed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString());
+                chat.log("Removed listing " + chat.formatItem(listing.getItemStack()) + " " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 active.remove(listing);
                 return true;
@@ -560,7 +560,7 @@ public class ListingManager {
 
                         statement.close();
 
-                        chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id);
+                        chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
 
                         chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                                 .replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
@@ -585,7 +585,7 @@ public class ListingManager {
 
                 fm.saveFile(listingsFile, "/database/listings");
 
-                chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id);
+                chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
 
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
                         .replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
@@ -674,7 +674,7 @@ public class ListingManager {
         chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
         Bukkit.getServer().getPluginManager().callEvent(new ListingBoughtEvent(listing));
-        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".");
+        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
         if (creator != null) {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
             return 2;
@@ -904,7 +904,7 @@ public class ListingManager {
      */
     public void loadListings() {
         active.clear();
-        chat.log("Loading listings...");
+        chat.log("Loading listings...", AuctionHouse.getInstance().isDebug());
         AtomicInteger num = new AtomicInteger();
         AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
@@ -930,7 +930,7 @@ public class ListingManager {
                             active.add(l);
                             num.getAndIncrement();
 
-                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()));
+                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                         }
 
@@ -945,29 +945,44 @@ public class ListingManager {
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
                     if(listingsFile.getString(str + ".ItemStack") == null) {
-                         chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                         chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                          errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
+                    if(listingsFile.contains(str + ".Price")) {
+                        chat.log("Error while loading auction with price " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     double price = listingsFile.getDouble(str + ".Price");
+                    if(listingsFile.contains(str + ".Creator")) {
+                        chat.log("Error while loading auction with creator " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
+                    if(listingsFile.contains(str + ".Start")) {
+                        chat.log("Error while loading auction with Start " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     long start = listingsFile.getLong(str + ".Start");
                     Listing l = new Listing(id, creator, item, price, start);
 
                     active.add(l);
                     num.getAndIncrement();
 
-                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()));
+                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
                 }
                 break;
         }
         startExpireCheck();
         startAuctionHouseRefresh();
-        chat.log("Loaded " + num.get() + " active listings.");
+        chat.log("Loaded " + num.get() + " active listings.", AuctionHouse.getInstance().isDebug());
         if(errors.get() > 0) {
             AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " auctions. Please review console to see which.");
-            chat.log("There was an error loading " + errors.get() + " auctions. Please review console to see which.");
+            chat.log("There was an error loading " + errors.get() + " auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
         }
     }
 
@@ -975,7 +990,7 @@ public class ListingManager {
      * Load all expired listings
      */
     public void loadExpired() {
-        chat.log("Loading Expired listings...");
+        chat.log("Loading Expired listings...", AuctionHouse.getInstance().isDebug());
         AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
             case MYSQL:
@@ -1007,10 +1022,10 @@ public class ListingManager {
                                 unclaimed.add(l);
                             expired.add(l);
 
-                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()));
+                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                         }
-                        chat.log("Loaded " + expired.size() + " expired listings and " + unclaimed.size() + " unclaimed expired listings.");
+                        chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1025,7 +1040,7 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if(listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
@@ -1048,20 +1063,20 @@ public class ListingManager {
                         unclaimed.add(l);
                     expired.add(l);
 
-                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()));
+                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                 }
-                chat.log("Loaded " + expired.size() + " expired listings and " + unclaimed.size() + " unclaimed expired listings.");
+                chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
                 if(errors.get() > 0) {
                     AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " expired auctions. Please review console to see which.");
-                    chat.log("There was an error loading " + errors.get() + " expired auctions. Please review console to see which.");
+                    chat.log("There was an error loading " + errors.get() + " expired auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
                 }
                 break;
         }
     }
 
     public void loadCompleted() {
-        chat.log("Loading Completed listings...");
+        chat.log("Loading Completed listings...", AuctionHouse.getInstance().isDebug());
         AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
             case MYSQL:
@@ -1088,10 +1103,10 @@ public class ListingManager {
 
                             completed.add(l);
 
-                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()));
+                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                         }
-                        chat.log("Loaded " + completed.size() + " completed listings.");
+                        chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -1105,7 +1120,7 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if(completedFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...");
+                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
@@ -1123,13 +1138,13 @@ public class ListingManager {
 
                     completed.add(l);
 
-                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()));
+                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                 }
-                chat.log("Loaded " + completed.size() + " completed listings.");
+                chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
                 if(errors.get() > 0) {
                     AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
-                    chat.log("There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
+                    chat.log("There was an error loading " + errors.get() + " completed auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
                 }
                 break;
         }
@@ -1187,7 +1202,7 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, "&eYou have reclaimed your listing for " + chat.formatItem(listing.getItemStack()));
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
             }
         }
 
@@ -1254,23 +1269,25 @@ public class ListingManager {
 
                     ItemStack item = listing.getItemStack();
 
+                    //Alert near expire
                     for(User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
-                        if(!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime()) {
+                        if (!user.getUserSettings().isAlertNearExpire()) return;
+                        if (!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
                             user.getUserSettings().getNotified().add(listing);
-                            chat.sendMessage(Bukkit.getPlayer(user.getUuid()), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(listing.getCreator())));
+                            chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName())));
                         }
                     }
 
                     if (now > end) {
                         switch (expire(listing, true, false, "TIME")) {
                             case -1:
-                                chat.log("!! Error while saving " + chat.formatItem(item) + ".");
+                                chat.log("!! Error while saving " + chat.formatItem(item) + ".", AuctionHouse.getInstance().isDebug());
                                 break;
                             case 1:
-                                chat.log("Listing " + chat.formatItem(item) + " has expired with user online.");
+                                chat.log("Listing " + chat.formatItem(item) + " has expired with user online.", AuctionHouse.getInstance().isDebug());
                                 break;
                             case 2:
-                                chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.");
+                                chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.", AuctionHouse.getInstance().isDebug());
                                 break;
                         }
                     }

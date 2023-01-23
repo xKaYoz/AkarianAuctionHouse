@@ -51,31 +51,36 @@ public class NameManager {
             HashMap<String, Object> nc = cache.get(UUID.fromString(uuid));
             return (String) nc.get("Name");
         }
-        HashMap<String, Object> sc = new HashMap<>();
-        String dash = uuid;
+        try {
+            HashMap<String, Object> sc = new HashMap<>();
+            String dash = uuid;
 
-        uuid = uuid.replace("-", "");
-        String output = callURL(NAME_URL + uuid);
-        StringBuilder result = new StringBuilder();
-        for (int i = 0; i < 20000; i++) {
-            if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a'
-                    && output.charAt(i + 2) == 'm'
-                    && output.charAt(i + 3) == 'e') {
-                for (int k = i + 9; k < 20000; k++) {
-                    char curr = output.charAt(k);
-                    if (curr != '"') {
-                        result.append(curr);
-                    } else {
-                        break;
+            uuid = uuid.replace("-", "");
+            String output = callURL(NAME_URL + uuid);
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < 20000; i++) {
+                if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a'
+                        && output.charAt(i + 2) == 'm'
+                        && output.charAt(i + 3) == 'e') {
+                    for (int k = i + 9; k < 20000; k++) {
+                        char curr = output.charAt(k);
+                        if (curr != '"') {
+                            result.append(curr);
+                        } else {
+                            break;
+                        }
                     }
+                    break;
                 }
-                break;
             }
+            sc.put("Name", result.toString());
+            sc.put("Timer", System.currentTimeMillis());
+            cache.put(UUID.fromString(dash), sc);
+            return result.toString();
         }
-        sc.put("Name", result.toString());
-        sc.put("Timer", System.currentTimeMillis());
-        cache.put(UUID.fromString(dash), sc);
-        return result.toString();
+        catch (Exception e) {
+            return Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+        }
     }
 
     private String callURL(String urlStr) {
@@ -100,7 +105,10 @@ public class NameManager {
                 in.close();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            if(AuctionHouse.getInstance().isDebug())
+                e.printStackTrace();
+            else
+                AuctionHouse.getInstance().getChat().log("Error while trying to connect to NameManager URL.", false);
         }
         return sb.toString();
     }

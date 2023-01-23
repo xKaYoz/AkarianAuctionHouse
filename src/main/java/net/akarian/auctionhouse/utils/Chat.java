@@ -163,6 +163,7 @@ public class Chat {
         ArrayList<String> formatted = new ArrayList<>();
 
         for (String str : list) {
+            if(str == null) continue;
             formatted.add(format(str.replace("-", "\u2505")));
         }
 
@@ -279,10 +280,14 @@ public class Chat {
      *
      * @param str - Message to log
      */
-    public void log(String str) {
+    public void log(String str, boolean console) {
 
         DateTimeFormatter logStart = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
+
+        if(console) {
+            AuctionHouse.getInstance().getLogger().log(Level.INFO, str);
+        }
 
         try {
             File saveTo = new File(plugin.getDataFolder() + "/logs", "log.txt");

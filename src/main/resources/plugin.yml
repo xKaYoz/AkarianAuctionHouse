@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.0.0
+version: 1.1.1
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -46,8 +46,8 @@ permissions:
     description: View your expired Listings.
     default: false
   auctionhouse.admin:
-      default: op
-      description: Auction House Admin command.
+    default: op
+    description: Auction House Admin command.
   auctionhouse.admin.help:
     default: op
     description: Auction House Admin help menu.
@@ -66,4 +66,3 @@ permissions:
   auctionhouse.admin.npc:
     default: false
     description: Edit the Auction House NPCs.
-

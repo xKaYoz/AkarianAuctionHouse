@@ -22,7 +22,7 @@ public class AuctionHouseTrait extends Trait {
 
         event.getClicker().openInventory(new AuctionHouseGUI(event.getClicker(), SortType.TIME_LEFT, true, 1).getInventory());
 
-        AuctionHouse.getInstance().getChat().log(event.getClicker().getName() + " opened the AuctionHouse via NPC.");
+        AuctionHouse.getInstance().getChat().log(event.getClicker().getName() + " opened the AuctionHouse via NPC.", AuctionHouse.getInstance().isDebug());
 
     }
 }

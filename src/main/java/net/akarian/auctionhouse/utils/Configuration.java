@@ -69,6 +69,11 @@ public class Configuration {
             }
             prefix = configFile.getString("Prefix");
 
+            if(!configFile.contains("Debug")) {
+                configFile.set("Debug", false);
+            }
+            AuctionHouse.getInstance().setDebug(configFile.getBoolean("Debug"));
+
 
             if (!configFile.contains("database")) {
                 configFile.set("database", "FILE");
@@ -234,6 +239,7 @@ public class Configuration {
         /* Defaults */
         {
             configFile.set("Prefix", prefix);
+            configFile.set("Debug", AuctionHouse.getInstance().isDebug());
             configFile.set("database", databaseType.toString());
             configFile.set("updates", updates);
             configFile.set("Minimum Listing", minListing);
@@ -246,6 +252,7 @@ public class Configuration {
             configFile.set("Default Player Settings.Expire Time", dps_expireTime);
             configFile.set("Default Player Settings.Bought Notify", dps_bought);
             configFile.set("Default Player Settings.Auto Confirm Listing", dps_autoConfirm);
+            configFile.set("Default Player Settings.Create Notify", dps_create);
             configFile.set("Creative Listing", creativeListing);
         }
         /* MySQL */
