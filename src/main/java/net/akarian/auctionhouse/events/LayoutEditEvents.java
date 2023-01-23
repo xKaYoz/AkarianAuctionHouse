@@ -301,6 +301,9 @@ public class LayoutEditEvents implements Listener {
             return;
         }
         Player player = (Player) e.getEntity();
+        if (player.getOpenInventory().getTopInventory().getHolder() instanceof LayoutEditGUI) {
+            e.setCancelled(true);
+        }
         if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
         }
