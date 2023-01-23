@@ -6,9 +6,11 @@ import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.Chat;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -290,6 +292,17 @@ public class LayoutEditEvents implements Listener {
             LayoutEditGUI.getHelpMessage().remove(player.getUniqueId());
             LayoutEditGUI.getDisplayNameEdit().remove(player.getUniqueId());
             LayoutEditGUI.getInventorySizeEdit().remove(player.getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void onPickup(EntityPickupItemEvent e) {
+        if (e.getEntityType() != EntityType.PLAYER) {
+            return;
+        }
+        Player player = (Player) e.getEntity();
+        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
+            e.setCancelled(true);
         }
     }
 

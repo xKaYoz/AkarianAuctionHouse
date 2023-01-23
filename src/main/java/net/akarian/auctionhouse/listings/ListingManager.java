@@ -1202,7 +1202,7 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, "&eYou have reclaimed your listing for " + chat.formatItem(listing.getItemStack()));
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
             }
         }
 
@@ -1269,8 +1269,10 @@ public class ListingManager {
 
                     ItemStack item = listing.getItemStack();
 
+                    //Alert near expire
                     for(User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
-                        if(!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
+                        if (!user.getUserSettings().isAlertNearExpire()) return;
+                        if (!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
                             user.getUserSettings().getNotified().add(listing);
                             chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName())));
                         }

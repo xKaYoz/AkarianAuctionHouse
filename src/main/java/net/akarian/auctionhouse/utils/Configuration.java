@@ -252,6 +252,7 @@ public class Configuration {
             configFile.set("Default Player Settings.Expire Time", dps_expireTime);
             configFile.set("Default Player Settings.Bought Notify", dps_bought);
             configFile.set("Default Player Settings.Auto Confirm Listing", dps_autoConfirm);
+            configFile.set("Default Player Settings.Create Notify", dps_create);
             configFile.set("Creative Listing", creativeListing);
         }
         /* MySQL */
