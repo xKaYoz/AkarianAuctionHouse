@@ -871,6 +871,7 @@ public class ListingManager {
                         statement.close();
                         unclaimed.add(listing);
                         expired.add(listing);
+                        active.remove(listing);
                         ret.set(1);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -890,6 +891,7 @@ public class ListingManager {
                 expiredFile.set(listing.getId().toString() + ".Reclaimed", false);
 
                 unclaimed.add(listing);
+                active.remove(listing);
                 expired.add(listing);
 
                 fm.saveFile(expiredFile, "/database/expired");
@@ -950,25 +952,40 @@ public class ListingManager {
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
-                    if(listingsFile.contains(str + ".Price")) {
+                    if (!listingsFile.contains(str + ".Price")) {
                         chat.log("Error while loading auction with price " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
                     double price = listingsFile.getDouble(str + ".Price");
-                    if(listingsFile.contains(str + ".Creator")) {
+                    if (!listingsFile.contains(str + ".Creator")) {
                         chat.log("Error while loading auction with creator " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
-                    if(listingsFile.contains(str + ".Start")) {
+                    if (!listingsFile.contains(str + ".Start")) {
                         chat.log("Error while loading auction with Start " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
                     long start = listingsFile.getLong(str + ".Start");
                     Listing l = new Listing(id, creator, item, price, start);
+
+                    long now = System.currentTimeMillis() / 1000;
+                    long end = (l.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
+
+                    if (now > end) {
+                        switch (expire(l, true, false, "TIME")) {
+                            case -1:
+                                chat.log("!! Error while saving " + chat.formatItem(item) + ".", AuctionHouse.getInstance().isDebug());
+                                break;
+                            case 1:
+                            case 2:
+                                chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.", AuctionHouse.getInstance().isDebug());
+                                break;
+                        }
+                    }
 
                     active.add(l);
                     num.getAndIncrement();
@@ -1271,7 +1288,7 @@ public class ListingManager {
 
                     //Alert near expire
                     for(User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
-                        if (!user.getUserSettings().isAlertNearExpire()) return;
+                        if (!user.getUserSettings().isAlertNearExpire()) continue;
                         if (!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
                             user.getUserSettings().getNotified().add(listing);
                             chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName())));
@@ -1290,6 +1307,7 @@ public class ListingManager {
                                 chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.", AuctionHouse.getInstance().isDebug());
                                 break;
                         }
+                    } else {
                     }
                 }
             }

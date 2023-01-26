@@ -85,48 +85,43 @@ public class AuctionHouseGUI implements AkarianInventory {
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
-        switch (slot) {
-            //Admin Button
-            case 1:
-                if (itemStack.getType() == Material.GRAY_DYE && player.hasPermission("auctionhouse.admin.manage")) {
-                    inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
-                    adminMode = true;
-                } else if (itemStack.getType() == Material.LIME_DYE && player.hasPermission("auctionhouse.admin.manage")) {
-                    inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
-                    adminMode = false;
+        if (slot == layout.getAdminButton()) {
+            if (layout.getAdminButton() != -1) {
+                if (player.hasPermission("auctionhouse.admin.manage")) {
+                    adminMode = !adminMode;
+                    if (!adminMode)
+                        inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
+                    else {
+                        inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+                    }
                 }
-                return;
-            //Close Button
-            case 8:
-                player.closeInventory();
-                return;
-            //Previous Page Button
-            case 45:
-                if (adminMode)
-                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
-                else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
-                return;
-            //Search Button
-            case 46:
-                player.closeInventory();
-                searchMap.put(player.getUniqueId(), this);
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
-                return;
-            //Expired Reclaim Button
-            case 50:
-                player.openInventory(new ExpireReclaimGUI(player, this, 1).getInventory());
-                break;
-            //Sort Button
-            case 52:
-                player.openInventory(new SortGUI(this).getInventory());
-                return;
-            //Next Page Button
-            case 53:
-                if (adminMode)
-                    player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
-                else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
-                return;
+            }
+            return;
+        } else if (slot == layout.getExitButton()) {
+            player.closeInventory();
+            return;
+        } else if (slot == layout.getPreviousPageButton()) {
+            if (adminMode)
+                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
+            else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
+            return;
+        } else if (slot == layout.getSearchButton()) {
+            player.closeInventory();
+            searchMap.put(player.getUniqueId(), this);
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
+            return;
+        } else if (slot == layout.getExpiredItemsButton()) {
+            player.openInventory(new ExpireReclaimGUI(player, this, 1).getInventory());
+            return;
+        } else if (slot == layout.getSortButton()) {
+            player.openInventory(new SortGUI(this).getInventory());
+            return;
+        } else if (slot == layout.getNextPageButton()) {
+            if (adminMode)
+                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
+            else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
+            return;
         }
 
         //Is a Listing
@@ -397,6 +392,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             else
                 inv.setItem(i, listing.createActiveListing(player));
             t++;
+            list++;
         }
 
         //Previous Page
