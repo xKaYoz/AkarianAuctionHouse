@@ -45,7 +45,8 @@ public class GUIManager implements Listener {
                     || LayoutEditGUI.getLayoutNameEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(p.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(p.getUniqueId())) {
                     Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), gui::giveEditorMenu, 1);
                 } else {
-                    Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), () -> gui.restoreInventory(false), 1);
+                    if (!gui.isClosed())
+                        Bukkit.getScheduler().runTaskLater(AuctionHouse.getInstance(), () -> gui.restoreInventory(false), 1);
                 }
             }
             getGui().remove(e.getPlayer().getUniqueId().toString(), (AkarianInventory) e.getInventory().getHolder());

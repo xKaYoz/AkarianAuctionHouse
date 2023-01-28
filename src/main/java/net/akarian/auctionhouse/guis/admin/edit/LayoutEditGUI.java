@@ -72,6 +72,8 @@ public class LayoutEditGUI implements AkarianInventory {
     @Getter
     @Setter
     private boolean expiredListingsButton;
+    @Getter
+    private boolean closed = false;
 
     public LayoutEditGUI(Player player, Layout layout) {
         this.player = player;
@@ -208,6 +210,7 @@ public class LayoutEditGUI implements AkarianInventory {
             layout.saveLayout();
             resetInventory();
         } else if (slot == i + 34) {
+            closed = true;
             player.openInventory(new LayoutSelectGUI(player, 1).getInventory());
             restoreInventory(true);
         }
@@ -231,6 +234,7 @@ public class LayoutEditGUI implements AkarianInventory {
         helpPage.remove(player.getUniqueId());
     }
 
+    //Run when returning from the layout name editor
     public void returnFromLayoutName() {
         player.openInventory(getInv());
         giveEditorMenu();
@@ -239,6 +243,7 @@ public class LayoutEditGUI implements AkarianInventory {
         layoutNameEdit.remove(player.getUniqueId());
     }
 
+    //Run when returning from the display name editor
     public void returnFromDisplayName() {
         player.openInventory(getInv());
         giveEditorMenu();
@@ -247,12 +252,14 @@ public class LayoutEditGUI implements AkarianInventory {
         displayNameEdit.remove(player.getUniqueId());
     }
 
+    //Run when returning from the inventory size edit
     public void returnFromInventorySizeEdit() {
         player.openInventory(getInventory());
         inventorySizeEdit.remove(player.getUniqueId());
         giveEditorMenu();
     }
 
+    //Give the editor to the player's inventory
     public void giveEditorMenu() {
         for (int i = 0; i <= 35; i++) {
             player.getInventory().setItem(i, null);
