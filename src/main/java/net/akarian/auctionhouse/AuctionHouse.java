@@ -205,6 +205,7 @@ public final class AuctionHouse extends JavaPlugin {
             mySQL.shutdown();
         }
         guiManager.closeAllInventories();
+        //Give the players their inventory back if in the editor
         for (UUID uuid : LayoutEditGUI.getLayoutNameEdit().keySet()) {
             LayoutEditGUI.getLayoutNameEdit().get(uuid).restoreInventory(true);
         }
