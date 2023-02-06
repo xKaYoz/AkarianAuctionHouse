@@ -30,10 +30,10 @@ public class AuctionHouseGUI implements AkarianInventory {
     @Getter
     private final Player player;
     private final Chat chat = AuctionHouse.getInstance().getChat();
+    private final Layout layout;
     @Getter
-    private final SortType sortType;
-    @Getter
-    private final boolean sortBool;
+    @Setter
+    private SortType sortType;
     @Getter
     private boolean search = false;
     @Getter
@@ -45,7 +45,9 @@ public class AuctionHouseGUI implements AkarianInventory {
     private Inventory inv;
     @Getter
     private boolean adminMode;
-    private Layout layout;
+    @Getter
+    @Setter
+    private boolean sortBool;
 
     /**
      * Auction House GUI
@@ -100,7 +102,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         } else if (slot == layout.getExitButton()) {
             player.closeInventory();
             return;
-        } else if (slot == layout.getPreviousPageButton()) {
+        } else if (slot == layout.getPreviousPageButton() && page != 1) {
             if (adminMode)
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
             else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
@@ -117,7 +119,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         } else if (slot == layout.getSortButton()) {
             player.openInventory(new SortGUI(this).getInventory());
             return;
-        } else if (slot == layout.getNextPageButton()) {
+        } else if (slot == layout.getNextPageButton() && (listings.size() > layout.getListingItems().size() * page)) {
             if (adminMode)
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
             else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
@@ -335,8 +337,10 @@ public class AuctionHouseGUI implements AkarianInventory {
 
     private Listing[] sortedList() {
 
+        //Get all active listings and put them in an array
         Listing[] listings = AuctionHouse.getInstance().getListingManager().getActive().toArray(new Listing[0]);
 
+        //Switch between the sort type and set according to the determined direction
         switch (sortType) {
             case OVERALL_PRICE:
                 if (!sortBool)
@@ -365,34 +369,49 @@ public class AuctionHouseGUI implements AkarianInventory {
                 break;
         }
 
+        //Returns listings in correct order
         return listings;
     }
 
     public void updateInventory() {
-        List<Listing> newListings = new ArrayList<>();
+
+        List<Listing> searchedListings = new ArrayList<>();
+        //Loop through all listings that are sorted to check if they match the search query
         for (Listing listing : sortedList()) {
-            if (search(listing)) {
-                newListings.add(listing);
+            if (!search) {
+                searchedListings.add(listing);
+            } else {
+                if (search(listing)) {
+                    searchedListings.add(listing);
+                }
             }
         }
-        listings = newListings;
+        //Settings the stored listings to the listings we want to display
+        listings = searchedListings;
+        //Set the end of our displayed listings to the page multiplied by the amount of displayed items we have
         int end = page * layout.getListingItems().size();
-        int t = end - layout.getListingItems().size();
-        int list = 0;
+        //Set the beginning of our displayed listings to the end minus the amount of displayed items we have
+        int display = end - layout.getListingItems().size();
+        //Set the display items we currently have to null to remove them
         for (Integer i : layout.getListingItems()) {
             inv.setItem(i, null);
         }
+
+        //Loop through the predefined display items from the layout and setting them ti listings
         for (Integer i : layout.getListingItems()) {
-            if (listings.size() == t || t >= end) {
+            //Break from loop if the amount of listings is empty or if we are at the end of our allocated display items
+            if (listings.size() == 0 || display >= end || listings.size() == display) {
                 break;
             }
-            Listing listing = listings.get(list);
+            //Get the listing in our desired location
+            Listing listing = listings.get(display);
+            //Display the active listing
             if (adminMode)
                 inv.setItem(i, listing.createAdminActiveListing(player));
             else
                 inv.setItem(i, listing.createActiveListing(player));
-            t++;
-            list++;
+            //Increment our display position
+            display++;
         }
 
         //Previous Page

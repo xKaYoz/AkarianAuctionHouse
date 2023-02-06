@@ -1,4 +1,5 @@
 package net.akarian.auctionhouse.guis;
+import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -19,26 +20,20 @@ public class SortGUI implements AkarianInventory {
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private SortType sortType;
     private boolean sortBool;
+    @Getter
+    private Inventory inv;
 
     private final AuctionHouseGUI auctionHouseGUI;
 
-    /*
-     * Select how to sort the Auction House
+    /**
+     * Sort the AuctionHouse
      *
-     * @param sortType Main page sort type
-     * @param sortBool Main page Greater than or Less than
-     * @param mainPage Main page's page number
-     * @param search   Main page's search query
-     *
-    public SortGUI(SortType sortType, boolean sortBool, int mainPage, String search) {
-        this.sortType = sortType;
-        this.sortBool = sortBool;
-        this.mainPage = mainPage;
-        this.search = search;
-    } */
-
+     * @param auctionHouseGUI Instance of the Auction House to sort
+     */
     public SortGUI(AuctionHouseGUI auctionHouseGUI) {
         this.auctionHouseGUI = auctionHouseGUI;
+        sortType = auctionHouseGUI.getSortType();
+        sortBool = auctionHouseGUI.isSortBool();
     }
 
     @Override
@@ -51,34 +46,42 @@ public class SortGUI implements AkarianInventory {
             case 10:
                 if (sortType == SortType.OVERALL_PRICE) {
                     sortBool = clickType.isLeftClick();
+                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
                 } else {
                     sortType = SortType.OVERALL_PRICE;
+                    auctionHouseGUI.setSortType(SortType.OVERALL_PRICE);
                 }
                 player.openInventory(getInventory());
                 break;
             case 12:
                 if (sortType == SortType.TIME_LEFT) {
                     sortBool = clickType.isLeftClick();
+                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
                 } else {
                     sortType = SortType.TIME_LEFT;
+                    auctionHouseGUI.setSortType(SortType.TIME_LEFT);
                 }
                 player.openInventory(getInventory());
                 break;
             case 14:
                 if (sortType == SortType.COST_PER_ITEM) {
                     sortBool = clickType.isLeftClick();
+                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
                 } else {
                     sortType = SortType.COST_PER_ITEM;
+                    auctionHouseGUI.setSortType(SortType.COST_PER_ITEM);
                 }
                 player.openInventory(getInventory());
                 break;
             case 16:
                 if (sortType == SortType.AMOUNT) {
                     sortBool = clickType.isLeftClick();
+                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
                 } else {
                     sortType = SortType.AMOUNT;
+                    auctionHouseGUI.setSortType(SortType.AMOUNT);
                 }
-                player.openInventory(getInventory());
+                updateInventory();
                 break;
         }
 
@@ -86,18 +89,6 @@ public class SortGUI implements AkarianInventory {
 
     @Override
     public void updateInventory() {
-
-    }
-
-    @Override
-    public Inventory getInventory() {
-        Inventory inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_st_title()));
-        for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        }
-
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
-
         if (sortType == SortType.OVERALL_PRICE)
             inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_op(), highestList()));
         else
@@ -115,6 +106,18 @@ public class SortGUI implements AkarianInventory {
             inv.setItem(16, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), highestList()));
         else
             inv.setItem(16, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), AuctionHouse.getInstance().getMessages().getGui_st_ad()));
+    }
+
+    @Override
+    public Inventory getInventory() {
+        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_st_title()));
+        for (int i = 0; i <= 7; i++) {
+            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+        }
+
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+
+        updateInventory();
 
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));

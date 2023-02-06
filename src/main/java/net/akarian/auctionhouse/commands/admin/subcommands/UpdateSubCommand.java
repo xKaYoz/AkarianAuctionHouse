@@ -84,10 +84,9 @@ public class UpdateSubCommand extends AkarianCommand {
                 chat.sendRawMessage(sender, "");
                 chat.sendRawMessage(sender, "&cNewest Version &8- &7AuctionHouse v" + AuctionHouse.getInstance().getUpdateManager().getUpdater().getVersion());
                 chat.sendRawMessage(sender, "");
-                chat.sendRawMessage(sender, "&7&oYou can download the latest version at https://www.spigotmc.org/resources/akarian-auction-house-1-14-1-19-2.97504/");
+                chat.sendRawMessage(sender, "&7&oYou can download the latest version at www.spigotmc.org/resources/97504");
                 chat.sendRawMessage(sender, "");
                 chat.sendRawMessage(sender, "&8&m&l------------------------------------");
-                return;
         }
     }
 }

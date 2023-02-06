@@ -7,10 +7,7 @@ import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferSta
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.UUID;
 import java.util.logging.Level;
 
@@ -49,7 +46,7 @@ public class MySQL {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 chat.log("Connecting to the MySQL database...", AuctionHouse.getInstance().isDebug());
-                setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
+                setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database + "?autoReconnect=true", this.username, this.password));
                 chat.log("", AuctionHouse.getInstance().isDebug());
                 chat.log(plugin.getName() + " has successfully established a connection to the MySQL database.", AuctionHouse.getInstance().isDebug());
                 chat.log("", AuctionHouse.getInstance().isDebug());
@@ -130,12 +127,10 @@ public class MySQL {
 
     public boolean reconnect() {
         try {
-            if(getConnection().isClosed()) {
-                setConnection(DriverManager.getConnection("jdbc:mysql://" + this.host + ":" + this.port + "/" + this.database, this.username, this.password));
-                chat.log("Successfully reconnected to MySQL Database.", AuctionHouse.getInstance().isDebug());
-            } else {
-                chat.log("Connection to Database not closed. Not reconnecting.", AuctionHouse.getInstance().isDebug());
-            }
+            PreparedStatement s = connection.prepareStatement("/* ping */ SELECT 1");
+            s.executeQuery();
+            s.closeOnCompletion();
+            chat.log("Pinged database", AuctionHouse.getInstance().isDebug());
             return true;
         } catch (SQLException e) {
             e.printStackTrace();

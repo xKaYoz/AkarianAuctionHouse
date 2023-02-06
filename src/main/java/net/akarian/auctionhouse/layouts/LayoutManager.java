@@ -90,7 +90,7 @@ public class LayoutManager {
         layout.setListingItems(listingSlots);
         layout.setSpacerItems(spacerSlots);
 
-        layout.setInventoryName("&6&lAuction&f&lHouse");
+        layout.setInventoryName(AuctionHouse.getInstance().getMessages().getAuctionHouseTitle());
         layout.setInventorySize(54);
 
         layout.setAdminButton(1);
