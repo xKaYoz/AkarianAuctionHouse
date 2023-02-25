@@ -91,7 +91,7 @@ public class ShulkerViewGUI implements AkarianInventory {
         }
 
         for (int i = 27; i <= 35; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         //Bottom Row

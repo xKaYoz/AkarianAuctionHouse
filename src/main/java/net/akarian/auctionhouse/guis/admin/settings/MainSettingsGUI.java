@@ -13,7 +13,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collection;
 import java.util.Collections;
 
 public class MainSettingsGUI implements AkarianInventory {
@@ -29,7 +28,9 @@ public class MainSettingsGUI implements AkarianInventory {
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
         switch (slot) {
-
+            case 8:
+                p.closeInventory();
+                break;
             case 11:
                 p.openInventory(new DefaultPlayerSettingsGUI().getInventory());
                 break;
@@ -38,7 +39,6 @@ public class MainSettingsGUI implements AkarianInventory {
                 break;
 
         }
-
     }
 
     @Override
@@ -52,14 +52,16 @@ public class MainSettingsGUI implements AkarianInventory {
         inv = Bukkit.createInventory(this, 27, chat.format("&6&lAuctionHouse Admin Settings"));
 
         for (int i = 0; i <= 8; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, "&eDefault Player Settings", Collections.singletonList("&7Click to edit default player settings.")));
-        inv.setItem(15, ItemBuilder.build(Material.PAPER, 1, "&eServer Settings", Collections.singletonList("&7Click to edit server settings.")));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+
+        inv.setItem(11, ItemBuilder.build(Material.DIAMOND_SWORD, 1, "&eDefault Player Settings", Collections.singletonList("&7Click to edit default player settings.")));
+        inv.setItem(15, ItemBuilder.build(Material.REDSTONE, 1, "&eServer Settings", Collections.singletonList("&7Click to edit server settings.")));
 
         for (int i = 18; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         return inv;

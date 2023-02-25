@@ -72,10 +72,10 @@ public class GUIManager implements Listener {
         Player p = (Player) e.getWhoClicked();
         if((e.getInventory().getHolder() instanceof AkarianInventory)) {
             if(getGui().get(p.getUniqueId().toString()) instanceof LayoutEditGUI) {
-                if(e.getCursor() == null) return;
-                if(e.getCursor().getType() == Material.MAGENTA_CONCRETE || e.getCursor().getType() == Material.GRAY_STAINED_GLASS_PANE) {
-                    for(Integer i : e.getRawSlots()) {
-                        if(e.getInventory().getItem(i) == null)
+                if (e.getCursor() == null) return;
+                if (e.getCursor().getType() == Material.MAGENTA_CONCRETE || e.getCursor().getType() == AuctionHouse.getInstance().getConfigFile().getSpacerItem()) {
+                    for (Integer i : e.getRawSlots()) {
+                        if (e.getInventory().getItem(i) == null)
                             e.getInventory().setItem(i, e.getCursor());
                     }
                 }
@@ -135,7 +135,7 @@ public class GUIManager implements Listener {
                 LayoutEditGUI gui = (LayoutEditGUI) getGui().get(p.getUniqueId().toString());
 
                 if(gui.isSpacerItem()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+                    p.setItemOnCursor(ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
                     gui.setSpacerItem(false);
                 } else if(gui.isAdminButton()) {
                     p.setItemOnCursor(ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));

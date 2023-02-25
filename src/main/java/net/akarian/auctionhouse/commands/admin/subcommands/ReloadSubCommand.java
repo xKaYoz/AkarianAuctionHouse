@@ -18,9 +18,13 @@ public class ReloadSubCommand extends AkarianCommand {
 
         if (args.length == 1) {
             chat.sendMessage(sender, "&7Reloading...");
+            AuctionHouse.getInstance().getListingManager().cancelExpireTimer();
+            AuctionHouse.getInstance().getListingManager().cancelRefreshTimer();
             AuctionHouse.getInstance().getConfigFile().reloadConfig();
             AuctionHouse.getInstance().getMessages().reloadMessages();
             chat.setPrefix(AuctionHouse.getInstance().getConfigFile().getPrefix());
+            AuctionHouse.getInstance().getListingManager().startAuctionHouseRefresh();
+            AuctionHouse.getInstance().getListingManager().startExpireCheck();
             chat.sendMessage(sender, "&aReload complete.");
         } else if (args.length == 2) {
             if (args[1].equalsIgnoreCase("messages")) {

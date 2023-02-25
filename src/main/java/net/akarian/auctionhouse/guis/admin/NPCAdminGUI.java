@@ -92,7 +92,7 @@ public class NPCAdminGUI implements AkarianInventory {
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         //Close Button
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
@@ -102,7 +102,7 @@ public class NPCAdminGUI implements AkarianInventory {
 
         //Bottom Lining
         for (int i = 45; i <= 53; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         //Previous Page

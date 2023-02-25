@@ -29,13 +29,25 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
     private final Chat chat = AuctionHouse.getInstance().getChat();
     @Getter
     private Inventory inv;
+    private int timer;
+    private int timeLeft;
+    private boolean wait;
 
     public ConfirmDatabaseTransfer(Player player) {
+        startTimer();
         this.player = player;
     }
 
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
+
+        if (wait) {
+            if (slot >= 10 && slot <= 16) {
+                p.openInventory(new MainDatabaseGUI(p).getInventory());
+                return;
+            }
+            return;
+        }
 
         if (slot >= 10 && slot <= 12) {
             p.closeInventory();
@@ -63,27 +75,50 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
     @Override
     public void updateInventory() {
 
+        if (wait) {
+            for (int i = 10; i <= 16; i++) {
+                inv.setItem(i, ItemBuilder.build(Material.STONE, 1, "&7&lWait...", Arrays.asList("&7You must wait &e" + timeLeft + "&7 more seconds.", "&eClick to cancel!")));
+            }
+        } else {
+            inv.setItem(10, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
+            inv.setItem(11, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
+            inv.setItem(12, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
+
+            inv.setItem(13, ItemBuilder.build(Material.ENCHANTED_BOOK, 1, "&6&lAre you sure??", Arrays.asList("&7Are you sure you want to start", "&7the database transfer process???")));
+
+            inv.setItem(14, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
+            inv.setItem(15, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
+            inv.setItem(16, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
+        }
+
+    }
+
+    public void startTimer() {
+        timeLeft = 6;
+        wait = true;
+        timer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), new Runnable() {
+            @Override
+            public void run() {
+                timeLeft--;
+                if (timeLeft == 0) {
+                    wait = false;
+                    Bukkit.getScheduler().cancelTask(timer);
+                }
+            }
+        }, 0, 20);
     }
 
     @Override
     public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 27, chat.format("&6&lConfirm Transfer"));
         for (int i = 0; i <= 9; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(10, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
-        inv.setItem(11, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
-        inv.setItem(12, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
-
-        inv.setItem(13, ItemBuilder.build(Material.ENCHANTED_BOOK, 1, "&6&lAre you sure??", Arrays.asList("&7Are you sure you want to start", "&7the database transfer process???")));
-
-        inv.setItem(14, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
-        inv.setItem(15, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
-        inv.setItem(16, ItemBuilder.build(Material.REDSTONE_BLOCK, 1, "&4&lCancel", Collections.singletonList("&7Click to return back to the previous page...")));
+        updateInventory();
 
         for (int i = 17; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         return inv;

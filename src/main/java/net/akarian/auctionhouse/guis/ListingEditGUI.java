@@ -67,7 +67,7 @@ public class ListingEditGUI implements AkarianInventory {
     public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_le_title()));
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
@@ -77,7 +77,7 @@ public class ListingEditGUI implements AkarianInventory {
         inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessages().getGui_le_an(), AuctionHouse.getInstance().getMessages().getGui_le_ad()));
 
         for (int i = 18; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         return inv;
     }

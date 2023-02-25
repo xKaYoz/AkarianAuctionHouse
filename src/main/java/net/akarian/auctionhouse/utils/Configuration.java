@@ -3,24 +3,28 @@ package net.akarian.auctionhouse.utils;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
+import org.bukkit.Material;
+import org.bukkit.entity.Player;
+import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Configuration {
 
     private final FileManager fm;
     @Getter
     @Setter
-    private String prefix, db_database, db_host, db_username, db_password, db_listings, db_expired, db_completed;
+    private String prefix, db_database, db_host, db_username, db_password, db_listings, db_expired, db_completed, db_users;
     @Getter
     @Setter
-    private String listingFee;
+    private String listingFee, listingTax;
     @Getter
     private DatabaseType databaseType;
     @Getter
     @Setter
-    private boolean updates, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, creativeListing;
+    private boolean updates, uuidBypass, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, creativeListing;
     @Getter
     @Setter
     private double minListing, maxListing;
@@ -29,9 +33,15 @@ public class Configuration {
     private long dps_expireTime;
     @Getter
     @Setter
-    private int listingDelay, listingTime, db_port;
+    private int listingDelay, listingTime, db_port, auctionhouseRefreshTime;
     @Getter
     private AkarianConfiguration configFile;
+    @Getter
+    @Setter
+    private Material spacerItem;
+    @Getter
+    @Setter
+    private int version;
 
     public Configuration() {
         fm = AuctionHouse.getInstance().getFileManager();
@@ -64,12 +74,16 @@ public class Configuration {
 
         /* Defaults */
         {
+            if (!configFile.contains("Version")) {
+                configFile.set("Version", 0);
+            }
+            version = configFile.getInt("Version");
             if (!configFile.contains("Prefix")) {
                 configFile.set("Prefix", "&6&lAuctionHouse");
             }
             prefix = configFile.getString("Prefix");
 
-            if(!configFile.contains("Debug")) {
+            if (!configFile.contains("Debug")) {
                 configFile.set("Debug", false);
             }
             AuctionHouse.getInstance().setDebug(configFile.getBoolean("Debug"));
@@ -90,6 +104,11 @@ public class Configuration {
                 }
             }
             updates = configFile.getBoolean("updates");
+
+            if (!configFile.contains("UUID Bypass")) {
+                configFile.set("UUID Bypass", false);
+            }
+            uuidBypass = configFile.getBoolean("UUID Bypass");
 
             if (!configFile.contains("Minimum Listing")) {
                 configFile.set("Minimum Listing", 10.00D);
@@ -116,12 +135,26 @@ public class Configuration {
             }
             listingFee = configFile.getString("Listing Fee");
 
-            if(!configFile.contains("Default Player Settings.Admin Mode")) {
+            if (!configFile.contains("Sales Tax")) {
+                configFile.set("Sales Tax", "7%");
+            }
+            listingTax = configFile.getString("Sales Tax");
+
+            if (!configFile.contains("Spacer Item")) {
+                configFile.set("Spacer Item", Material.GRAY_STAINED_GLASS_PANE.name());
+            }
+            try {
+                spacerItem = Material.valueOf(configFile.getString("Spacer Item"));
+            } catch (Exception e) {
+                spacerItem = Material.GRAY_STAINED_GLASS_PANE;
+            }
+
+            if (!configFile.contains("Default Player Settings.Admin Mode")) {
                 configFile.set("Default Player Settings.Admin Mode", false);
             }
             dps_adminMode = configFile.getBoolean("Default Player Settings.Admin Mode");
 
-            if(!configFile.contains("Default Player Settings.Expire Notify")) {
+            if (!configFile.contains("Default Player Settings.Expire Notify")) {
                 configFile.set("Default Player Settings.Expire Notify", false);
             }
             dps_expire = configFile.getBoolean("Default Player Settings.Expire Notify");
@@ -141,15 +174,20 @@ public class Configuration {
             }
             dps_create = configFile.getBoolean("Default Player Settings.Create Notify");
 
-            if(!configFile.contains("Default Player Settings.Auto Confirm Listing")) {
+            if (!configFile.contains("Default Player Settings.Auto Confirm Listing")) {
                 configFile.set("Default Player Settings.Auto Confirm Listing", false);
             }
             dps_autoConfirm = configFile.getBoolean("Default Player Settings.Auto Confirm Listing");
 
-            if(!configFile.contains("Creative Listing")) {
+            if (!configFile.contains("Creative Listing")) {
                 configFile.set("Creative Listing", false);
             }
             creativeListing = configFile.getBoolean("Creative Listing");
+
+            if (!configFile.contains("Auction House Refresh Time")) {
+                configFile.set("Auction House Refresh Time", 1);
+            }
+            auctionhouseRefreshTime = configFile.getInt("Auction House Refresh Time");
 
 
         }
@@ -198,6 +236,11 @@ public class Configuration {
                     configFile.set("MySQL.Tables.Expired", "ah_expired");
                 }
                 db_expired = configFile.getString("MySQL.Tables.Expired");
+
+                if (!configFile.contains("MySQL.Tables.Users")) {
+                    configFile.set("MySQL.Tables.Users", "ah_users");
+                }
+                db_users = configFile.getString("MySQL.Tables.Users");
             }
         }
 
@@ -238,8 +281,10 @@ public class Configuration {
 
         /* Defaults */
         {
+            configFile.set("Version", version);
             configFile.set("Prefix", prefix);
             configFile.set("Debug", AuctionHouse.getInstance().isDebug());
+            configFile.set("UUID Bypass", uuidBypass);
             configFile.set("database", databaseType.toString());
             configFile.set("updates", updates);
             configFile.set("Minimum Listing", minListing);
@@ -247,6 +292,8 @@ public class Configuration {
             configFile.set("Listing Delay", listingDelay);
             configFile.set("Listing Time", listingTime);
             configFile.set("Listing Fee", listingFee);
+            configFile.set("Sales Tax", listingTax);
+            configFile.set("Spacer Item", spacerItem.name());
             configFile.set("Default Player Settings.Admin Mode", dps_adminMode);
             configFile.set("Default Player Settings.Expire Notify", dps_expire);
             configFile.set("Default Player Settings.Expire Time", dps_expireTime);
@@ -270,6 +317,7 @@ public class Configuration {
                 configFile.set("MySQL.Tables.Listings", db_listings);
                 configFile.set("MySQL.Tables.Completed", db_completed);
                 configFile.set("MySQL.Tables.Expired", db_expired);
+                configFile.set("MySQL.Tables.Users", db_users);
             }
         }
         fm.saveFile(configFile, "config");
@@ -283,6 +331,29 @@ public class Configuration {
             return price * percentage;
         } else {
             return Double.parseDouble(listingFee.replace("$", ""));
+        }
+    }
+
+    public double calculateListingTax(Player player, double price) {
+        AtomicInteger tax = new AtomicInteger(Integer.parseInt(listingTax.replace("%", "")));
+
+        player.getEffectivePermissions().stream().map(PermissionAttachmentInfo::getPermission).map(String::toLowerCase).filter(value -> value.startsWith("auctionhouse.salestax.")).map(value -> value.replace("auctionhouse.salestax.", "")).forEach(value -> {
+            //Get amount of max listings
+            try {
+                int amount = Integer.parseInt(value);
+
+                if (amount > tax.get())
+                    tax.set(amount);
+            } catch (NumberFormatException ignored) {
+            }
+        });
+
+        if (listingTax.contains("%")) {
+            double percentage = tax.get() / 100d;
+
+            return price * percentage;
+        } else {
+            return tax.get();
         }
     }
 }

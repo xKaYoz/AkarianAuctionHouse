@@ -12,13 +12,15 @@ public class Messages {
     private final FileManager fm;
     @Getter
     private String safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings,
-            st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message, st_creativeListing_message;
+            st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message, st_creativeListing_message, gui_cl_title;
 
     @Getter
     private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore,
             st_admin_lore, st_expire_lore, st_expireTime_lore, st_created_lore, st_bought_lore, st_autoConfirm_lore, gui_npc_lore, st_creativeListing_lore, st_listingFee_lore, st_listingTime_lore, gui_cl_lore;
     @Getter
     private YamlConfiguration messagesFile;
+    @Getter
+    private int version;
 
     public Messages() {
         fm = AuctionHouse.getInstance().getFileManager();
@@ -30,6 +32,12 @@ public class Messages {
 
     public void reloadMessages() {
         messagesFile = fm.getConfig("messages");
+
+        if (!messagesFile.contains("Version")) {
+            messagesFile.set("Version", 0);
+
+        }
+        version = messagesFile.getInt("Version");
 
         /*Messages*/
         {
@@ -474,7 +482,10 @@ public class Messages {
                         lore.add("");
                         lore.add("  &fTime Left &8&m&l-&e %time%");
                         lore.add("  &fCreator &8&m&l-&e %creator%");
+                        lore.add("");
                         lore.add("  &fPrice &8&m&l-&2 %price%");
+                        lore.add("  &fTax &8&m&l-&2 %tax%");
+                        lore.add("  &fTotal &8&m&l-&2 %total%");
                         lore.add("");
                         lore.add("%shulker%");
                         lore.add("%self_info%");
@@ -766,6 +777,10 @@ public class Messages {
                     messagesFile.set("GUIs.Confirm List.Display Lore", lore);
                 }
                 gui_cl_lore = messagesFile.getStringList("GUIs.Confirm List.Display Lore");
+                if (!messagesFile.contains("GUIs.Confirm List.Title")) {
+                    messagesFile.set("GUIs.Confirm List.Title", "&6Confirm Listing");
+                }
+                gui_cl_title = messagesFile.getString("GUIs.Confirm List.Title");
             }
         }
 
@@ -786,6 +801,38 @@ public class Messages {
         3 = messagesFile.getStringList("1");
         */
 
+        checkVersion();
+
+        fm.saveFile(messagesFile, "messages");
+    }
+
+    public void checkVersion() {
+        if (version == 0) {
+            AuctionHouse.getInstance().getChat().log("Starting Message file update. Version 1", AuctionHouse.getInstance().isDebug());
+            //Listing lore to add taxes and total cost
+            if (listingLore.size() == 10) {
+                AuctionHouse.getInstance().getChat().log("Changed Listing Lore message.", AuctionHouse.getInstance().isDebug());
+                List<String> lore = new ArrayList<>();
+                lore.add("&8&m&l---------------------------");
+                lore.add("");
+                lore.add("  &fTime Left &8&m&l-&e %time%");
+                lore.add("  &fCreator &8&m&l-&e %creator%");
+                lore.add("");
+                lore.add("  &fPrice &8&m&l-&2 %price%");
+                lore.add("  &fTax &8&m&l-&2 %tax%");
+                lore.add("  &fTotal &8&m&l-&2 %total%");
+                lore.add("");
+                lore.add("%shulker%");
+                lore.add("%self_info%");
+                lore.add("");
+                lore.add("&8&m&l---------------------------");
+                messagesFile.set("GUIs.AuctionHouse.Listing.Description", lore);
+            }
+            listingLore = messagesFile.getStringList("GUIs.AuctionHouse.Listing.Description");
+            version = 1;
+            messagesFile.set("Version", 1);
+            AuctionHouse.getInstance().getChat().log("Message File update complete. Now version 1", AuctionHouse.getInstance().isDebug());
+        }
         fm.saveFile(messagesFile, "messages");
     }
 

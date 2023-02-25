@@ -35,8 +35,9 @@ public class MainDatabaseGUI implements AkarianInventory {
         switch (slot) {
             case 8:
                 p.closeInventory();
+                break;
             case 13:
-                if (type.isRightClick() && type.isShiftClick())
+                if (player.hasPermission("auctionhouse.admin.database.transfer"))
                     p.openInventory(new ConfirmDatabaseTransfer(p).getInventory());
                 break;
             case 29:
@@ -66,15 +67,14 @@ public class MainDatabaseGUI implements AkarianInventory {
         inv = Bukkit.createInventory(this, 45, chat.format("&6&lDatabase Menu"));
 
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
 
-        inv.setItem(13, ItemBuilder.build(Material.ENCHANTED_BOOK, 1, "&6Database Information", Arrays.asList(
-                "&eDatabase Type: " + AuctionHouse.getInstance().getDatabaseType().getStr(),
-                "",
-                "&cShift+Right click to start transfer process")));
+        if (player.hasPermission("auctionhouse.admin.database.transfer"))
+            inv.setItem(13, ItemBuilder.build(Material.ENCHANTED_BOOK, 1, "&6Database Information", Arrays.asList(
+                    "&eDatabase Type: " + AuctionHouse.getInstance().getDatabaseType().getStr(), "&7Click to start the transfer process...")));
 
         inv.setItem(29, ItemBuilder.build(Material.LIME_WOOL, 1, "&a&lActive Listings &e&l(" + AuctionHouse.getInstance().getListingManager().getActive().size() + ")", Collections.singletonList("&7Click to view a list of all active listings.")));
 
@@ -83,7 +83,7 @@ public class MainDatabaseGUI implements AkarianInventory {
         inv.setItem(33, ItemBuilder.build(Material.GREEN_WOOL, 1, "&6&lCompleted Auctions &e(" + AuctionHouse.getInstance().getListingManager().getCompleted().size() + ")", Collections.singletonList("&7Click to see all completed auctions.")));
 
         for (int i = 36; i <= 44; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         return inv;

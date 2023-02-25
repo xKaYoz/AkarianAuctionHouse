@@ -2,7 +2,6 @@ package net.akarian.auctionhouse.guis.admin.settings;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.SettingsGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -30,7 +29,9 @@ public class DefaultPlayerSettingsGUI implements AkarianInventory {
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
         switch (slot) {
-
+            case 8:
+                p.openInventory(new MainSettingsGUI().getInventory());
+                break;
             case 10:
                 AuctionHouse.getInstance().getConfigFile().setDps_adminMode(!AuctionHouse.getInstance().getConfigFile().isDps_adminMode());
                 AuctionHouse.getInstance().getConfigFile().saveConfig();
@@ -142,14 +143,18 @@ public class DefaultPlayerSettingsGUI implements AkarianInventory {
 
         //Spacers
         for (int i = 0; i <= 9; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
-        inv.setItem(17, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        inv.setItem(18, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        inv.setItem(26, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        inv.setItem(27, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+
+
+        inv.setItem(17, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        inv.setItem(18, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        inv.setItem(26, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        inv.setItem(27, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         for (int i = 35; i <= 44; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         updateInventory();

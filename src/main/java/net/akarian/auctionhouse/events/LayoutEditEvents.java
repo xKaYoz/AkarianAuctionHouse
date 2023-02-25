@@ -369,7 +369,7 @@ public class LayoutEditEvents implements Listener {
         else if (LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
             LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId()).getLayout().setInventoryName(input);
-            chat.sendMessage(player, "&fYou have changed the name of this layout to \"&r" + input + "&f\".");
+            chat.sendMessage(player, "&fYou have changed the display name of this layout to \"&r" + input + "&f\".");
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId()).returnFromDisplayName());
         }
         //Inventory Size Edit

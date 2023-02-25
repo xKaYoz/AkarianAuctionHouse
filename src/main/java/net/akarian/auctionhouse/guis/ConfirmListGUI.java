@@ -1,8 +1,6 @@
 package net.akarian.auctionhouse.guis;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.listings.Listing;
-import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -15,7 +13,6 @@ import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class ConfirmListGUI implements AkarianInventory {
@@ -54,7 +51,7 @@ public class ConfirmListGUI implements AkarianInventory {
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 9, chat.format("&6Confirm Listing"));
+        inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessages().getGui_cl_title()));
 
         inv.setItem(0, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
         inv.setItem(1, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));

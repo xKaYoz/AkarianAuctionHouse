@@ -71,10 +71,15 @@ public final class AuctionHouse extends JavaPlugin {
     @Getter
     private UserManager userManager;
     private boolean loaded;
-    @Getter @Setter
+    @Getter
+    @Setter
     private boolean debug;
     @Getter
     private LayoutManager layoutManager;
+    @Getter
+    private boolean floodgate = false;
+    @Getter
+    private net.milkbowl.vault.chat.Chat vaultChat;
 
     @Override
     public void onEnable() {
@@ -87,6 +92,12 @@ public final class AuctionHouse extends JavaPlugin {
         this.configFile = new Configuration();
         chat = new Chat(this, getConfigFile().getPrefix());
         chat.log("ChatManager Successfully Loaded", debug);
+        chat.log("Checking for Floodgate...", debug);
+        floodgate = Bukkit.getPluginManager().isPluginEnabled("floodgate");
+        if (floodgate)
+            chat.log("Floodgate found and enabled", debug);
+        else
+            chat.log("Floodgate not found and disabled", debug);
         chat.log("Loading NameManager...", debug);
         nameManager = new NameManager();
         chat.log("NameManager Successfully Loaded", debug);
@@ -112,6 +123,7 @@ public final class AuctionHouse extends JavaPlugin {
             setEnabled(false);
             return;
         }
+        setupChat();
         getLogger().log(Level.INFO, "Successfully hooked into " + econ.getName() + ".");
         getLogger().log(Level.INFO, "Loading database...");
         // Set the database storage type
@@ -190,6 +202,12 @@ public final class AuctionHouse extends JavaPlugin {
         pm.registerEvents(guiManager, this);
     }
 
+    private boolean setupChat() {
+        RegisteredServiceProvider<net.milkbowl.vault.chat.Chat> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+        vaultChat = rsp.getProvider();
+        return vaultChat != null;
+    }
+
     @Override
     public void onDisable() {
         if (!loaded) {
@@ -200,7 +218,6 @@ public final class AuctionHouse extends JavaPlugin {
         listingManager.cancelExpireTimer();
         listingManager.cancelRefreshTimer();
         layoutManager.saveAllLayouts();
-        userManager.saveUsers();
         if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();
         }

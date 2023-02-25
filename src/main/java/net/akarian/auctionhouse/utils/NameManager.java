@@ -1,12 +1,17 @@
 package net.akarian.auctionhouse.utils;
+
 import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,15 +19,14 @@ import java.util.UUID;
 
 public class NameManager {
 
-    private final HashMap<UUID, HashMap<String, Object>> cache = new HashMap<>();
+    private final HashMap<String, HashMap<String, Object>> cache = new HashMap<>();
+    private final List<String> queued = new ArrayList<>();
+    private final String NAME_URL = "https://sessionserver.mojang.com" + "/session/minecraft/profile/";
     private int timer;
 
     public NameManager() {
         startCacheTimer();
     }
-
-    private final String NAME_URL = "https://sessionserver.mojang.com"
-            + "/session/minecraft/profile/";
 
     /**
      * Returns the name of the searched player.
@@ -41,16 +45,40 @@ public class NameManager {
      * @return The name of the given player.
      */
     public String getName(String uuid) {
-
+        //Return the name of Console if it is console
         if (uuid.equalsIgnoreCase("console")) {
             return "CONSOLE";
         }
-
+        //UUID verification bypass
+        if (AuctionHouse.getInstance().getConfigFile().isUuidBypass()) {
+            //Check the cache
+            if (cache.containsKey(uuid)) {
+                HashMap<String, Object> nc = cache.get(uuid);
+                nc.replace("Timer", System.currentTimeMillis());
+                cache.replace(uuid, nc);
+                return (String) nc.get("Name");
+            }
+            return checkDatabase(uuid);
+        }
+        //Check if we can use the BukkitAPI to get the UUID
         if (Bukkit.getPlayer(UUID.fromString(uuid)) != null) return Bukkit.getPlayer(UUID.fromString(uuid)).getName();
-        if (cache.containsKey(UUID.fromString(uuid))) {
-            HashMap<String, Object> nc = cache.get(UUID.fromString(uuid));
+        //Check if we already have this UUID cached from a previous check
+        if (cache.containsKey(uuid)) {
+            HashMap<String, Object> nc = cache.get(uuid);
+            nc.replace("Timer", System.currentTimeMillis());
+            cache.replace(uuid, nc);
             return (String) nc.get("Name");
         }
+        //Check with Floodgate API
+        if (AuctionHouse.getInstance().isFloodgate()) {
+            FloodgateApi floodgate = FloodgateApi.getInstance();
+            try {
+                return floodgate.getPlayer(UUID.fromString(uuid)).getUsername();
+            } catch (NullPointerException e) {
+                checkDatabase(uuid);
+            }
+        }
+        //Check with the MojangAPI
         try {
             HashMap<String, Object> sc = new HashMap<>();
             String dash = uuid;
@@ -59,9 +87,7 @@ public class NameManager {
             String output = callURL(NAME_URL + uuid);
             StringBuilder result = new StringBuilder();
             for (int i = 0; i < 20000; i++) {
-                if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a'
-                        && output.charAt(i + 2) == 'm'
-                        && output.charAt(i + 3) == 'e') {
+                if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a' && output.charAt(i + 2) == 'm' && output.charAt(i + 3) == 'e') {
                     for (int k = i + 9; k < 20000; k++) {
                         char curr = output.charAt(k);
                         if (curr != '"') {
@@ -75,11 +101,10 @@ public class NameManager {
             }
             sc.put("Name", result.toString());
             sc.put("Timer", System.currentTimeMillis());
-            cache.put(UUID.fromString(dash), sc);
+            cache.put(dash, sc);
             return result.toString();
-        }
-        catch (Exception e) {
-            return Bukkit.getOfflinePlayer(UUID.fromString(uuid)).getName();
+        } catch (Exception e) {
+            return uuid; //If it gets this far, something must be broket
         }
     }
 
@@ -94,8 +119,7 @@ public class NameManager {
                 urlConn.setReadTimeout(60 * 1000);
             }
             if (urlConn != null && urlConn.getInputStream() != null) {
-                in = new InputStreamReader(urlConn.getInputStream(),
-                        Charset.defaultCharset());
+                in = new InputStreamReader(urlConn.getInputStream(), Charset.defaultCharset());
                 BufferedReader bufferedReader = new BufferedReader(in);
                 int cp;
                 while ((cp = bufferedReader.read()) != -1) {
@@ -105,10 +129,8 @@ public class NameManager {
                 in.close();
             }
         } catch (Exception e) {
-            if(AuctionHouse.getInstance().isDebug())
-                e.printStackTrace();
-            else
-                AuctionHouse.getInstance().getChat().log("Error while trying to connect to NameManager URL.", false);
+            if (AuctionHouse.getInstance().isDebug()) e.printStackTrace();
+            else AuctionHouse.getInstance().getChat().log("Error while trying to connect to NameManager URL.", false);
         }
         return sb.toString();
     }
@@ -117,17 +139,68 @@ public class NameManager {
         timer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), new Runnable() {
             @Override
             public void run() {
-                List<UUID> toRemove = new ArrayList<>();
-                for (UUID uuid : cache.keySet()) {
+                List<String> toRemove = new ArrayList<>();
+                for (String uuid : cache.keySet()) {
                     HashMap<String, Object> lc = cache.get(uuid);
                     long time = (long) lc.get("Timer");
-                    if (time + (10 * 60 * 1000) < System.currentTimeMillis())
-                        toRemove.add(uuid);
+                    if (time + (10 * 60 * 1000) < System.currentTimeMillis()) toRemove.add(uuid);
 
                 }
-                toRemove.forEach(uuid -> cache.remove(uuid));
+                toRemove.forEach(cache::remove);
             }
         }, 0, 30 * 20);
+    }
+
+    private String checkDatabase(String uuid) {
+        switch (AuctionHouse.getInstance().getDatabaseType()) {
+            case FILE:
+                YamlConfiguration config = AuctionHouse.getInstance().getFileManager().getConfig("/database/users");
+                if (config.isConfigurationSection(uuid)) {
+                    HashMap<String, Object> sc = new HashMap<>();
+                    sc.put("Name", config.getString(uuid + ".Username"));
+                    sc.put("Timer", System.currentTimeMillis());
+                    cache.put(uuid, sc);
+                    return config.getString(uuid + ".Username");
+                }
+                break;
+            case MYSQL:
+                final String finalUUID = uuid;
+                final String[] s = new String[1];
+                //Set filler text to the UUID
+                s[0] = uuid;
+                //Checks if we already have a query sent
+                if (queued.contains(uuid)) {
+                    return uuid;
+                }
+                queued.add(uuid);
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            MySQL mySQL = AuctionHouse.getInstance().getMySQL();
+
+                            PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                            statement.setString(1, finalUUID);
+                            ResultSet rs = statement.executeQuery();
+
+                            if (rs.next()) {
+                                HashMap<String, Object> sc = new HashMap<>();
+                                sc.put("Name", rs.getString(1));
+                                sc.put("Timer", System.currentTimeMillis());
+                                cache.put(finalUUID, sc);
+                                s[0] = rs.getString(1);
+                                queued.remove(finalUUID);
+                            }
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                    }
+                });
+                return s[0];
+        }
+        return uuid;
     }
 
 }

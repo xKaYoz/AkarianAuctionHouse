@@ -108,7 +108,7 @@ public class ListingEditAdminGUI implements AkarianInventory {
     public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 27, chat.format("&4Edit " + chat.formatItem(listing.getItemStack())));
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
@@ -129,12 +129,12 @@ public class ListingEditAdminGUI implements AkarianInventory {
                 "",
                 "&cRight Click to select"
         )));
-        inv.setItem(16, ItemBuilder.build(Material.ANVIL, 1, "&4Amount", Arrays.asList(
+        inv.setItem(16, ItemBuilder.build(Material.ANVIL, 1, "&4Amount", Collections.singletonList(
                 "&7&oClick to remove or add items to this listing."
         )));
 
         for (int i = 18; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         inv.setItem(22, listing.createAdminActiveListing(player));
         return inv;

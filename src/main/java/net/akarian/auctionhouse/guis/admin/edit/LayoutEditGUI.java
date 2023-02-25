@@ -156,10 +156,12 @@ public class LayoutEditGUI implements AkarianInventory {
             if (slot == i + 11) {
                 isSettings = true;
                 clear = true;
+                updateInventory();
                 return;
             } else if (slot == i + 15) {
                 isItems = true;
                 clear = true;
+                updateInventory();
                 return;
             }
         }
@@ -265,7 +267,7 @@ public class LayoutEditGUI implements AkarianInventory {
             player.getInventory().setItem(i, null);
         }
         for (int i = 0; i <= 8; i++) {
-            player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+            player.getInventory().setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
         }
         player.getInventory().setItem(1, ItemBuilder.build(Material.LAVA_BUCKET, 1, "&cReset to Default", Arrays.asList("&7Set the layout to the default layout.", "&7Shift + Right Click to use", "", "&cCAUTION: This action cannot be undone!")));
         player.getInventory().setItem(3, ItemBuilder.build(Material.WATER_BUCKET, 1, "&aReset to Current", Collections.singletonList("&7Reset the layout to the current layout.")));
@@ -288,7 +290,7 @@ public class LayoutEditGUI implements AkarianInventory {
             clear = false;
             if (isSettings || isItems) {
                 for (int i = 27; i <= 35; i++) {
-                    player.getInventory().setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+                    player.getInventory().setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
                 }
                 player.getInventory().setItem(31, ItemBuilder.build(Material.BARRIER, 1, "&cReturn", Collections.singletonList("&7Return to the previous page.")));
             }
@@ -306,7 +308,7 @@ public class LayoutEditGUI implements AkarianInventory {
                         player.getInventory().setItem(24, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
                         break;
                     case 1:
-                        player.getInventory().setItem(24, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
+                        player.getInventory().setItem(24, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
                         break;
                     case 2:
                         player.getInventory().setItem(24, ItemBuilder.build(Material.GRAY_DYE, 1, "&6Layout Items", Collections.singletonList("&7Click to get more items for your layout.")));
@@ -345,7 +347,7 @@ public class LayoutEditGUI implements AkarianInventory {
         }
         //Layout Items Menu
         else {
-            player.getInventory().setItem(9, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, "&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
+            player.getInventory().setItem(9, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, "&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
             player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Arrays.asList("&7Click to get the Admin Mode button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Arrays.asList("&7Click to get the Close button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
@@ -362,7 +364,7 @@ public class LayoutEditGUI implements AkarianInventory {
     public void resetInventory() {
         //Spacer Items
         for (Integer i : layout.getSpacerItems()) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
@@ -417,7 +419,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Spacer Items
         for (Integer i : layout.getSpacerItems()) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         if (layout.getAdminButton() != -1)

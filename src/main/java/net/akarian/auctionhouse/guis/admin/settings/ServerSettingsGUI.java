@@ -34,6 +34,9 @@ public class ServerSettingsGUI implements AkarianInventory {
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
         switch (slot) {
+            case 8:
+                p.openInventory(new MainSettingsGUI().getInventory());
+                break;
             case 11:
                 feeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
@@ -53,10 +56,6 @@ public class ServerSettingsGUI implements AkarianInventory {
 
     @Override
     public void updateInventory() {
-
-        for (int i = 0; i <= 8; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        }
         Messages m = AuctionHouse.getInstance().getMessages();
 
 
@@ -91,15 +90,19 @@ public class ServerSettingsGUI implements AkarianInventory {
         inv.setItem(13, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_creativeListing_name(), creativeLore));
         inv.setItem(15, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingTime_name(), timeLore));
 
-        for (int i = 18; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
-        }
     }
 
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format("&6&lAuctionHouse Admin Settings"));
+        inv = Bukkit.createInventory(this, 27, chat.format("&6&lAuctionHouse Server Settings"));
+        for (int i = 0; i <= 8; i++) {
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        }
+        for (int i = 18; i <= 26; i++) {
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        }
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
         updateInventory();
         return inv;
     }

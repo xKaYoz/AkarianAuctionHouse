@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.1.4
+version: 1.2.0
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -11,6 +11,7 @@ softdepend:
   - Citizens
   - PlaceholderAPI
   - GemsEconomy
+  - floodgate
 commands:
   auctionhouse:
     description: Main Auction House command.
@@ -57,6 +58,9 @@ permissions:
   auctionhouse.admin.database:
     default: false
     description: Auction House Admin database command.
+  auctionhouse.admin.database.transfer:
+    description: Allows the player to transfer the database type.
+    default: false
   auctionhouse.admin.reload:
     default: false
     description: Auction House Admin reload command.

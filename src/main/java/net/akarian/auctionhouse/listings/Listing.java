@@ -271,6 +271,7 @@ public class Listing {
         assert tlore != null;
 
         long seconds = ((start + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) - System.currentTimeMillis()) / 1000;
+        double tax = AuctionHouse.getInstance().getConfigFile().calculateListingTax(player, getPrice());
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.getItemMeta();
@@ -301,7 +302,7 @@ public class Listing {
                     tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
             } else {
                 tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
-                        .replace("%price%", chat.formatMoney(price)));
+                        .replace("%price%", chat.formatMoney(price)).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((price + tax))));
             }
         }
 

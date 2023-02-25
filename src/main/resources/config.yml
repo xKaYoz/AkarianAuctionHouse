@@ -1,7 +1,16 @@
 #Plugin prefix
+Version: 0
 Prefix: "&6&lAuctionHouse"
-#This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE
+Debug: false
+#Change to true if you want to bypass the bukkit UUID check
+UUID Bypass: false
+#This is how the database will be saved. Available types are FILE MYSQL
 database: FILE
+#Delay between listing times
+Listing Delay: 10
+Listing Time: 60000
+Listing Fee: 10%
+Sales Tax: 6%
 #Wheather or not to enable updates.
 updates: true
 #MySQL details if database is set accordingly
@@ -19,5 +28,4 @@ MySQL:
 #Auction House Prices
 Minimum Listing: 10.00
 Maximum Listing: 1000000000.00
-#Delay between listing times
-Listing Delay: 10
+Auction House Refresh Time: 1

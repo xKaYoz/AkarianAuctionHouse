@@ -17,7 +17,15 @@ public class UserEvents implements Listener {
         Player p = e.getPlayer();
         UserManager um = AuctionHouse.getInstance().getUserManager();
 
-        um.loadUser(p.getUniqueId());
+
+        User user = um.loadUser(p.getUniqueId());
+
+        if (!p.getName().equals(user.getUsername())) {
+            final String oldUsername = user.getUsername();
+            user.setUsername(p.getName());
+            user.getUserSettings().saveUsername();
+            AuctionHouse.getInstance().getChat().log("Saved new username for " + p.getUniqueId() + " - New: " + user.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
+        }
     }
 
     @EventHandler

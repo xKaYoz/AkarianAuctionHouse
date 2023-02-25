@@ -193,7 +193,7 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         //Spacer Items
         for (Integer i : layout.getSpacerItems()) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
         }
 
         //Admin Button
@@ -221,7 +221,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                 inv.setItem(layout.getPreviousPageButton(), previous);
             } else {
                 if (layout.isSpacerPageItems())
-                    inv.setItem(layout.getPreviousPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+                    inv.setItem(layout.getPreviousPageButton(), ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
             }
         }
 
@@ -232,7 +232,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                 inv.setItem(layout.getNextPageButton(), next);
             } else {
                 if (layout.isSpacerPageItems())
-                    inv.setItem(layout.getNextPageButton(), ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.emptyList()));
+                    inv.setItem(layout.getNextPageButton(), ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
             }
         }
 
@@ -263,7 +263,7 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         //Admin Button
         if (player.hasPermission("auctionhouse.admin.manage")) {
@@ -282,7 +282,7 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         //Bottom Lining
         for (int i = 45; i <= 53; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         //Previous Page
@@ -473,7 +473,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         } else {
-            inv.setItem(45, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(45, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         //Next Page
@@ -481,7 +481,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         } else {
-            inv.setItem(53, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(53, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         } */
 
     }

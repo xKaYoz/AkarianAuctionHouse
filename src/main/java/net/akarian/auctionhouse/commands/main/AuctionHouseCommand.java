@@ -102,7 +102,7 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("list")) {
                 if (sender instanceof Player)
-                    result.add(AuctionHouse.getInstance().getEcon().getBalance(((Player) sender)) + "");
+                    result.add(AuctionHouse.getInstance().getConfigFile().getMinListing() + "");
             }
             if (args[0].equalsIgnoreCase("search")) {
                 for (Player p : Bukkit.getOnlinePlayers()) {

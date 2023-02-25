@@ -80,13 +80,13 @@ public class DatabaseTransferStatusGUI implements AkarianInventory {
         Inventory inv = Bukkit.createInventory(this, 27, chat.format("&a&lBegin Data Transfer"));
 
         for (int i = 0; i <= 9; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         for (int i = 10; i <= 16; i++) {
             inv.setItem(i, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lClick to start transfer", Arrays.asList("&eClick to start database transfer!", "&7You can close and use", "\"/ah admin database\" to reopen.")));
         }
         for (int i = 17; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         player.openInventory(inv);
@@ -103,17 +103,17 @@ public class DatabaseTransferStatusGUI implements AkarianInventory {
         return inv;
     }
 
-    public Inventory transferComplete(int active, int complete, int expired) {
+    public Inventory transferComplete(int active, int complete, int expired, int users) {
         Inventory inv = Bukkit.createInventory(this, 27, chat.format("&a&lTransfer Complete"));
 
         for (int i = 0; i <= 9; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         for (int i = 10; i <= 16; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lTransfer Complete!", Arrays.asList("&eTransferred " + complete + " completed auction listings.", "&eTransferred " + active + " active auction listings.", "&eTransferred " + expired + " expired listings.")));
+            inv.setItem(i, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lTransfer Complete!", Arrays.asList("&7Transferred &e" + complete + "&7 completed auction listings.", "&7Transferred &e" + active + "&7 active auction listings.", "&7Transferred &e" + expired + "&7 expired listings.", "&7Transferred &e" + users + "&7 users.")));
         }
         for (int i = 17; i <= 26; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.GRAY_STAINED_GLASS_PANE, 1, " ", Collections.EMPTY_LIST));
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         finished = true;

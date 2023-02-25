@@ -1,7 +1,10 @@
 package net.akarian.auctionhouse.users;
 
 import lombok.Getter;
+import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.utils.DatabaseType;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -14,7 +17,7 @@ public class UserManager {
 
     public UserManager() {
         this.users = new ArrayList<>();
-
+        checkVersion();
         loadOnlineUsers();
     }
 
@@ -49,6 +52,20 @@ public class UserManager {
     public void unloadUser(User user) {
         users.remove(user);
         user.getUserSettings().save();
+    }
+
+    public void checkVersion() {
+        if (AuctionHouse.getInstance().getConfigFile().getVersion() == 0) {
+            if (AuctionHouse.getInstance().getDatabaseType() == DatabaseType.MYSQL) {
+                AuctionHouse.getInstance().getChat().log("Transferring Users from File to MySQL for new update", AuctionHouse.getInstance().isDebug());
+                YamlConfiguration usersFile = AuctionHouse.getInstance().getFileManager().getConfig("/database/users");
+                if (usersFile.getKeys(false).size() != 0) {
+                    //Transfer the users file to mysql from first install
+                    AuctionHouse.getInstance().getMySQL().transferUsersFromFileToMySQL();
+                }
+            }
+            AuctionHouse.getInstance().getConfigFile().setVersion(1);
+        }
     }
 
 }

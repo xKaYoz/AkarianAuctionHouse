@@ -1,12 +1,14 @@
 package net.akarian.auctionhouse.users;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.FileManager;
+import net.akarian.auctionhouse.utils.MySQL;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.List;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.UUID;
 
 public class User {
@@ -16,6 +18,9 @@ public class User {
     private final FileManager fm;
     @Getter
     private UserSettings userSettings;
+    @Getter
+    @Setter
+    private String username;
 
     public User(UUID uuid) {
         this.uuid = uuid;
@@ -27,9 +32,31 @@ public class User {
     }
 
     public UserSettings loadUserSettings() {
-        YamlConfiguration usersFile = fm.getConfig("/database/users");
-        if (!usersFile.isConfigurationSection(uuid.toString())) {
-            return userSettings = createUserSettings().load();
+        switch (AuctionHouse.getInstance().getDatabaseType()) {
+            case FILE:
+                YamlConfiguration usersFile = fm.getConfig("/database/users");
+                if (!usersFile.isConfigurationSection(uuid.toString())) {
+                    return userSettings = createUserSettings().load();
+                } else {
+                    return userSettings = new UserSettings(this).load();
+                }
+            case MYSQL:
+                MySQL mySQL = AuctionHouse.getInstance().getMySQL();
+                try {
+                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                    statement.setString(1, uuid.toString());
+                    ResultSet rs = statement.executeQuery();
+
+                    if (rs.next()) {
+                        return userSettings = new UserSettings(this).load();
+                    } else {
+                        return userSettings = createUserSettings().load();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    return null;
+                }
         }
         return userSettings = new UserSettings(this).load();
     }

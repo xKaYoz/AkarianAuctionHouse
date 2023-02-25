@@ -37,6 +37,7 @@ public class SettingsSubCommand extends AkarianCommand {
             return;
         }
 
+        //  /ah settings force
         if (args.length == 2 && args[1].equalsIgnoreCase("force")) {
             FileManager fm = AuctionHouse.getInstance().getFileManager();
             YamlConfiguration usersFile = fm.getConfig("/database/users");

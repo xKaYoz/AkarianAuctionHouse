@@ -78,16 +78,21 @@ public class ListingManager {
         if (!fm.getFile("/database/completed").exists()) {
             fm.createFile("/database/completed");
         }
+        if (!fm.getFile("/database/users").exists()) {
+            fm.createFile("/database/users");
+        }
         chat.log("Files created. Starting Transferring Process...", false);
         chat.alert("Files created. Starting Transferring Process...");
         long startTime = System.currentTimeMillis();
         AtomicInteger lt = new AtomicInteger(0);
         AtomicInteger et = new AtomicInteger(0);
         AtomicInteger ct = new AtomicInteger(0);
+        AtomicInteger ut = new AtomicInteger(0);
         Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
             YamlConfiguration listingsFile = fm.getConfig("/database/listings");
             YamlConfiguration expiredFile = fm.getConfig("/database/expired");
             YamlConfiguration completedFile = fm.getConfig("/database/completed");
+            YamlConfiguration usersFile = fm.getConfig("/database/users");
             try {
                 PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable());
 
@@ -189,6 +194,39 @@ public class ListingManager {
                 e.printStackTrace();
                 chat.alert("Error while transferring completed listings.");
             }
+
+            try {
+                PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getUsersTable());
+
+                ResultSet rs = statement.executeQuery();
+
+                while (rs.next()) {
+
+                    UUID uuid = UUID.fromString(rs.getString(1));
+                    usersFile.set(uuid + ".Username", rs.getString(2));
+                    usersFile.set(uuid + ".Alert Create Listings", rs.getBoolean(3));
+                    usersFile.set(uuid + ".Open Admin Mode", rs.getBoolean(4));
+                    usersFile.set(uuid + ".Alert Near Expire.Status", rs.getBoolean(5));
+                    usersFile.set(uuid + ".Alert Near Expire.Time", rs.getLong(6));
+                    usersFile.set(uuid + ".Alert Listing Bought", rs.getBoolean(7));
+                    usersFile.set(uuid + ".Auto Confirm Listing", rs.getBoolean(8));
+
+                    ut.getAndIncrement();
+                    PreparedStatement delete = mySQL.getConnection().prepareStatement("DELETE FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                    delete.setString(1, uuid.toString());
+                    delete.executeUpdate();
+                    delete.closeOnCompletion();
+                }
+
+                fm.saveFile(usersFile, "/database/users");
+                chat.alert("Transferred " + ut + " users from MySQL.");
+                statement.closeOnCompletion();
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                chat.alert("Error while transferring users.");
+            }
+
             AuctionHouse.getInstance().getConfigFile().setDatabaseType(DatabaseType.FILE);
             databaseType = DatabaseType.FILE;
             chat.alert("Transfer complete. Transferred " + (et.get() + lt.get() + ct.get()) + " total listings. (" + (System.currentTimeMillis() - startTime) + "ms)");
@@ -197,7 +235,7 @@ public class ListingManager {
                 @Override
                 public void run() {
                     if (player != null)
-                        player.openInventory(inv.transferComplete(lt.get(), ct.get(), et.get()));
+                        player.openInventory(inv.transferComplete(lt.get(), ct.get(), et.get(), ut.get()));
                 }
             });
             mySQL.setTransferring(null);
@@ -219,125 +257,26 @@ public class ListingManager {
         if (AuctionHouse.getInstance().getMySQL().getConnection() == null) return false;
         chat.alert("&eStarting transfer from File to MySQL.");
         long startTime = System.currentTimeMillis();
-        AtomicInteger lt = new AtomicInteger(0);
-        AtomicInteger et = new AtomicInteger(0);
-        AtomicInteger ct = new AtomicInteger(0);
         Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
-            YamlConfiguration listingsFile = fm.getConfig("/database/listings");
-            Set<String> listingsKeySet = listingsFile.getValues(false).keySet();
-            YamlConfiguration expiredFile = fm.getConfig("/database/expired");
-            Set<String> expireKeySet = expiredFile.getValues(false).keySet();
-            YamlConfiguration completedFile = fm.getConfig("/database/completed");
-            Set<String> completedKeySet = completedFile.getValues(false).keySet();
+            //Transfer listings and users
+            int activeTransferred = mySQL.transferActiveListingsFromFileToMySQL();
+            int expiredTransferred = mySQL.transferExpiredFromFileToMySQL();
+            int completedTransferred = mySQL.transferCompletedFromFileToMySQL();
+            int usersTransferred = mySQL.transferUsersFromFileToMySQL();
 
-            for (String s : listingsKeySet) {
-                String itemstack = listingsFile.getString(s + ".ItemStack");
-                double price = listingsFile.getDouble(s + ".Price");
-                String creator = listingsFile.getString(s + ".Creator");
-                long start = listingsFile.getLong(s + ".Start");
-                try {
-                    PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getListingsTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
-
-                    statement.setString(1, s);
-                    statement.setString(2, itemstack);
-                    statement.setDouble(3, price);
-                    statement.setString(4, creator);
-                    statement.setLong(5, start);
-                    statement.setLong(6, 0);
-                    statement.setString(7, null);
-
-                    statement.executeUpdate();
-                    statement.close();
-
-                    lt.getAndIncrement();
-
-                    listingsFile.set(s, null);
-
-                    chat.log("Transferred listing " + s, AuctionHouse.getInstance().isDebug());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            chat.alert("Transferred " + lt + " listings to MySQL.");
-            for (String s : expireKeySet) {
-                String creator = expiredFile.getString(s + ".Creator");
-                Double price = expiredFile.getDouble(s + ".Price");
-                String itemStack = expiredFile.getString(s + ".ItemStack");
-                long start = expiredFile.getLong(s + ".Start");
-                long end = expiredFile.getLong(s + ".End");
-                String reason = expiredFile.getString(s + ".Reason");
-                boolean reclaimed = expiredFile.getBoolean(s + ".Reclaimed");
-
-                try {
-                    PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getExpiredTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,REASON,RECLAIMED) VALUES (?,?,?,?,?,?,?,?)");
-
-                    statement.setString(1, s);
-                    statement.setString(2, itemStack);
-                    statement.setDouble(3, price);
-                    statement.setString(4, creator);
-                    statement.setLong(5, start);
-                    statement.setLong(6, end);
-                    statement.setString(7, reason);
-                    statement.setBoolean(8, reclaimed);
-
-                    statement.executeUpdate();
-                    statement.close();
-                    et.getAndIncrement();
-
-                    expiredFile.set(s, null);
-
-                    chat.log("Transferred expired listing " + s, AuctionHouse.getInstance().isDebug());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            chat.alert("Transferred " + et + " expired listings to MySQL.");
-            for (String s : completedKeySet) {
-
-                String itemstack = completedFile.getString(s + ".ItemStack");
-                double price = completedFile.getDouble(s + ".Price");
-                String creator = completedFile.getString(s + ".Creator");
-                long start = completedFile.getLong(s + ".Start");
-                long end = completedFile.getLong(s + ".End");
-                String buyer = completedFile.getString(s + ".Buyer");
-
-                try {
-                    PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
-
-                    statement.setString(1, s);
-                    statement.setString(2, itemstack);
-                    statement.setDouble(3, price);
-                    statement.setString(4, creator);
-                    statement.setLong(5, start);
-                    statement.setLong(6, end);
-                    statement.setString(7, buyer);
-
-                    statement.executeUpdate();
-                    statement.closeOnCompletion();
-
-                    completedFile.set(s, null);
-
-                    chat.log("Transferred complete listing " + s, AuctionHouse.getInstance().isDebug());
-                    ct.getAndIncrement();
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-            chat.alert("Transferred " + ct + " completed listings to MySQL.");
-
-            fm.saveFile(listingsFile, "/database/listings");
-            fm.saveFile(expiredFile, "/database/expired");
-            fm.saveFile(completedFile, "/database/completed");
+            //Set the database type to MySQL
             AuctionHouse.getInstance().getConfigFile().setDatabaseType(DatabaseType.MYSQL);
             databaseType = DatabaseType.MYSQL;
-            chat.alert("Transfer complete. Transferred " + (et.get() + lt.get() + ct.get()) + " total listings. (" + (System.currentTimeMillis() - startTime) + "ms).");
+
+            //Reload listings
             loadListings();
+
+            chat.alert("Transfer complete. Transferred " + (expiredTransferred + activeTransferred + completedTransferred) + " total listings and " + usersTransferred + " users. (" + (System.currentTimeMillis() - startTime) + "ms).");
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), new Runnable() {
                 @Override
                 public void run() {
                     if (player != null)
-                        player.openInventory(inv.transferComplete(lt.get(), ct.get(), et.get()));
+                        player.openInventory(inv.transferComplete(activeTransferred, completedTransferred, expiredTransferred, usersTransferred));
                 }
             });
             mySQL.setTransferring(null);
@@ -616,7 +555,9 @@ public class ListingManager {
 
         if (AuctionHouse.getInstance().getEcon().getBalance(buyer) < listing.getPrice()) return 0;
 
-        AuctionHouse.getInstance().getEcon().withdrawPlayer(buyer, listing.getPrice());
+        double price = listing.getPrice() * AuctionHouse.getInstance().getConfigFile().calculateListingTax(Objects.requireNonNull(buyer.getPlayer()), listing.getPrice());
+
+        AuctionHouse.getInstance().getEcon().withdrawPlayer(buyer, price);
         AuctionHouse.getInstance().getEcon().depositPlayer(Bukkit.getOfflinePlayer(listing.getCreator()), listing.getPrice());
 
         long end = System.currentTimeMillis();
@@ -642,6 +583,8 @@ public class ListingManager {
                         statement.executeUpdate();
                         statement.closeOnCompletion();
 
+                        completed.add(listing);
+
                     } catch (Exception e) {
                         e.printStackTrace();
                         ret.set(true);
@@ -662,6 +605,8 @@ public class ListingManager {
                 completedFile.set(listing.getId().toString() + ".End", end);
                 completedFile.set(listing.getId().toString() + ".Buyer", buyer.getUniqueId().toString());
 
+                completed.add(listing);
+
                 fm.saveFile(completedFile, "/database/completed");
                 break;
         }
@@ -671,10 +616,10 @@ public class ListingManager {
         listing.setEnd(end);
         listing.setBuyer(buyer.getUniqueId());
 
-        chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
+        chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(price)));
 
         Bukkit.getServer().getPluginManager().callEvent(new ListingBoughtEvent(listing));
-        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getCreator().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
+        chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getBuyer().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
         if (creator != null) {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
             return 2;
@@ -759,13 +704,13 @@ public class ListingManager {
 
                         PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET ITEM_STACK=? WHERE ID=?");
 
+                        listing.getItemStack().setAmount(newAmount);
+
                         statement.setString(1, AuctionHouse.getInstance().encode(listing.getItemStack(), false));
                         statement.setString(2, listing.getId().toString());
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
-
-                        listing.getItemStack().setAmount(newAmount);
 
                         ret.set(1);
 
@@ -776,8 +721,8 @@ public class ListingManager {
                 return ret.get();
             case FILE:
                 YamlConfiguration listingsFile = fm.getConfig("/database/listings");
-                listingsFile.set(listing.getId().toString() + ".ItemStack", AuctionHouse.getInstance().encode(listing.getItemStack(), false));
                 listing.getItemStack().setAmount(newAmount);
+                listingsFile.set(listing.getId().toString() + ".ItemStack", AuctionHouse.getInstance().encode(listing.getItemStack(), false));
                 fm.saveFile(listingsFile, "/database/listings");
                 return 1;
         }
@@ -947,25 +892,25 @@ public class ListingManager {
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
                     if(listingsFile.getString(str + ".ItemStack") == null) {
-                         chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
-                         errors.incrementAndGet();
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
                     if (!listingsFile.contains(str + ".Price")) {
-                        chat.log("Error while loading auction with price " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with price " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
                     double price = listingsFile.getDouble(str + ".Price");
                     if (!listingsFile.contains(str + ".Creator")) {
-                        chat.log("Error while loading auction with creator " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with creator " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
                     if (!listingsFile.contains(str + ".Start")) {
-                        chat.log("Error while loading auction with Start " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with Start " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
@@ -1057,7 +1002,7 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if(listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
@@ -1137,7 +1082,7 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if(completedFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id.toString() + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
                     }
@@ -1275,7 +1220,7 @@ public class ListingManager {
     /**
      * Start the Expire Check timer
      */
-    private void startExpireCheck() {
+    public void startExpireCheck() {
 
         expireTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), () -> {
             if (!active.isEmpty()) {
@@ -1317,8 +1262,8 @@ public class ListingManager {
     /**
      * Start the AuctionHouse Refresh Timer
      */
-    private void startAuctionHouseRefresh() {
-        refreshTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), this::refreshAuctionHouse, 0, 10);
+    public void startAuctionHouseRefresh() {
+        refreshTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), this::refreshAuctionHouse, 0, 20L * AuctionHouse.getInstance().getConfigFile().getAuctionhouseRefreshTime());
     }
 
     /**
