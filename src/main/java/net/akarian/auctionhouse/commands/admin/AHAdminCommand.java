@@ -95,6 +95,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
             result.add("reload");
             result.add("update");
             result.add("settings");
+            result.add("layout");
         }
 
         if (args.length == 2) {
@@ -103,7 +104,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
                 result.add("disable");
                 result.add("toggle");
             }
-            if (args[0].equalsIgnoreCase("setitings")) {
+            if (args[0].equalsIgnoreCase("settings")) {
                 result.add("force");
             }
         }

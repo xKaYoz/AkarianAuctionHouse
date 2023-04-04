@@ -1,5 +1,5 @@
 name: AuctionHouse
-version: 1.2.0
+version: 1.2.2
 main: net.akarian.auctionhouse.AuctionHouse
 api-version: 1.14
 description: Auction House plugin.
@@ -70,3 +70,9 @@ permissions:
   auctionhouse.admin.npc:
     default: false
     description: Edit the Auction House NPCs.
+  auctionhouse.use:
+    default: true
+    description: Allow the player to open the Auction House.
+  auctionhouse.admin.edit:
+    default: op
+    description: Allow for the editing of Auction House layouts.

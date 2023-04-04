@@ -23,6 +23,8 @@ public class AdminCommandManager {
         commands.put("database", new DatabaseSubCommand("database", "auctionhouse.admin.database", "/aha database", "Manage the AuctionHouse database.", "db"));
         commands.put("reload", new ReloadSubCommand("reload", "auctionhouse.admin.reload", "/aha reload [messages/config]", "Reload the AuctionHouse files.", "rl"));
         commands.put("settings", new SettingsSubCommand("settings", "auctionhouse.admin.settings", "/aha settings", "Manage the default player and server settings."));
+        commands.put("layout", new LayoutSubCommand("layout", "auctionhouse.admin.edit", "/aha layout", "Manage and edit the Auction House Layouts.", "layouts", "edit"));
+
 
     }
 

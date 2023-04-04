@@ -32,6 +32,8 @@ public class LayoutEditGUI implements AkarianInventory {
     @Getter
     private static final HashMap<UUID, LayoutEditGUI> inventorySizeEdit = new HashMap<>();
     @Getter
+    private static final HashMap<UUID, LayoutEditGUI> deleteLayout = new HashMap<>();
+    @Getter
     private static Inventory inv;
     private final HashMap<Integer, ItemStack> playerInventory;
     private final Chat chat = AuctionHouse.getInstance().getChat();
@@ -73,6 +75,13 @@ public class LayoutEditGUI implements AkarianInventory {
     @Setter
     private boolean expiredListingsButton;
     @Getter
+    @Setter
+    private String displayName;
+    @Getter
+    @Setter
+    private String layoutName;
+    private boolean setActive;
+    @Getter
     private boolean closed = false;
 
     public LayoutEditGUI(Player player, Layout layout) {
@@ -80,6 +89,9 @@ public class LayoutEditGUI implements AkarianInventory {
         this.playerInventory = new HashMap<>();
         this.layout = layout;
         updateItems = 4;
+        setActive = false;
+        setDisplayName(" ");
+        setLayoutName(" ");
     }
 
     @Override
@@ -106,6 +118,16 @@ public class LayoutEditGUI implements AkarianInventory {
             } else if (slot == i + 3) { //Inventory size
                 inventorySizeEdit.put(player.getUniqueId(), this);
                 chat.sendMessage(player, "&ePlease enter whether you'd like a 27, 36, 45, or 54 size Auction House...");
+                player.closeInventory();
+                isSettings = false;
+                return;
+            } else if (slot == i + 4) { //Active Layout
+                setActive = true;
+                return;
+            } else if (slot == i + 5) { //Delete Layout
+                if (layout.isActive()) return;
+                deleteLayout.put(player.getUniqueId(), this);
+                chat.sendMessage(player, "&eType \"CONFIRM\" to delete this layout. Type \"cancel\" to return.");
                 player.closeInventory();
                 isSettings = false;
                 return;
@@ -261,6 +283,15 @@ public class LayoutEditGUI implements AkarianInventory {
         giveEditorMenu();
     }
 
+    //Run when returning from layout deletion
+    public void returnFromDeletion() {
+        player.openInventory(getInv());
+        giveEditorMenu();
+        updateInventory();
+
+        deleteLayout.remove(player.getUniqueId());
+    }
+
     //Give the editor to the player's inventory
     public void giveEditorMenu() {
         for (int i = 0; i <= 35; i++) {
@@ -344,6 +375,8 @@ public class LayoutEditGUI implements AkarianInventory {
             player.getInventory().setItem(10, ItemBuilder.build(Material.PAPER, 1, "&6Layout Name", Collections.singletonList("&7Rename the layout.")));
             player.getInventory().setItem(11, ItemBuilder.build(Material.PAPER, 1, "&6Display Name", Collections.singletonList("&7Edit the displayed name for this layout.")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.CHEST, 1, "&6Auction House Size", Collections.singletonList("&7Edit the size of your auction house layout.")));
+            player.getInventory().setItem(13, ItemBuilder.build((layout.isActive() || setActive) ? Material.LIME_DYE : Material.GRAY_DYE, 1, "&6Set layout as the active layout", Collections.singletonList((layout.isActive() || setActive) ? "&7This layout is already active." : "&7Set this layout as the active layout.")));
+            player.getInventory().setItem(14, ItemBuilder.build(Material.LAVA_BUCKET, 1, "&cDelete Layout", Collections.singletonList(layout.isActive() ? "&eYou must set another layout as the active layout to delete this one." : "&7Click to delete this layout.")));
         }
         //Layout Items Menu
         else {
@@ -521,6 +554,20 @@ public class LayoutEditGUI implements AkarianInventory {
     private void save() {
         List<Integer> listings = new ArrayList<>();
         List<Integer> spacers = new ArrayList<>();
+
+        if (setActive) {
+            if (AuctionHouse.getInstance().getLayoutManager().getActiveLayout() != null) {
+                AuctionHouse.getInstance().getLayoutManager().getActiveLayout().setActive(false);
+            }
+            AuctionHouse.getInstance().getLayoutManager().setActiveLayout(layout);
+            layout.setActive(true);
+        }
+        if (!displayName.equals(" ")) {
+            layout.setInventoryName(displayName);
+        }
+        if (!layoutName.equals(" ")) {
+            layout.setName(layoutName);
+        }
 
         layout.setAdminButton(-1);
         layout.setExitButton(-1);

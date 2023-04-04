@@ -11,12 +11,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.UUID;
 
 public class SettingsGUIEvents implements Listener {
@@ -140,14 +139,26 @@ public class SettingsGUIEvents implements Listener {
             e.setCancelled(true);
             p.openInventory(DefaultPlayerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
             DefaultPlayerSettingsGUI.getTimeMap().remove(p.getUniqueId());
-        } else if(ServerSettingsGUI.getFeeMap().containsKey(p.getUniqueId())) {
+        } else if (ServerSettingsGUI.getFeeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
             p.openInventory(ServerSettingsGUI.getFeeMap().get(p.getUniqueId()).getInventory());
             ServerSettingsGUI.getFeeMap().remove(p.getUniqueId());
-        } else if(ServerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
+        } else if (ServerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
             p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
             ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+        }
+    }
+
+    @EventHandler
+    public void onClose(InventoryCloseEvent e) {
+        Player p = (Player) e.getPlayer();
+
+        if (e.getInventory().getHolder() instanceof SettingsGUI) {
+            SettingsGUI gui = (SettingsGUI) e.getInventory().getHolder();
+            if (gui.isEdited()) {
+                AuctionHouse.getInstance().getUserManager().getUser(p).getUserSettings().save();
+            }
         }
     }
 }

@@ -34,14 +34,24 @@ public class LayoutManager {
             }
         }
         int loaded = 0;
-        for(File file : new File(AuctionHouse.getInstance().getDataFolder() + File.separator + "layouts").listFiles()) {
+        for (File file : new File(AuctionHouse.getInstance().getDataFolder() + File.separator + "layouts").listFiles()) {
             Layout layout = new Layout(UUID.fromString(file.getName().replace(".yml", "")), "");
             layout.loadLayout();
             register(layout);
-            if(layout.isActive()) {
+            if (layout.isActive()) {
                 activeLayout = layout;
             }
             chat.log("Loaded layout " + layout.getName() + ".", AuctionHouse.getInstance().isDebug());
+            loaded++;
+        }
+        if (loaded == 0) {
+            createDefaultLayout("default", true);
+            chat.log("Found no layouts so a default one was created.", true);
+            loaded++;
+        }
+        if (activeLayout == null) {
+            createDefaultLayout("default", true);
+            chat.log("Found no active layouts so a default one was created.", true);
             loaded++;
         }
         chat.log("Loaded " + loaded + " layouts.", AuctionHouse.getInstance().isDebug());

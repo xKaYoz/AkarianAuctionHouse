@@ -553,9 +553,9 @@ public class ListingManager {
 
         Player creator = Bukkit.getPlayer(listing.getCreator());
 
-        if (AuctionHouse.getInstance().getEcon().getBalance(buyer) < listing.getPrice()) return 0;
+        double price = listing.getPrice() + AuctionHouse.getInstance().getConfigFile().calculateListingTax(Objects.requireNonNull(buyer.getPlayer()), listing.getPrice());
 
-        double price = listing.getPrice() * AuctionHouse.getInstance().getConfigFile().calculateListingTax(Objects.requireNonNull(buyer.getPlayer()), listing.getPrice());
+        if (AuctionHouse.getInstance().getEcon().getBalance(buyer) < price) return 0;
 
         AuctionHouse.getInstance().getEcon().withdrawPlayer(buyer, price);
         AuctionHouse.getInstance().getEcon().depositPlayer(Bukkit.getOfflinePlayer(listing.getCreator()), listing.getPrice());

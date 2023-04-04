@@ -2,6 +2,7 @@ package net.akarian.auctionhouse.events;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
+import net.akarian.auctionhouse.guis.admin.edit.LayoutSelectGUI;
 import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.Chat;
@@ -292,6 +293,7 @@ public class LayoutEditEvents implements Listener {
             LayoutEditGUI.getHelpMessage().remove(player.getUniqueId());
             LayoutEditGUI.getDisplayNameEdit().remove(player.getUniqueId());
             LayoutEditGUI.getInventorySizeEdit().remove(player.getUniqueId());
+            LayoutEditGUI.getDeleteLayout().remove(player.getUniqueId());
         }
     }
 
@@ -304,7 +306,7 @@ public class LayoutEditEvents implements Listener {
         if (player.getOpenInventory().getTopInventory().getHolder() instanceof LayoutEditGUI) {
             e.setCancelled(true);
         }
-        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId())) {
+        if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getHelpMessage().containsKey(player.getUniqueId()) || LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getInventorySizeEdit().containsKey(player.getUniqueId()) || LayoutEditGUI.getDeleteLayout().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
         }
     }
@@ -361,14 +363,14 @@ public class LayoutEditEvents implements Listener {
         //Layout Name Edit
         else if (LayoutEditGUI.getLayoutNameEdit().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
-            LayoutEditGUI.getLayoutNameEdit().get(player.getUniqueId()).getLayout().setName(input);
+            LayoutEditGUI.getLayoutNameEdit().get(player.getUniqueId()).setLayoutName(input);
             chat.sendMessage(player, "&fYou have changed the name of this layout to &e&n" + input + "&f.");
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> LayoutEditGUI.getLayoutNameEdit().get(player.getUniqueId()).returnFromLayoutName());
         }
         //Display Name Edit
         else if (LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
-            LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId()).getLayout().setInventoryName(input);
+            LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId()).setDisplayName(input);
             chat.sendMessage(player, "&fYou have changed the display name of this layout to \"&r" + input + "&f\".");
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId()).returnFromDisplayName());
         }
@@ -438,6 +440,18 @@ public class LayoutEditEvents implements Listener {
                     return;
             }
             chat.sendMessage(player, "&6&n" + input + "&e is not a valid input. Please specify whether you'd like a 27, 36, 45, or 54 size Auction House...");
+        }
+        //Layout deletion
+        else if (LayoutEditGUI.getDeleteLayout().containsKey(player.getUniqueId())) {
+            e.setCancelled(true);
+            if (input.equals("CONFIRM")) {
+                AuctionHouse.getInstance().getLayoutManager().unregister(LayoutEditGUI.getDeleteLayout().get(player.getUniqueId()).getLayout());
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> player.openInventory(new LayoutSelectGUI(player, 1).getInventory()));
+            } else if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> LayoutEditGUI.getDeleteLayout().get(player.getUniqueId()).returnFromDeletion());
+            } else {
+                chat.sendMessage(player, "&eType \"CONFIRM\" to delete this layout. Type \"cancel\" to return.");
+            }
         }
     }
 

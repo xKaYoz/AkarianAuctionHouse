@@ -30,10 +30,12 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 User user = AuctionHouse.getInstance().getUserManager().getUser(p);
-                if(p.hasPermission("auctionhouse.admin.manage") && user.getUserSettings().isOpenAdminMode())
-                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).adminMode().getInventory());
+                if (p.hasPermission("auctionhouse.admin.manage") && user.getUserSettings().isOpenAdminMode())
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true, 1).adminMode().getInventory());
+                else if (p.hasPermission("auctionhouse.use"))
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true, 1).getInventory());
                 else
-                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true,  1).getInventory());
+                    chat.noPermission(sender);
                 return false;
             }
             CommandManager.getInstance().find("help").execute(sender, args);

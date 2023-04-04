@@ -27,10 +27,13 @@ public class SettingsGUI implements AkarianInventory {
     private Inventory inv;
     @Getter
     private static final HashMap<UUID, SettingsGUI> timeMap = new HashMap<>();
+    @Getter
+    private boolean edited;
 
     public SettingsGUI(Player player, boolean admin) {
         this.player = player;
         this.isAdmin = admin;
+        edited = false;
     }
 
 
@@ -44,27 +47,33 @@ public class SettingsGUI implements AkarianInventory {
                 case 10:
                     user.getUserSettings().setOpenAdminMode(!user.getUserSettings().isOpenAdminMode());
                     updateInventory();
+                    edited = true;
                     break;
                 case 13:
                     user.getUserSettings().setAlertNearExpire(!user.getUserSettings().isAlertNearExpire());
                     updateInventory();
+                    edited = true;
                     break;
                 case 16:
                     user.getUserSettings().setAlertListingBought(!user.getUserSettings().isAlertListingBought());
                     updateInventory();
+                    edited = true;
                     break;
                 case 22:
                     chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getSt_expireTime_message());
                     timeMap.put(player.getUniqueId(), this);
                     player.closeInventory();
+                    edited = true;
                     break;
                 case 28:
                     user.getUserSettings().setAlertCreateListings(!user.getUserSettings().isAlertCreateListings());
                     updateInventory();
+                    edited = true;
                     break;
                 case 34:
                     user.getUserSettings().setAutoConfirmListing(!user.getUserSettings().isAutoConfirmListing());
                     updateInventory();
+                    edited = true;
                     break;
             }
         } else {
@@ -72,23 +81,28 @@ public class SettingsGUI implements AkarianInventory {
                 case 10:
                     user.getUserSettings().setAlertCreateListings(!user.getUserSettings().isAlertCreateListings());
                     updateInventory();
+                    edited = true;
                     break;
                 case 12:
                     user.getUserSettings().setAlertNearExpire(!user.getUserSettings().isAlertNearExpire());
                     updateInventory();
+                    edited = true;
                     break;
                 case 14:
                     user.getUserSettings().setAlertListingBought(!user.getUserSettings().isAlertListingBought());
                     updateInventory();
+                    edited = true;
                     break;
                 case 16:
                     user.getUserSettings().setAutoConfirmListing(!user.getUserSettings().isAutoConfirmListing());
                     updateInventory();
+                    edited = true;
                     break;
                 case 21:
                     chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getSt_expireTime_message());
                     timeMap.put(player.getUniqueId(), this);
                     player.closeInventory();
+                    edited = true;
                     break;
 
             }

@@ -55,6 +55,10 @@ public class HelpSubCommand extends AkarianCommand {
         int to = page * 10;
         int from = to - 10;
 
+        if (page == 1) {
+            chat.sendRawMessage(sender, "  &c/aha &8- &7Opens the Auction House Admin Menu.");
+        }
+
         if (commands.size() >= 10) {
             for (int i = from; i < to; i++) {
                 if (commands.size() == i) break;
@@ -70,6 +74,9 @@ public class HelpSubCommand extends AkarianCommand {
                 chat.sendRawMessage(sender, "  &c" + command.getUsage() + " &8- &7" + command.getDescription());
             }
         }
+        chat.sendRawMessage(sender, "");
+        chat.sendRawMessage(sender, "&7For more help or to get support, join our discord https://discord.gg/KmakDJgCd8");
+        chat.sendRawMessage(sender, "");
         chat.sendRawMessage(sender, "&8&m----------------------------------------");
     }
 }
