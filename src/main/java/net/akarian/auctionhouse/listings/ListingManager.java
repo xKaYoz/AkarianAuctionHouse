@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
+import org.bukkit.scheduler.BukkitTask;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +38,7 @@ public class ListingManager {
     private final List<Listing> completed;
     private DatabaseType databaseType;
     private final FileManager fm;
-    private int expireTimer;
+    private BukkitTask expireTimer;
     private int refreshTimer;
     private boolean transferring;
 
@@ -1222,7 +1223,8 @@ public class ListingManager {
      */
     public void startExpireCheck() {
 
-        expireTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), () -> {
+        expireTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(AuctionHouse.getInstance(), () -> {
+            int expired = 0;
             if (!active.isEmpty()) {
                 List<Listing> copy = new ArrayList<>(active);
                 for (Listing listing : copy) {
@@ -1232,27 +1234,28 @@ public class ListingManager {
                     ItemStack item = listing.getItemStack();
 
                     //Alert near expire
-                    for(User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
+                    for (User user : AuctionHouse.getInstance().getUserManager().getUsers()) {
                         if (!user.getUserSettings().isAlertNearExpire()) continue;
                         if (!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
                             user.getUserSettings().getNotified().add(listing);
                             chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName())));
                         }
                     }
-
                     if (now > end) {
                         switch (expire(listing, true, false, "TIME")) {
                             case -1:
                                 chat.log("!! Error while saving " + chat.formatItem(item) + ".", AuctionHouse.getInstance().isDebug());
+                                expired++;
                                 break;
                             case 1:
                                 chat.log("Listing " + chat.formatItem(item) + " has expired with user online.", AuctionHouse.getInstance().isDebug());
+                                expired++;
                                 break;
                             case 2:
                                 chat.log("Listing " + chat.formatItem(item) + " has expired. Item saved in database.", AuctionHouse.getInstance().isDebug());
+                                expired++;
                                 break;
                         }
-                    } else {
                     }
                 }
             }
@@ -1282,7 +1285,7 @@ public class ListingManager {
     }
 
     public void cancelExpireTimer() {
-        Bukkit.getScheduler().cancelTask(expireTimer);
+        Bukkit.getScheduler().cancelTask(expireTimer.getTaskId());
     }
 
     public void cancelRefreshTimer() {

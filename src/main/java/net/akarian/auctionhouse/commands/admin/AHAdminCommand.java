@@ -92,10 +92,11 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
         if (args.length == 1) {
             result.add("database");
             result.add("help");
-            result.add("reload");
-            result.add("update");
-            result.add("settings");
             result.add("layout");
+            result.add("npc");
+            result.add("reload");
+            result.add("settings");
+            result.add("update");
         }
 
         if (args.length == 2) {

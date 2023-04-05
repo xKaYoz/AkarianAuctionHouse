@@ -31,6 +31,13 @@ public class SettingsGUIEvents implements Listener {
 
         if(SettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
+            if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+                });
+                return;
+            }
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
@@ -45,6 +52,13 @@ public class SettingsGUIEvents implements Listener {
             });
         } else if(DefaultPlayerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
+            if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(DefaultPlayerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
+                    DefaultPlayerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+                });
+                return;
+            }
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
@@ -74,6 +88,13 @@ public class SettingsGUIEvents implements Listener {
             willExpireCheck.remove(p.getUniqueId());
         }else if(ServerSettingsGUI.getTimeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
+            if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+                });
+                return;
+            }
             try {
                 Integer.parseInt(input);
             } catch (NumberFormatException ex) {
@@ -83,7 +104,7 @@ public class SettingsGUIEvents implements Listener {
             int sec = Integer.parseInt(input);
             long now = System.currentTimeMillis() / 1000;
             int willExpire = 0;
-            for(Listing listing : AuctionHouse.getInstance().getListingManager().getActive()) {
+            for (Listing listing : AuctionHouse.getInstance().getListingManager().getActive()) {
                 long end = (listing.getStart() + (sec * 1000L)) / 1000;
                 if(now > end)
                     willExpire++;
@@ -101,11 +122,18 @@ public class SettingsGUIEvents implements Listener {
             });
         } else if(ServerSettingsGUI.getFeeMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
+            if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getFeeMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getFeeMap().remove(p.getUniqueId());
+                });
+                return;
+            }
             String dupe = input;
             try {
                 Integer.parseInt(input);
             } catch (NumberFormatException ex) {
-                if(input.contains("%")) {
+                if (input.contains("%")) {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
@@ -121,6 +149,36 @@ public class SettingsGUIEvents implements Listener {
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getFeeMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getFeeMap().remove(p.getUniqueId());
+            });
+        } else if (ServerSettingsGUI.getTaxMap().containsKey(p.getUniqueId())) {
+            e.setCancelled(true);
+            if (input.equalsIgnoreCase("cancel")) {
+                Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                    p.openInventory(ServerSettingsGUI.getTaxMap().get(p.getUniqueId()).getInventory());
+                    ServerSettingsGUI.getTaxMap().remove(p.getUniqueId());
+                });
+                return;
+            }
+            String dupe = input;
+            try {
+                Integer.parseInt(input);
+            } catch (NumberFormatException ex) {
+                if (input.contains("%")) {
+                    try {
+                        Integer.parseInt(dupe.replace("%", ""));
+                    } catch (NumberFormatException ex2) {
+                        chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                        return;
+                    }
+                } else {
+                    chat.sendMessage(p, "&cYou must provide a valid tax.");
+                    return;
+                }
+            }
+            AuctionHouse.getInstance().getConfigFile().setListingTax(input);
+            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                p.openInventory(ServerSettingsGUI.getTaxMap().get(p.getUniqueId()).getInventory());
+                ServerSettingsGUI.getTaxMap().remove(p.getUniqueId());
             });
         }
     }
@@ -147,6 +205,10 @@ public class SettingsGUIEvents implements Listener {
             e.setCancelled(true);
             p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
             ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
+        } else if (ServerSettingsGUI.getTaxMap().containsKey(p.getUniqueId())) {
+            e.setCancelled(true);
+            p.openInventory(ServerSettingsGUI.getTaxMap().get(p.getUniqueId()).getInventory());
+            ServerSettingsGUI.getTaxMap().remove(p.getUniqueId());
         }
     }
 

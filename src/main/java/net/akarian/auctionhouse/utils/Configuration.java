@@ -338,7 +338,7 @@ public class Configuration {
         AtomicInteger tax = new AtomicInteger(Integer.parseInt(listingTax.replace("%", "")));
 
         player.getEffectivePermissions().stream().map(PermissionAttachmentInfo::getPermission).map(String::toLowerCase).filter(value -> value.startsWith("auctionhouse.salestax.")).map(value -> value.replace("auctionhouse.salestax.", "")).forEach(value -> {
-            //Get amount of max listings
+            //Get sales tax amount
             try {
                 int amount = Integer.parseInt(value);
 

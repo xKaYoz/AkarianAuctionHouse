@@ -25,6 +25,8 @@ public class ServerSettingsGUI implements AkarianInventory {
     private static final HashMap<UUID, ServerSettingsGUI> timeMap = new HashMap<>();
     @Getter
     private static final HashMap<UUID, ServerSettingsGUI> feeMap = new HashMap<>();
+    @Getter
+    private static final HashMap<UUID, ServerSettingsGUI> taxMap = new HashMap<>();
 
     public ServerSettingsGUI() {
 
@@ -37,16 +39,21 @@ public class ServerSettingsGUI implements AkarianInventory {
             case 8:
                 p.openInventory(new MainSettingsGUI().getInventory());
                 break;
-            case 11:
+            case 10:
                 feeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_listingFee_message());
                 break;
-            case 13:
+            case 12:
+                taxMap.put(p.getUniqueId(), this);
+                p.closeInventory();
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_salesTax_message());
+                break;
+            case 14:
                 AuctionHouse.getInstance().getConfigFile().setCreativeListing(!AuctionHouse.getInstance().getConfigFile().isCreativeListing());
                 updateInventory();
                 break;
-            case 15:
+            case 16:
                 timeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_listingTime_message());
@@ -68,6 +75,15 @@ public class ServerSettingsGUI implements AkarianInventory {
             }
         }
 
+        List<String> taxLore = new ArrayList<>();
+        for (String s : m.getSt_salesTax_lore()) {
+            if (s.contains("%tax%")) {
+                taxLore.add(s.replace("%tax%", AuctionHouse.getInstance().getConfigFile().getListingTax()));
+            } else {
+                taxLore.add(s);
+            }
+        }
+
         List<String> creativeLore = new ArrayList<>();
         for (String s : m.getSt_creativeListing_lore()) {
             if (s.contains("%status%")) {
@@ -86,9 +102,10 @@ public class ServerSettingsGUI implements AkarianInventory {
             }
         }
 
-        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingFee_name(), feeLore));
-        inv.setItem(13, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_creativeListing_name(), creativeLore));
-        inv.setItem(15, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingTime_name(), timeLore));
+        inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingFee_name(), feeLore));
+        inv.setItem(12, ItemBuilder.build(Material.PAPER, 1, m.getSt_salesTax_name(), taxLore));
+        inv.setItem(14, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_creativeListing_name(), creativeLore));
+        inv.setItem(16, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingTime_name(), timeLore));
 
     }
 

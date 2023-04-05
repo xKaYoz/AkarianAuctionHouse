@@ -54,10 +54,12 @@ public class ExpireReclaimGUI implements AkarianInventory {
                 player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 45:
-                player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page - 1)).getInventory());
+                if (item.getType() == Material.NETHER_STAR)
+                    player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page - 1)).getInventory());
                 return;
             case 53:
-                player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page + 1)).getInventory());
+                if (item.getType() == Material.NETHER_STAR)
+                    player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page + 1)).getInventory());
                 return;
         }
         if (slot == 8) {
