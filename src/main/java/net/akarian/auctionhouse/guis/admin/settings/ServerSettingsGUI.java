@@ -36,10 +36,10 @@ public class ServerSettingsGUI implements AkarianInventory {
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
         switch (slot) {
-            case 8:
+            case 7:
                 p.openInventory(new MainSettingsGUI().getInventory());
                 break;
-            case 10:
+            case 9:
                 feeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_listingFee_message());

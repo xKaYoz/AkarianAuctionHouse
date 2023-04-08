@@ -68,43 +68,40 @@ public class LayoutEditEvents implements Listener {
         }
     }
 
-    public static boolean needsReset27(Layout layout) {
-        for (Integer i : layout.getListingItems()) {
-            if (i >= 27) return true;
-        }
-        for (Integer i : layout.getSpacerItems()) {
-            if (i >= 27) return true;
-        }
-        return layout.getAdminButton() >= 27 || layout.getExitButton() >= 27 || layout.getPreviousPageButton() >= 27 || layout.getNextPageButton() >= 27 || layout.getSearchButton() >= 27 || layout.getExpiredItemsButton() >= 27 || layout.getInfoButton() >= 27 || layout.getSortButton() >= 27;
-    }
+    private static final List<Integer> listingSlots = new ArrayList<>();
+    private static final List<Integer> spacerSlots = new ArrayList<>();
+    private static final List<Integer> previousPage = new ArrayList<>();
+    private static final List<Integer> nextPage = new ArrayList<>();
 
-    public static boolean needsReset36(Layout layout) {
+    public static boolean needsReset(Layout layout, int size) {
         for (Integer i : layout.getListingItems()) {
-            if (i >= 36) return true;
+            if (i >= size) return true;
         }
         for (Integer i : layout.getSpacerItems()) {
-            if (i >= 36) return true;
+            if (i >= size) return true;
         }
-        return layout.getAdminButton() >= 36 || layout.getExitButton() >= 36 || layout.getPreviousPageButton() >= 36 || layout.getNextPageButton() >= 36 || layout.getSearchButton() >= 36 || layout.getExpiredItemsButton() >= 36 || layout.getInfoButton() >= 36 || layout.getSortButton() >= 36;
-    }
-
-    public static boolean needsReset45(Layout layout) {
-        for (Integer i : layout.getListingItems()) {
-            if (i >= 45) return true;
+        for (Integer i : layout.getPreviousPageButtons()) {
+            if (i >= size) return true;
         }
-        for (Integer i : layout.getSpacerItems()) {
-            if (i >= 45) return true;
+        for (Integer i : layout.getNextPageButtons()) {
+            if (i >= size) return true;
         }
-        return layout.getAdminButton() >= 45 || layout.getExitButton() >= 45 || layout.getPreviousPageButton() >= 45 || layout.getNextPageButton() >= 45 || layout.getSearchButton() >= 45 || layout.getExpiredItemsButton() >= 45 || layout.getInfoButton() >= 45 || layout.getSortButton() >= 45;
+        return layout.getAdminButton() >= size || layout.getExitButton() >= size || layout.getSearchButton() >= size || layout.getExpiredItemsButton() >= size || layout.getInfoButton() >= size || layout.getSortButton() >= size;
     }
 
     public static void setDefault27(Layout layout) {
-        List<Integer> listingSlots = new ArrayList<>();
-        List<Integer> spacerSlots = new ArrayList<>();
+
+        listingSlots.clear();
+        spacerSlots.clear();
+        previousPage.clear();
+        nextPage.clear();
 
         for (int i = 10; i <= 16; i++) {
             listingSlots.add(i);
         }
+
+        previousPage.add(9);
+        nextPage.add(17);
 
         spacerSlots.add(1);
         spacerSlots.add(2);
@@ -125,8 +122,8 @@ public class LayoutEditEvents implements Listener {
         layout.setInventorySize(27);
         layout.setAdminButton(4);
         layout.setExitButton(8);
-        layout.setPreviousPageButton(9);
-        layout.setNextPageButton(17);
+        layout.setPreviousPageButtons(previousPage);
+        layout.setNextPageButtons(nextPage);
         layout.setSearchButton(0);
         layout.setExpiredItemsButton(26);
         layout.setInfoButton(22);
@@ -136,8 +133,11 @@ public class LayoutEditEvents implements Listener {
     }
 
     public static void setDefault36(Layout layout) {
-        List<Integer> listingSlots = new ArrayList<>();
-        List<Integer> spacerSlots = new ArrayList<>();
+
+        listingSlots.clear();
+        spacerSlots.clear();
+        previousPage.clear();
+        nextPage.clear();
 
         for (int i = 10; i <= 16; i++) {
             listingSlots.add(i);
@@ -145,6 +145,9 @@ public class LayoutEditEvents implements Listener {
         for (int i = 19; i <= 25; i++) {
             listingSlots.add(i);
         }
+
+        previousPage.add(18);
+        nextPage.add(26);
 
         spacerSlots.add(0);
         spacerSlots.add(2);
@@ -168,8 +171,8 @@ public class LayoutEditEvents implements Listener {
 
         layout.setAdminButton(1);
         layout.setExitButton(8);
-        layout.setPreviousPageButton(18);
-        layout.setNextPageButton(26);
+        layout.setPreviousPageButtons(previousPage);
+        layout.setNextPageButtons(nextPage);
         layout.setSearchButton(9);
         layout.setExpiredItemsButton(17);
         layout.setInfoButton(4);
@@ -179,8 +182,11 @@ public class LayoutEditEvents implements Listener {
     }
 
     public static void setDefault45(Layout layout) {
-        List<Integer> listingSlots = new ArrayList<>();
-        List<Integer> spacerSlots = new ArrayList<>();
+
+        listingSlots.clear();
+        spacerSlots.clear();
+        previousPage.clear();
+        nextPage.clear();
 
         for (int i = 10; i <= 16; i++) {
             listingSlots.add(i);
@@ -191,6 +197,9 @@ public class LayoutEditEvents implements Listener {
         for (int i = 28; i <= 34; i++) {
             listingSlots.add(i);
         }
+
+        previousPage.add(18);
+        nextPage.add(26);
 
         spacerSlots.add(0);
         spacerSlots.add(1);
@@ -216,8 +225,8 @@ public class LayoutEditEvents implements Listener {
 
         layout.setAdminButton(4);
         layout.setExitButton(8);
-        layout.setPreviousPageButton(18);
-        layout.setNextPageButton(26);
+        layout.setPreviousPageButtons(previousPage);
+        layout.setNextPageButtons(nextPage);
         layout.setSearchButton(37);
         layout.setInfoButton(39);
         layout.setExpiredItemsButton(41);
@@ -227,8 +236,12 @@ public class LayoutEditEvents implements Listener {
     }
 
     public static void setDefault54(Layout layout) {
-        List<Integer> listingSlots = new ArrayList<>();
-        List<Integer> spacerSlots = new ArrayList<>();
+
+        listingSlots.clear();
+        spacerSlots.clear();
+        previousPage.clear();
+        nextPage.clear();
+
         for (int i = 9; i <= 44; i++) {
             listingSlots.add(i);
         }
@@ -238,6 +251,10 @@ public class LayoutEditEvents implements Listener {
         for (int i = 45; i <= 53; i++) {
             spacerSlots.add(i);
         }
+
+        previousPage.add(45);
+        nextPage.add(53);
+
         layout.setListingItems(listingSlots);
         layout.setSpacerItems(spacerSlots);
 
@@ -246,8 +263,8 @@ public class LayoutEditEvents implements Listener {
 
         layout.setAdminButton(1);
         layout.setExitButton(8);
-        layout.setPreviousPageButton(45);
-        layout.setNextPageButton(53);
+        layout.setPreviousPageButtons(previousPage);
+        layout.setNextPageButtons(nextPage);
         layout.setSearchButton(46);
         layout.setInfoButton(48);
         layout.setExpiredItemsButton(50);
@@ -283,6 +300,9 @@ public class LayoutEditEvents implements Listener {
                 gui = LayoutEditGUI.getHelpMessage().get(player.getUniqueId());
             } else if (LayoutEditGUI.getDisplayNameEdit().containsKey(player.getUniqueId())) {
                 gui = LayoutEditGUI.getDisplayNameEdit().get(player.getUniqueId());
+            } else if (LayoutEditGUI.getDeleteLayout().containsKey(player.getUniqueId())) {
+                gui = LayoutEditGUI.getDeleteLayout().get(player.getUniqueId());
+
             } else {
                 gui = LayoutEditGUI.getInventorySizeEdit().get(player.getUniqueId());
             }
@@ -399,7 +419,7 @@ public class LayoutEditEvents implements Listener {
                     confirm27.remove(player.getUniqueId());
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
-                    if (needsReset27(layout)) {
+                    if (needsReset(layout, 27)) {
                         chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 27. To set this layout to the default size 27 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm27.add(player.getUniqueId());
                         return;
@@ -412,7 +432,7 @@ public class LayoutEditEvents implements Listener {
                     confirm27.remove(player.getUniqueId());
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
-                    if (needsReset36(layout)) {
+                    if (needsReset(layout, 36)) {
                         chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 36. To set this layout to the default size 36 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm36.add(player.getUniqueId());
                         return;
@@ -425,7 +445,7 @@ public class LayoutEditEvents implements Listener {
                     confirm27.remove(player.getUniqueId());
                     confirm36.remove(player.getUniqueId());
                     confirm45.remove(player.getUniqueId());
-                    if (needsReset45(layout)) {
+                    if (needsReset(layout, 45)) {
                         chat.sendMessage(player, "&c&lCAUTION! &eYour current Auction House layout does not support an inventory size of 45. To set this layout to the default size 45 inventory, type \"confirm\". If not " + "please select another size or use \"cancel\" to return to the editor.");
                         confirm45.add(player.getUniqueId());
                         return;

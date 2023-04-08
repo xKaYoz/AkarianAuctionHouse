@@ -70,6 +70,11 @@ public class SettingsGUI implements AkarianInventory {
                     updateInventory();
                     edited = true;
                     break;
+                case 31:
+                    user.getUserSettings().setSounds(!user.getUserSettings().isSounds());
+                    updateInventory();
+                    edited = true;
+                    break;
                 case 34:
                     user.getUserSettings().setAutoConfirmListing(!user.getUserSettings().isAutoConfirmListing());
                     updateInventory();
@@ -104,7 +109,11 @@ public class SettingsGUI implements AkarianInventory {
                     player.closeInventory();
                     edited = true;
                     break;
-
+                case 23:
+                    user.getUserSettings().setSounds(!user.getUserSettings().isSounds());
+                    updateInventory();
+                    edited = true;
+                    break;
             }
         }
 
@@ -150,6 +159,14 @@ public class SettingsGUI implements AkarianInventory {
                 boughtLore.add(PlaceholderAPI.setPlaceholders(player, s));
             }
         }
+        List<String> soundsLore = new ArrayList<>();
+        for (String s : m.getSt_sounds_lore()) {
+            if (s.contains("%status%")) {
+                soundsLore.add(s.replace("%status%", (user.getUserSettings().isSounds() ? "&a&lEnabled" : "&c&lDisabled")));
+            } else {
+                soundsLore.add(PlaceholderAPI.setPlaceholders(player, s));
+            }
+        }
         List<String> createdLore = new ArrayList<>();
         for (String s : m.getSt_created_lore()) {
             if (s.contains("%status%")) {
@@ -179,6 +196,8 @@ public class SettingsGUI implements AkarianInventory {
                     boughtLore));
             inv.setItem(28, ItemBuilder.build(user.getUserSettings().isAlertCreateListings() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_created_name(),
                     createdLore));
+            inv.setItem(31, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_sounds_name(),
+                    soundsLore));
             inv.setItem(34, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_autoConfirm_name(),
                     autoConfirmLore));
         } else {
@@ -186,12 +205,14 @@ public class SettingsGUI implements AkarianInventory {
                     createdLore));
             inv.setItem(12, ItemBuilder.build(user.getUserSettings().isAlertNearExpire() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_expire_name(),
                     expireLore));
-            inv.setItem(21, ItemBuilder.build(Material.PAPER, 1, m.getSt_expireTime_name(),
-                    expireTimeLore));
             inv.setItem(14, ItemBuilder.build(user.getUserSettings().isAlertListingBought() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_bought_name(),
                     boughtLore));
             inv.setItem(16, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_autoConfirm_name(),
                     autoConfirmLore));
+            inv.setItem(21, ItemBuilder.build(Material.PAPER, 1, m.getSt_expireTime_name(),
+                    expireTimeLore));
+            inv.setItem(23, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_sounds_name(),
+                    soundsLore));
         }
 
     }
@@ -242,6 +263,14 @@ public class SettingsGUI implements AkarianInventory {
                 boughtLore.add(PlaceholderAPI.setPlaceholders(player, s));
             }
         }
+        List<String> soundsLore = new ArrayList<>();
+        for (String s : m.getSt_sounds_lore()) {
+            if (s.contains("%status%")) {
+                soundsLore.add(s.replace("%status%", (user.getUserSettings().isSounds() ? "&a&lEnabled" : "&c&lDisabled")));
+            } else {
+                soundsLore.add(PlaceholderAPI.setPlaceholders(player, s));
+            }
+        }
         List<String> createdLore = new ArrayList<>();
         for (String s : m.getSt_created_lore()) {
             if (s.contains("%status%")) {
@@ -271,6 +300,8 @@ public class SettingsGUI implements AkarianInventory {
                     boughtLore));
             inv.setItem(28, ItemBuilder.build(user.getUserSettings().isAlertCreateListings() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_created_name(),
                     createdLore));
+            inv.setItem(31, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_sounds_name(),
+                    soundsLore));
             inv.setItem(34, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_autoConfirm_name(),
                     autoConfirmLore));
         } else {
@@ -284,6 +315,8 @@ public class SettingsGUI implements AkarianInventory {
                     boughtLore));
             inv.setItem(16, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_autoConfirm_name(),
                     autoConfirmLore));
+            inv.setItem(23, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_sounds_name(),
+                    soundsLore));
         }
 
         inv.setItem(17, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));

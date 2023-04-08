@@ -384,8 +384,8 @@ public class LayoutEditGUI implements AkarianInventory {
             player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Arrays.asList("&7Click to get the Admin Mode button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Arrays.asList("&7Click to get the Close button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
-            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Arrays.asList("&7Click to get a Previous Page button.", "&eYou can only have one of these items!")));
-            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Arrays.asList("&7Click to get the Next Page button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Collections.singletonList("&7Click to get a Previous Page button.")));
+            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Collections.singletonList("&7Click to get the Next Page button.")));
             player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), Arrays.asList("&7Click to get the Search button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), Arrays.asList("&7Click to get the Information button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), Arrays.asList("&7Click to get the Sort button.", "&eYou can only have one of these items!")));
@@ -413,12 +413,16 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Previous Page
         ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-        inv.setItem(layout.getPreviousPageButton(), previous);
+        for (Integer i : layout.getPreviousPageButtons()) {
+            inv.setItem(i, previous);
+        }
 
 
         //Next Page
         ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-        inv.setItem(layout.getNextPageButton(), next);
+        for (Integer i : layout.getNextPageButtons()) {
+            inv.setItem(i, next);
+        }
 
 
         //Search Item
@@ -469,16 +473,20 @@ public class LayoutEditGUI implements AkarianInventory {
         }
 
         //Previous Page
-        if (layout.getPreviousPageButton() != -1) {
+        if (!layout.getPreviousPageButtons().contains(-1)) {
             ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(layout.getPreviousPageButton(), previous);
+            for (Integer i : layout.getPreviousPageButtons()) {
+                inv.setItem(i, previous);
+            }
         }
 
 
         //Next Page
-        if (layout.getNextPageButton() != -1) {
+        if (!layout.getNextPageButtons().contains(-1)) {
             ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(layout.getNextPageButton(), next);
+            for (Integer i : layout.getNextPageButtons()) {
+                inv.setItem(i, next);
+            }
         }
 
 
@@ -554,6 +562,7 @@ public class LayoutEditGUI implements AkarianInventory {
     private void save() {
         List<Integer> listings = new ArrayList<>();
         List<Integer> spacers = new ArrayList<>();
+        boolean previousPage = false, nextPage = false;
 
         if (setActive) {
             if (AuctionHouse.getInstance().getLayoutManager().getActiveLayout() != null) {
@@ -571,8 +580,8 @@ public class LayoutEditGUI implements AkarianInventory {
 
         layout.setAdminButton(-1);
         layout.setExitButton(-1);
-        layout.setPreviousPageButton(-1);
-        layout.setNextPageButton(-1);
+        layout.getPreviousPageButtons().clear();
+        layout.getNextPageButtons().clear();
         layout.setSearchButton(-1);
         layout.setInfoButton(-1);
         layout.setExpiredItemsButton(-1);
@@ -590,9 +599,11 @@ public class LayoutEditGUI implements AkarianInventory {
                     break;
                 case NETHER_STAR:
                     if (inv.getItem(i).getItemMeta().getDisplayName().contains("Previous")) {
-                        layout.setPreviousPageButton(i);
+                        layout.getPreviousPageButtons().add(i);
+                        previousPage = true;
                     } else {
-                        layout.setNextPageButton(i);
+                        layout.getNextPageButtons().add(i);
+                        nextPage = true;
                     }
                     break;
                 case HOPPER:
@@ -615,6 +626,15 @@ public class LayoutEditGUI implements AkarianInventory {
                     break;
             }
         }
+
+        if (!previousPage) {
+            layout.getPreviousPageButtons().add(-1);
+        }
+
+        if (!nextPage) {
+            layout.getNextPageButtons().add(-1);
+        }
+
         layout.setListingItems(listings);
         layout.setSpacerItems(spacers);
     }

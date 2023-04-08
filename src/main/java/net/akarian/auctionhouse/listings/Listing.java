@@ -259,6 +259,10 @@ public class Listing {
         return itemStack;
     }
 
+    public boolean isActive() {
+        return AuctionHouse.getInstance().getListingManager().getActive().contains(this);
+    }
+
     public ItemStack createActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
 
@@ -274,7 +278,7 @@ public class Listing {
         double tax = AuctionHouse.getInstance().getConfigFile().calculateListingTax(player, getPrice());
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
-        ItemMeta itemMeta = itemStack.getItemMeta();
+        ItemMeta itemMeta = itemStack.hasItemMeta() ? itemStack.getItemMeta() : new ItemStack(getItemStack().getType()).getItemMeta();
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 

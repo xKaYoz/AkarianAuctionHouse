@@ -36,10 +36,10 @@ public class ListingManager {
     private final List<Listing> expired;
     @Getter
     private final List<Listing> completed;
-    private DatabaseType databaseType;
     private final FileManager fm;
+    private DatabaseType databaseType;
     private BukkitTask expireTimer;
-    private int refreshTimer;
+    private BukkitTask refreshTimer;
     private boolean transferring;
 
     public ListingManager() {
@@ -471,11 +471,16 @@ public class ListingManager {
     public Listing create(UUID creator, ItemStack itemStack, Double price) {
         Player p = Bukkit.getPlayer(creator);
 
+        //Take out the listing fee
         AuctionHouse.getInstance().getEcon().withdrawPlayer(Bukkit.getOfflinePlayer(creator), AuctionHouse.getInstance().getConfigFile().calculateListingFee(price));
 
         UUID id = UUID.randomUUID();
         long start = System.currentTimeMillis();
 
+        //Remove item from Inventory
+        InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
+
+        //Create our new listing
         Listing listing = new Listing(id, creator, itemStack, price, start);
 
         switch (databaseType) {
@@ -502,8 +507,7 @@ public class ListingManager {
 
                         chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
 
-                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
-                                .replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
                         p.getInventory().removeItem(itemStack);
                         AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
@@ -527,11 +531,8 @@ public class ListingManager {
 
                 chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
 
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing()
-                        .replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
-
-                p.getInventory().removeItem(itemStack);
                 AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
                 Bukkit.getServer().getPluginManager().callEvent(new ListingCreateEvent(listing));
@@ -623,6 +624,8 @@ public class ListingManager {
         chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getBuyer().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
         if (creator != null) {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
+            if (AuctionHouse.getInstance().getUserManager().getUser(creator).getUserSettings().isSounds())
+                creator.playSound(creator.getLocation(), AuctionHouse.getInstance().getConfigFile().getListingBoughtSound(), 1, 1);
             return 2;
         }
         return 1;
@@ -675,9 +678,13 @@ public class ListingManager {
      * @param newAmount   New amount of the item
      * @param player      Player setting items
      * @param ignoreCheck Whether to check if they have enough items in their inv or not.
-     * @return -3: MySQL Error -2: Player can't carry returned items -1: Player does not have enough items to add 0: Through no change 1: Listing amount set
+     * @return 4: Listing not active -3: MySQL Error -2: Player can't carry returned items -1: Player does not have enough items to add 0: Through no change 1: Listing amount set
      */
     public int setAmount(Listing listing, int newAmount, Player player, boolean ignoreCheck) {
+
+        if (!listing.isActive()) {
+            return -4;
+        }
 
         if (!ignoreCheck) {
             if (newAmount > listing.getItemStack().getAmount()) {
@@ -892,7 +899,7 @@ public class ListingManager {
                 Map<String, Object> map = listingsFile.getValues(false);
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
-                    if(listingsFile.getString(str + ".ItemStack") == null) {
+                    if (listingsFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
@@ -943,7 +950,7 @@ public class ListingManager {
         startExpireCheck();
         startAuctionHouseRefresh();
         chat.log("Loaded " + num.get() + " active listings.", AuctionHouse.getInstance().isDebug());
-        if(errors.get() > 0) {
+        if (errors.get() > 0) {
             AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " auctions. Please review console to see which.");
             chat.log("There was an error loading " + errors.get() + " auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
         }
@@ -981,8 +988,7 @@ public class ListingManager {
                             l.setEndReason(reason);
                             l.setReclaimed(reclaimed);
 
-                            if (!reclaimed)
-                                unclaimed.add(l);
+                            if (!reclaimed) unclaimed.add(l);
                             expired.add(l);
 
                             chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
@@ -1002,7 +1008,7 @@ public class ListingManager {
                 for (String str : map.keySet()) {
 
                     UUID id = UUID.fromString(str);
-                    if(listingsFile.getString(str + ".ItemStack") == null) {
+                    if (listingsFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
@@ -1022,15 +1028,14 @@ public class ListingManager {
                     l.setReclaimed(false);
                     l.setReclaimed(reclaimed);
 
-                    if (!reclaimed)
-                        unclaimed.add(l);
+                    if (!reclaimed) unclaimed.add(l);
                     expired.add(l);
 
                     chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
 
                 }
                 chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
-                if(errors.get() > 0) {
+                if (errors.get() > 0) {
                     AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " expired auctions. Please review console to see which.");
                     chat.log("There was an error loading " + errors.get() + " expired auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
                 }
@@ -1082,7 +1087,7 @@ public class ListingManager {
                 for (String str : map.keySet()) {
 
                     UUID id = UUID.fromString(str);
-                    if(completedFile.getString(str + ".ItemStack") == null) {
+                    if (completedFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
                         continue;
@@ -1105,7 +1110,7 @@ public class ListingManager {
 
                 }
                 chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
-                if(errors.get() > 0) {
+                if (errors.get() > 0) {
                     AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
                     chat.log("There was an error loading " + errors.get() + " completed auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
                 }
@@ -1152,8 +1157,7 @@ public class ListingManager {
                             e.printStackTrace();
                         }
                     });
-                    if (ret.get() != 0)
-                        return ret.get();
+                    if (ret.get() != 0) return ret.get();
                     break;
                 case FILE:
                     YamlConfiguration expiredFile = fm.getConfig("/database/expired");
@@ -1266,7 +1270,7 @@ public class ListingManager {
      * Start the AuctionHouse Refresh Timer
      */
     public void startAuctionHouseRefresh() {
-        refreshTimer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), this::refreshAuctionHouse, 0, 20L * AuctionHouse.getInstance().getConfigFile().getAuctionhouseRefreshTime());
+        refreshTimer = Bukkit.getScheduler().runTaskTimerAsynchronously(AuctionHouse.getInstance(), this::refreshAuctionHouse, 0, 20L * AuctionHouse.getInstance().getConfigFile().getAuctionhouseRefreshTime());
     }
 
     /**
@@ -1286,9 +1290,15 @@ public class ListingManager {
 
     public void cancelExpireTimer() {
         Bukkit.getScheduler().cancelTask(expireTimer.getTaskId());
+        if (expireTimer.isCancelled()) {
+            chat.log("Cancelled expire timer.", AuctionHouse.getInstance().isDebug());
+        }
     }
 
     public void cancelRefreshTimer() {
-        Bukkit.getScheduler().cancelTask(refreshTimer);
+        Bukkit.getScheduler().cancelTask(refreshTimer.getTaskId());
+        if (refreshTimer.isCancelled()) {
+            chat.log("Cancelled refresh timer.", AuctionHouse.getInstance().isDebug());
+        }
     }
 }

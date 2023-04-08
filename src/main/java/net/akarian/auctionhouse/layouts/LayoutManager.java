@@ -45,12 +45,12 @@ public class LayoutManager {
             loaded++;
         }
         if (loaded == 0) {
-            createDefaultLayout("default", true);
+            setActiveLayout(createDefaultLayout("default", true));
             chat.log("Found no layouts so a default one was created.", true);
             loaded++;
         }
         if (activeLayout == null) {
-            createDefaultLayout("default", true);
+            setActiveLayout(createDefaultLayout("default", true));
             chat.log("Found no active layouts so a default one was created.", true);
             loaded++;
         }
@@ -88,7 +88,9 @@ public class LayoutManager {
 
         List<Integer> listingSlots = new ArrayList<>();
         List<Integer> spacerSlots = new ArrayList<>();
-        for(int i = 9; i <= 44; i++) {
+        List<Integer> previousPage = new ArrayList<>();
+        List<Integer> nextPage = new ArrayList<>();
+        for (int i = 9; i <= 44; i++) {
             listingSlots.add(i);
         }
         for (int i = 0; i <= 7; i++) {
@@ -97,6 +99,8 @@ public class LayoutManager {
         for (int i = 45; i <= 53; i++) {
             spacerSlots.add(i);
         }
+        previousPage.add(45);
+        nextPage.add(53);
         layout.setListingItems(listingSlots);
         layout.setSpacerItems(spacerSlots);
 
@@ -105,8 +109,8 @@ public class LayoutManager {
 
         layout.setAdminButton(1);
         layout.setExitButton(8);
-        layout.setPreviousPageButton(45);
-        layout.setNextPageButton(53);
+        layout.setPreviousPageButtons(previousPage);
+        layout.setNextPageButtons(nextPage);
         layout.setSearchButton(46);
         layout.setInfoButton(48);
         layout.setExpiredItemsButton(50);

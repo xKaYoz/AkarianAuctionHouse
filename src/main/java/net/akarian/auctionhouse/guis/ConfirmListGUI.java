@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -36,6 +37,7 @@ public class ConfirmListGUI implements AkarianInventory {
             case LIME_STAINED_GLASS_PANE:
                 player.closeInventory();
                 AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
+                player.playSound(player.getLocation(), Sound.BLOCK_PISTON_CONTRACT, 1, 1);
                 break;
             case RED_STAINED_GLASS_PANE:
                 player.closeInventory();

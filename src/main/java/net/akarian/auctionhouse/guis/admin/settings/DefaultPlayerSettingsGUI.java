@@ -56,6 +56,11 @@ public class DefaultPlayerSettingsGUI implements AkarianInventory {
                 AuctionHouse.getInstance().getConfigFile().saveConfig();
                 updateInventory();
                 break;
+            case 31:
+                AuctionHouse.getInstance().getConfigFile().setDps_sounds(!AuctionHouse.getInstance().getConfigFile().isDps_sounds());
+                AuctionHouse.getInstance().getConfigFile().saveConfig();
+                updateInventory();
+                break;
             case 34:
                 AuctionHouse.getInstance().getConfigFile().setDps_autoConfirm(!AuctionHouse.getInstance().getConfigFile().isDps_autoConfirm());
                 AuctionHouse.getInstance().getConfigFile().saveConfig();
@@ -104,6 +109,14 @@ public class DefaultPlayerSettingsGUI implements AkarianInventory {
                 boughtLore.add(s);
             }
         }
+        List<String> soundsLore = new ArrayList<>();
+        for (String s : m.getSt_sounds_lore()) {
+            if (s.contains("%status%")) {
+                soundsLore.add(s.replace("%status%", (AuctionHouse.getInstance().getConfigFile().isDps_sounds() ? "&a&lEnabled" : "&c&lDisabled")));
+            } else {
+                soundsLore.add(s);
+            }
+        }
         List<String> createdLore = new ArrayList<>();
         for (String s : m.getSt_created_lore()) {
             if (s.contains("%status%")) {
@@ -132,6 +145,8 @@ public class DefaultPlayerSettingsGUI implements AkarianInventory {
                 boughtLore));
         inv.setItem(28, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isDps_create() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_created_name(),
                 createdLore));
+        inv.setItem(31, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isDps_sounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_sounds_name(),
+                soundsLore));
         inv.setItem(34, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isDps_autoConfirm() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_autoConfirm_name(),
                 autoConfirmLore));
     }

@@ -102,7 +102,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         } else if (slot == layout.getExitButton()) {
             player.closeInventory();
             return;
-        } else if (slot == layout.getPreviousPageButton() && page != 1) {
+        } else if (layout.getPreviousPageButtons().contains(slot) && page != 1) {
             if (adminMode)
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
             else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
@@ -119,7 +119,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         } else if (slot == layout.getSortButton()) {
             player.openInventory(new SortGUI(this).getInventory());
             return;
-        } else if (slot == layout.getNextPageButton() && (listings.size() > layout.getListingItems().size() * page)) {
+        } else if (layout.getNextPageButtons().contains(slot) && (listings.size() > layout.getListingItems().size() * page)) {
             if (adminMode)
                 player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
             else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
@@ -127,7 +127,8 @@ public class AuctionHouseGUI implements AkarianInventory {
         }
 
         //Is a Listing
-        if (slot >= 8 && slot <= 45) {
+
+        if (layout.getListingItems().contains(slot)) {
             Listing listing = AuctionHouse.getInstance().getListingManager().get(itemStack);
 
             if (listing == null) return;
@@ -215,24 +216,34 @@ public class AuctionHouseGUI implements AkarianInventory {
         updateInventory();
 
         //Previous Page
-        if (layout.getPreviousPageButton() != -1) {
+        if (!layout.getPreviousPageButtons().contains(-1)) {
             if (page != 1) {
                 ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-                inv.setItem(layout.getPreviousPageButton(), previous);
+                for (Integer i : layout.getPreviousPageButtons()) {
+                    inv.setItem(i, previous);
+                }
             } else {
-                if (layout.isSpacerPageItems())
-                    inv.setItem(layout.getPreviousPageButton(), ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getPreviousPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
             }
         }
 
         //Next Page
-        if (layout.getNextPageButton() != -1) {
+        if (!layout.getNextPageButtons().contains(-1)) {
             if (listings.size() > layout.getListingItems().size() * page) {
                 ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-                inv.setItem(layout.getNextPageButton(), next);
+                for (Integer i : layout.getNextPageButtons()) {
+                    inv.setItem(i, next);
+                }
             } else {
-                if (layout.isSpacerPageItems())
-                    inv.setItem(layout.getNextPageButton(), ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getNextPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
             }
         }
 
@@ -405,6 +416,9 @@ public class AuctionHouseGUI implements AkarianInventory {
             }
             //Get the listing in our desired location
             Listing listing = listings.get(display);
+            if (listing.getItemStack() == null) {
+                return;
+            }
             //Display the active listing
             if (adminMode)
                 inv.setItem(i, listing.createAdminActiveListing(player));
@@ -415,15 +429,35 @@ public class AuctionHouseGUI implements AkarianInventory {
         }
 
         //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(layout.getPreviousPageButton(), previous);
+        if (!layout.getPreviousPageButtons().contains(-1)) {
+            if (page != 1) {
+                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+                for (Integer i : layout.getPreviousPageButtons()) {
+                    inv.setItem(i, previous);
+                }
+            } else {
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getPreviousPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
+            }
         }
 
         //Next Page
-        if (listings.size() > layout.getListingItems().size() * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(layout.getNextPageButton(), next);
+        if (!layout.getNextPageButtons().contains(-1)) {
+            if (listings.size() > layout.getListingItems().size() * page) {
+                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+                for (Integer i : layout.getNextPageButtons()) {
+                    inv.setItem(i, next);
+                }
+            } else {
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getNextPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
+            }
         }
 
         //Info Item

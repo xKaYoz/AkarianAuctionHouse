@@ -68,7 +68,7 @@ public class MySQL {
                     chat.log("Completed table checked.", AuctionHouse.getInstance().isDebug());
                 else
                     chat.log("!! Completed Table Failed Check !!", true);
-                if (checkTable(usersTable, "ID varchar(50) NOT NULL PRIMARY KEY, USERNAME TEXT(65535) NOT NULL, ALERT_CREATE BOOLEAN DEFAULT '0', OPEN_ADMIN BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE_TIME bigint(20) NOT NULL, LISTING_BOUGHT BOOLEAN DEFAULT '0', AUTO_CONFIRM BOOLEAN DEFAULT '0'"))
+                if (checkTable(usersTable, "ID varchar(50) NOT NULL PRIMARY KEY, USERNAME TEXT(65535) NOT NULL, ALERT_CREATE BOOLEAN DEFAULT '0', OPEN_ADMIN BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE_TIME bigint(20) NOT NULL, LISTING_BOUGHT BOOLEAN DEFAULT '0', AUTO_CONFIRM BOOLEAN DEFAULT '0', SOUNDS BOOLEAN DEFAULT '0'"))
                     chat.log("Users table checked.", AuctionHouse.getInstance().isDebug());
                 else
                     chat.log("!! Users Table Failed Check !!", true);
@@ -113,6 +113,17 @@ public class MySQL {
                 } catch (SQLException e) {
                     return true;
                 }
+            }
+
+            if (tableName.equalsIgnoreCase(usersTable)) {
+
+                try {
+                    s.executeUpdate("ALTER TABLE " + usersTable + " ADD COLUMN SOUNDS BOOLEAN DEFAULT 0 AFTER AUTO_CONFIRM");
+                    chat.log("Created sounds column for users table (v1.2.4)", AuctionHouse.getInstance().isDebug());
+                } catch (SQLException e) {
+                    return true;
+                }
+
             }
             return true;
         } catch (Exception e) {

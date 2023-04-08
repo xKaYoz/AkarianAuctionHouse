@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.events;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.ListingEditGUI;
+import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
 import net.akarian.auctionhouse.guis.admin.database.transfer.ConfirmDatabaseTransfer;
 import net.akarian.auctionhouse.listings.Listing;
@@ -12,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
 import java.util.HashMap;
@@ -117,17 +119,25 @@ public class AuctionHouseGUIEvents implements Listener {
             }
 
             switch (AuctionHouse.getInstance().getListingManager().setAmount(listing, amount, p, false)) {
+                case -4:
+                    chat.sendMessage(p, "&cThere was an error while editing the amount. The listing is not active.");
+                    Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                        p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true, 1).getInventory());
+                        ListingEditGUI.getAmountMap().remove(p.getUniqueId());
+                    });
+                    return;
                 case -2:
                     chat.sendMessage(p, "&cYou cannot carry the returned items. Please clear space and try again.");
                     return;
                 case -1:
                     chat.sendMessage(p, "&cYou do not have that many items to add to this auction.");
                     return;
+                case 1:
+                    Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                        p.openInventory(ListingEditGUI.getAmountMap().get(p.getUniqueId()).getInventory());
+                        ListingEditGUI.getAmountMap().remove(p.getUniqueId());
+                    });
             }
-            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
-                p.openInventory(ListingEditGUI.getAmountMap().get(p.getUniqueId()).getInventory());
-                ListingEditGUI.getAmountMap().remove(p.getUniqueId());
-            });
         }
         //Listing Admin Edit Amount
         else if (ListingEditAdminGUI.getAmountMap().containsKey(p.getUniqueId())) {
@@ -153,11 +163,18 @@ public class AuctionHouseGUIEvents implements Listener {
                 return;
             }
 
-            AuctionHouse.getInstance().getListingManager().setAmount(listing, amount, p, true);
-            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
-                p.openInventory(ListingEditAdminGUI.getAmountMap().get(p.getUniqueId()).getInventory());
-                ListingEditAdminGUI.getAmountMap().remove(p.getUniqueId());
-            });
+            switch (AuctionHouse.getInstance().getListingManager().setAmount(listing, amount, p, true)) {
+                case -4:
+                    chat.sendMessage(p, "&cThere was an error while editing the amount. The listing is not active.");
+                    p.openInventory(new AuctionHouseGUI(p, SortType.TIME_LEFT, true, 1).getInventory());
+                    ListingEditAdminGUI.getAmountMap().remove(p.getUniqueId());
+                    return;
+                case 1:
+                    Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                        p.openInventory(ListingEditAdminGUI.getAmountMap().get(p.getUniqueId()).getInventory());
+                        ListingEditAdminGUI.getAmountMap().remove(p.getUniqueId());
+                    });
+            }
         }
         //Confirm Database Transfer HOST
         else if (ConfirmDatabaseTransfer.getHostMap().containsKey(p.getUniqueId())) {
@@ -213,11 +230,22 @@ public class AuctionHouseGUIEvents implements Listener {
             e.setCancelled(true);
             AuctionHouse.getInstance().getConfigFile().setDb_database(input);
             p.resetTitle();
-            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+            Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                 databaseMap.get(p.getUniqueId()).testConnection();
                 databaseMap.remove(p.getUniqueId());
             });
             AuctionHouse.getInstance().getConfigFile().saveConfig();
+        }
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent e) {
+        Player player = e.getPlayer();
+        Chat chat = AuctionHouse.getInstance().getChat();
+
+        if (ListingEditGUI.getAmountMap().containsKey(player.getUniqueId()) || ListingEditAdminGUI.getAmountMap().containsKey(player.getUniqueId())) {
+            e.setCancelled(true);
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_ac());
         }
     }
 

@@ -2,12 +2,9 @@ package net.akarian.auctionhouse.commands.main.subcommands;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.ConfirmListGUI;
-import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -46,6 +43,7 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
+        //Check create listing
         if(p.getGameMode() == GameMode.CREATIVE && !AuctionHouse.getInstance().getConfigFile().isCreativeListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_creativeListing_message());
             return;
@@ -68,7 +66,6 @@ public class ListSubCommand extends AkarianCommand {
             } catch (NumberFormatException ignored) {
             }
         });
-
         if (!p.isOp() && maxListings.get() > 0 && AuctionHouse.getInstance().getListingManager().getActive(p.getUniqueId()).size() >= maxListings.get()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaxListings().replace("%max%", maxListings.get() + ""));
             return;
@@ -112,10 +109,15 @@ public class ListSubCommand extends AkarianCommand {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
             return;
         }
-        if (user.getUserSettings().isAutoConfirmListing())
+
+        //Play sounds
+        if (user.getUserSettings().isAutoConfirmListing()) {
             AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
-        else
+        } else {
             p.openInventory(new ConfirmListGUI(p, itemStack, price).getInventory());
 
+        }
+        if (user.getUserSettings().isSounds())
+            p.playSound(p.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 1, 1);
     }
 }

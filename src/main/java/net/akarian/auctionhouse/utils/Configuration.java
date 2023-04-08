@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.PermissionAttachmentInfo;
 
@@ -24,7 +25,7 @@ public class Configuration {
     private DatabaseType databaseType;
     @Getter
     @Setter
-    private boolean updates, uuidBypass, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, creativeListing;
+    private boolean updates, uuidBypass, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, dps_sounds, creativeListing;
     @Getter
     @Setter
     private double minListing, maxListing;
@@ -39,6 +40,9 @@ public class Configuration {
     @Getter
     @Setter
     private Material spacerItem;
+    @Getter
+    @Setter
+    private Sound createListingSound, listingBoughtSound;
     @Getter
     @Setter
     private int version;
@@ -169,7 +173,7 @@ public class Configuration {
             }
             dps_bought = configFile.getBoolean("Default Player Settings.Bought Notify");
 
-            if(!configFile.contains("Default Player Settings.Create Notify")) {
+            if (!configFile.contains("Default Player Settings.Create Notify")) {
                 configFile.set("Default Player Settings.Create Notify", true);
             }
             dps_create = configFile.getBoolean("Default Player Settings.Create Notify");
@@ -178,6 +182,11 @@ public class Configuration {
                 configFile.set("Default Player Settings.Auto Confirm Listing", false);
             }
             dps_autoConfirm = configFile.getBoolean("Default Player Settings.Auto Confirm Listing");
+
+            if (!configFile.contains("Default Player Settings.Sounds")) {
+                configFile.set("Default Player Settings.Sounds", true);
+            }
+            dps_sounds = configFile.getBoolean("Default Player Settings.Sounds");
 
             if (!configFile.contains("Creative Listing")) {
                 configFile.set("Creative Listing", false);
@@ -188,6 +197,16 @@ public class Configuration {
                 configFile.set("Auction House Refresh Time", 1);
             }
             auctionhouseRefreshTime = configFile.getInt("Auction House Refresh Time");
+
+            if (!configFile.contains("Sounds.Create Listing Sound")) {
+                configFile.set("Sounds.Create Listing Sound", Sound.BLOCK_PISTON_CONTRACT.toString());
+            }
+            createListingSound = Sound.valueOf(configFile.getString("Sounds.Create Listing Sound"));
+
+            if (!configFile.contains("Sounds.Listing Bought Sound")) {
+                configFile.set("Sounds.Listing Bought Sound", Sound.ENTITY_PLAYER_LEVELUP.toString());
+            }
+            listingBoughtSound = Sound.valueOf(configFile.getString("Sounds.Listing Bought Sound"));
 
 
         }
@@ -299,8 +318,12 @@ public class Configuration {
             configFile.set("Default Player Settings.Expire Time", dps_expireTime);
             configFile.set("Default Player Settings.Bought Notify", dps_bought);
             configFile.set("Default Player Settings.Auto Confirm Listing", dps_autoConfirm);
+            configFile.set("Default Player Settings.Sounds", dps_sounds);
             configFile.set("Default Player Settings.Create Notify", dps_create);
             configFile.set("Creative Listing", creativeListing);
+            configFile.set("Sounds.Create Listing Sound", createListingSound.toString());
+            configFile.set("Sounds.Listing Bought Sound", listingBoughtSound.toString());
+
         }
         /* MySQL */
         {

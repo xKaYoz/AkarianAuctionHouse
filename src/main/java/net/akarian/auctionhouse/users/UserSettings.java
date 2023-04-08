@@ -24,15 +24,22 @@ public class UserSettings {
     private boolean alertCreateListings;
     @Getter @Setter
     private boolean openAdminMode;
-    @Getter @Setter
+    @Getter
+    @Setter
     private boolean alertNearExpire;
-    @Getter @Setter
+    @Getter
+    @Setter
     private long alertNearExpireTime;
-    @Getter @Setter
+    @Getter
+    @Setter
     private boolean alertListingBought;
     @Getter
     @Setter
     private boolean autoConfirmListing;
+
+    @Getter
+    @Setter
+    private boolean sounds;
     @Getter
     private final List<Listing> notified;
 
@@ -49,7 +56,7 @@ public class UserSettings {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getUsersTable() + " (ID,USERNAME,ALERT_CREATE,OPEN_ADMIN,ALERT_NEAR_EXPIRE,ALERT_NEAR_EXPIRE_TIME,LISTING_BOUGHT,AUTO_CONFIRM) VALUES (?,?,?,?,?,?,?,?)");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getUsersTable() + " (ID,USERNAME,ALERT_CREATE,OPEN_ADMIN,ALERT_NEAR_EXPIRE,ALERT_NEAR_EXPIRE_TIME,LISTING_BOUGHT,AUTO_CONFIRM,SOUNDS) VALUES (?,?,?,?,?,?,?,?,?)");
 
                         statement.setString(1, user.getUuid().toString());
                         statement.setString(2, name);
@@ -59,6 +66,7 @@ public class UserSettings {
                         statement.setLong(6, AuctionHouse.getInstance().getConfigFile().getDps_expireTime());
                         statement.setBoolean(7, AuctionHouse.getInstance().getConfigFile().isDps_bought());
                         statement.setBoolean(8, AuctionHouse.getInstance().getConfigFile().isDps_autoConfirm());
+                        statement.setBoolean(9, AuctionHouse.getInstance().getConfigFile().isDps_sounds());
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
@@ -76,6 +84,7 @@ public class UserSettings {
                 usersFile.set(user.getUuid().toString() + ".Alert Near Expire.Time", AuctionHouse.getInstance().getConfigFile().getDps_expireTime());
                 usersFile.set(user.getUuid().toString() + ".Alert Listing Bought", AuctionHouse.getInstance().getConfigFile().isDps_bought());
                 usersFile.set(user.getUuid().toString() + ".Auto Confirm Listing", AuctionHouse.getInstance().getConfigFile().isDps_autoConfirm());
+                usersFile.set(user.getUuid().toString() + ".Sounds", AuctionHouse.getInstance().getConfigFile().isDps_sounds());
                 fm.saveFile(usersFile, "/database/users");
                 break;
         }
@@ -101,6 +110,7 @@ public class UserSettings {
                 alertNearExpireTime = usersFile.getLong(user.getUuid().toString() + ".Alert Near Expire.Time");
                 alertListingBought = usersFile.getBoolean(user.getUuid().toString() + ".Alert Listing Bought");
                 autoConfirmListing = usersFile.getBoolean(user.getUuid().toString() + ".Auto Confirm Listing");
+                sounds = usersFile.getBoolean(user.getUuid().toString() + ".Sounds");
 
                 if (!usersFile.contains(user.getUuid().toString() + ".Username")) {
                     usersFile.set(user.getUuid().toString() + ".Username", Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())).getName());
@@ -122,6 +132,7 @@ public class UserSettings {
                         alertNearExpireTime = rs.getLong(6);
                         alertListingBought = rs.getBoolean(7);
                         autoConfirmListing = rs.getBoolean(8);
+                        sounds = rs.getBoolean(9);
                     }
 
                 } catch (Exception e) {
@@ -139,7 +150,7 @@ public class UserSettings {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getUsersTable() + " SET USERNAME=?,ALERT_CREATE=?,OPEN_ADMIN=?,ALERT_NEAR_EXPIRE=?,ALERT_NEAR_EXPIRE_TIME=?,LISTING_BOUGHT=?,AUTO_CONFIRM=? WHERE ID=?");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getUsersTable() + " SET USERNAME=?,ALERT_CREATE=?,OPEN_ADMIN=?,ALERT_NEAR_EXPIRE=?,ALERT_NEAR_EXPIRE_TIME=?,LISTING_BOUGHT=?,AUTO_CONFIRM=?,SOUNDS=? WHERE ID=?");
 
                         statement.setString(1, name);
                         statement.setBoolean(2, alertCreateListings);
@@ -148,6 +159,7 @@ public class UserSettings {
                         statement.setLong(5, alertNearExpireTime);
                         statement.setBoolean(6, alertListingBought);
                         statement.setBoolean(7, autoConfirmListing);
+                        statement.setBoolean(9, sounds);
                         statement.setString(8, user.getUuid().toString());
 
                         statement.executeUpdate();
@@ -166,6 +178,7 @@ public class UserSettings {
                 usersFile.set(user.getUuid().toString() + ".Alert Near Expire.Time", alertNearExpireTime);
                 usersFile.set(user.getUuid().toString() + ".Alert Listing Bought", alertListingBought);
                 usersFile.set(user.getUuid().toString() + ".Auto Confirm Listing", autoConfirmListing);
+                usersFile.set(user.getUuid().toString() + ".Sounds", sounds);
                 fm.saveFile(usersFile, "/database/users");
                 break;
         }
