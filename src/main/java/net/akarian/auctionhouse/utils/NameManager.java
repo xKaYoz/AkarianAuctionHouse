@@ -71,41 +71,55 @@ public class NameManager {
         }
         //Check with Floodgate API
         if (AuctionHouse.getInstance().isFloodgate()) {
+            HashMap<String, Object> sc = new HashMap<>();
             FloodgateApi floodgate = FloodgateApi.getInstance();
             try {
-                return floodgate.getPlayer(UUID.fromString(uuid)).getUsername();
+                String name = floodgate.getPlayer(UUID.fromString(uuid)).getUsername();
+                sc.put("Name", name);
+                sc.put("Timer", System.currentTimeMillis());
+                cache.put(uuid, sc);
+                return name;
             } catch (NullPointerException e) {
-                checkDatabase(uuid);
+                String name = checkDatabase(uuid);
+                sc.put("Name", name);
+                sc.put("Timer", System.currentTimeMillis());
+                cache.put(uuid, sc);
+                return name;
             }
         }
         //Check with the MojangAPI
-        try {
-            HashMap<String, Object> sc = new HashMap<>();
-            String dash = uuid;
+        final String[] s = new String[1];
+        final String fuuid = uuid;
+        Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+            try {
+                HashMap<String, Object> sc = new HashMap<>();
+                String edit;
 
-            uuid = uuid.replace("-", "");
-            String output = callURL(NAME_URL + uuid);
-            StringBuilder result = new StringBuilder();
-            for (int i = 0; i < 20000; i++) {
-                if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a' && output.charAt(i + 2) == 'm' && output.charAt(i + 3) == 'e') {
-                    for (int k = i + 9; k < 20000; k++) {
-                        char curr = output.charAt(k);
-                        if (curr != '"') {
-                            result.append(curr);
-                        } else {
-                            break;
+                edit = fuuid.replace("-", "");
+                String output = callURL(NAME_URL + edit);
+                StringBuilder result = new StringBuilder();
+                for (int i = 0; i < 20000; i++) {
+                    if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a' && output.charAt(i + 2) == 'm' && output.charAt(i + 3) == 'e') {
+                        for (int k = i + 9; k < 20000; k++) {
+                            char curr = output.charAt(k);
+                            if (curr != '"') {
+                                result.append(curr);
+                            } else {
+                                break;
+                            }
                         }
+                        break;
                     }
-                    break;
                 }
+                sc.put("Name", result.toString());
+                sc.put("Timer", System.currentTimeMillis());
+                cache.put(fuuid, sc);
+                s[0] = result.toString();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            sc.put("Name", result.toString());
-            sc.put("Timer", System.currentTimeMillis());
-            cache.put(dash, sc);
-            return result.toString();
-        } catch (Exception e) {
-            return uuid; //If it gets this far, something must be broket
-        }
+        });
+        return s[0];
     }
 
     private String callURL(String urlStr) {
