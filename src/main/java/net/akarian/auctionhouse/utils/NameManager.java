@@ -80,11 +80,7 @@ public class NameManager {
                 cache.put(uuid, sc);
                 return name;
             } catch (NullPointerException e) {
-                String name = checkDatabase(uuid);
-                sc.put("Name", name);
-                sc.put("Timer", System.currentTimeMillis());
-                cache.put(uuid, sc);
-                return name;
+                return checkDatabase(uuid);
             }
         }
         //Check with the MojangAPI
