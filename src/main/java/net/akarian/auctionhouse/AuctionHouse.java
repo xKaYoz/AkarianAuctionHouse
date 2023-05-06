@@ -8,6 +8,7 @@ import net.akarian.auctionhouse.commands.main.AuctionHouseCommand;
 import net.akarian.auctionhouse.commands.main.CommandManager;
 import net.akarian.auctionhouse.cooldowns.CooldownManager;
 import net.akarian.auctionhouse.events.*;
+import net.akarian.auctionhouse.events.aahEvents.AdminEditEvents;
 import net.akarian.auctionhouse.events.aahEvents.ListingBoughtEvents;
 import net.akarian.auctionhouse.events.aahEvents.ListingCreateEvents;
 import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
@@ -91,6 +92,7 @@ public final class AuctionHouse extends JavaPlugin {
         this.fileManager = new FileManager(this);
         this.configFile = new Configuration();
         chat = new Chat(this, getConfigFile().getPrefix());
+        configFile.checkVersion();
         chat.log("ChatManager Successfully Loaded", debug);
         chat.log("Checking for Floodgate...", debug);
         floodgate = Bukkit.getPluginManager().isPluginEnabled("floodgate");
@@ -198,6 +200,9 @@ public final class AuctionHouse extends JavaPlugin {
         pm.registerEvents(new UserEvents(), this);
         pm.registerEvents(new SettingsGUIEvents(), this);
         pm.registerEvents(new LayoutEditEvents(), this);
+        pm.registerEvents(new DatabaseTransferEvents(), this);
+        pm.registerEvents(new AdminEditEvents(), this);
+        pm.registerEvents(new SoundSelectGUIEvents(), this);
 
         pm.registerEvents(guiManager, this);
     }
@@ -236,7 +241,6 @@ public final class AuctionHouse extends JavaPlugin {
             LayoutEditGUI.getDisplayNameEdit().get(uuid).restoreInventory(true);
         }
         cooldownManager.saveCooldowns();
-        configFile.saveConfig();
         zipLog();
     }
 

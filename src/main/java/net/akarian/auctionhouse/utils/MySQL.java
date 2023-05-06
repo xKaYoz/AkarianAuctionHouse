@@ -135,8 +135,8 @@ public class MySQL {
 
     private void startConnectionTimer() {
 
-        Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, () -> {
-            if(reconnect())
+        Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
+            if (reconnect())
                 chat.log("Successfully established reconnection timer to the database.", AuctionHouse.getInstance().isDebug());
             else
                 chat.log("Failed to establish reconnection timer.", AuctionHouse.getInstance().isDebug());

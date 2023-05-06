@@ -27,9 +27,16 @@ public class ItemBuilder {
         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         item.setItemMeta(meta);
         for(String s : settings) {
-            if(s.equalsIgnoreCase("shine")) {
-                item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
-            } else if(s.contains("uuid_")) {
+            switch (s) {
+                case "shine":
+                    item.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 1);
+                    break;
+                case "hide_attributes":
+                case "h_a":
+                    meta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+                    break;
+            }
+            if (s.contains("uuid_")) {
                 NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "builder-uuid");
                 meta = item.getItemMeta();
                 meta.getPersistentDataContainer().set(key, new UUIDDataType(), UUID.fromString(s.split("_")[1]));

@@ -21,24 +21,28 @@ import java.util.UUID;
 
 public class PlayerActiveListings implements AkarianInventory {
 
-    private final int page;
+    private int page;
     private final UUID uuid;
     private final Chat chat;
     private Inventory inv;
     private List<Listing> listings;
     private final Player player;
+    private final ActiveListingsGUI previousGUI;
+    private boolean update;
 
     /**
      * @param player Player viewing active listings
      * @param uuid   UUID of player viewing
      * @param page   page number
      */
-    public PlayerActiveListings(Player player, UUID uuid, int page) {
+    public PlayerActiveListings(Player player, UUID uuid, int page, ActiveListingsGUI gui) {
         this.player = player;
         this.uuid = uuid;
         this.page = page;
         this.chat = AuctionHouse.getInstance().getChat();
         this.listings = new ArrayList<>();
+        this.previousGUI = gui;
+        this.update = false;
     }
 
     @Override
@@ -46,13 +50,19 @@ public class PlayerActiveListings implements AkarianInventory {
 
         switch (slot) {
             case 8:
-                p.openInventory(new ActiveListingsGUI(player, 1).getInventory());
+                p.openInventory(previousGUI.getInventory());
                 return;
             case 45:
-                p.openInventory(new PlayerActiveListings(player, uuid, page - 1).getInventory());
+                if (page == 1) return;
+                page--;
+                update = true;
+                updateInventory();
                 return;
             case 53:
-                p.openInventory(new PlayerActiveListings(player, uuid, page + 1).getInventory());
+                if (!(listings.size() > 36 * page)) break;
+                page++;
+                update = true;
+                updateInventory();
                 return;
         }
 
@@ -97,24 +107,15 @@ public class PlayerActiveListings implements AkarianInventory {
 
         updateInventory();
 
-        //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(45, previous);
-        }
-
-        //Next Page
-        if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(53, next);
-        }
-
         return inv;
     }
 
     public void updateInventory() {
+        List<Listing> oldListings = listings;
 
         listings = AuctionHouse.getInstance().getListingManager().getActive(uuid);
+
+        if (oldListings.equals(listings) && !update) return;
 
         int end = page * 36;
         int start = end - 36;
@@ -132,6 +133,20 @@ public class PlayerActiveListings implements AkarianInventory {
             inv.setItem(slot, listings.get(i).createAdminActiveListing(player));
             t++;
             slot++;
+        }
+
+        update = false;
+
+        //Previous Page
+        if (page != 1) {
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            inv.setItem(45, previous);
+        }
+
+        //Next Page
+        if (listings.size() > 36 * page) {
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            inv.setItem(53, next);
         }
 
     }

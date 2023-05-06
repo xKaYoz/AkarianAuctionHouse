@@ -14,6 +14,10 @@ public class UpdateManager {
     private final Chat chat;
     @Getter
     private Updater updater;
+    @Getter
+    boolean updateCache;
+    @Getter
+    long updateTime;
 
     public UpdateManager(AuctionHouse plugin) {
         this.plugin = plugin;
@@ -37,12 +41,29 @@ public class UpdateManager {
 
     public int isUpdate() {
         if (!plugin.isUpdate()) return -1;
-        reloadUpdater();
+
+        if (System.currentTimeMillis() - updateTime >= 30 * 1000 * 60) {
+            reloadUpdater();
+            updateTime = System.currentTimeMillis();
+        }
+
+        switch (updater.getResult()) {
+            case BAD_ID:
+                return 0;
+            case NO_UPDATE:
+                updateCache = false;
+                return 1;
+            case UPDATE_FOUND:
+                updateCache = true;
+                return 2;
+        }
+
         if (updater.getResult() == Updater.Result.BAD_ID) {
             return 0;
         } else if (updater.getResult() == Updater.Result.NO_UPDATE) {
             return 1;
         } else if (updater.getResult() == Updater.Result.UPDATE_FOUND) {
+            updateCache = true;
             return 2;
         } else {
             return 3;

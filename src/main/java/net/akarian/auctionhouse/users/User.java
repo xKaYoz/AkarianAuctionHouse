@@ -21,10 +21,14 @@ public class User {
     @Getter
     @Setter
     private String username;
+    @Getter
+    @Setter
+    private boolean adminMode;
 
     public User(UUID uuid) {
         this.uuid = uuid;
         this.fm = AuctionHouse.getInstance().getFileManager();
+        adminMode = false;
     }
 
     public UserSettings createUserSettings() {

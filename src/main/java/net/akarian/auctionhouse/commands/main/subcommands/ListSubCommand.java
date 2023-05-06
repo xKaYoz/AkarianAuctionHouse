@@ -38,7 +38,7 @@ public class ListSubCommand extends AkarianCommand {
         ItemStack itemStack = p.getInventory().getItemInMainHand();
 
         //Check if the player is holding an item
-        if (itemStack.getType().isAir()) {
+        if (itemStack.getType().isAir() || !itemStack.getType().isItem()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_item());
             return;
         }
@@ -67,7 +67,7 @@ public class ListSubCommand extends AkarianCommand {
             }
         });
         if (!p.isOp() && maxListings.get() > 0 && AuctionHouse.getInstance().getListingManager().getActive(p.getUniqueId()).size() >= maxListings.get()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaxListings().replace("%max%", maxListings.get() + ""));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaxListings().replace("%max%", String.valueOf(maxListings.get())));
             return;
         }
 
@@ -84,7 +84,7 @@ public class ListSubCommand extends AkarianCommand {
         try {
             price = Double.parseDouble(args[1]);
         } catch (NumberFormatException e) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
             return;
         }
 
@@ -101,23 +101,18 @@ public class ListSubCommand extends AkarianCommand {
         }
 
         if (AuctionHouse.getInstance().getEcon().getBalance(p) < AuctionHouse.getInstance().getConfigFile().calculateListingFee(price)) {
-            chat.sendMessage(p, "&cYou do not have enough money to cover the listing fee.");
-            return;
-        }
-
-        if (price <= 0) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_price());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getListingFeePoor());
             return;
         }
 
         //Play sounds
         if (user.getUserSettings().isAutoConfirmListing()) {
             AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
+            if (user.getUserSettings().isSounds())
+                p.playSound(p.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 5, 1);
         } else {
             p.openInventory(new ConfirmListGUI(p, itemStack, price).getInventory());
 
         }
-        if (user.getUserSettings().isSounds())
-            p.playSound(p.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 1, 1);
     }
 }

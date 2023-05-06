@@ -61,6 +61,13 @@ public class Listing {
 
     public ItemStack createAdminActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            return null;
+        }
+
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
@@ -89,7 +96,7 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
@@ -108,6 +115,13 @@ public class Listing {
 
     public ItemStack createAdminCompleteListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            return null;
+        }
+
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
@@ -136,7 +150,7 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
@@ -159,6 +173,12 @@ public class Listing {
 
     public ItemStack createExpiredListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            return null;
+        }
 
         List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -187,7 +207,7 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            lore.add(shulkers.replace("%amount%", amount + ""));
+                            lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
@@ -210,6 +230,12 @@ public class Listing {
 
     public ItemStack createAdminExpiredListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            return null;
+        }
 
         List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -238,7 +264,7 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            lore.add(shulkers.replace("%amount%", amount + ""));
+                            lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
@@ -265,6 +291,12 @@ public class Listing {
 
     public ItemStack createActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            return null;
+        }
 
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -295,7 +327,7 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }

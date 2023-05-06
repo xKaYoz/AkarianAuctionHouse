@@ -41,7 +41,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             long sec = Long.parseLong(input);
@@ -62,7 +62,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             long sec = Long.parseLong(input);
@@ -98,7 +98,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Integer.parseInt(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             int sec = Integer.parseInt(input);
@@ -137,11 +137,11 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                         return;
                     }
                 } else {
-                    chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                    chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                     return;
                 }
             }
@@ -167,7 +167,7 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                         return;
                     }
                 } else {

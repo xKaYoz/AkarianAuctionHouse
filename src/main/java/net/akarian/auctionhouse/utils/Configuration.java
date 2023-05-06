@@ -34,7 +34,7 @@ public class Configuration {
     private long dps_expireTime;
     @Getter
     @Setter
-    private int listingDelay, listingTime, db_port, auctionhouseRefreshTime;
+    private int listingDelay, listingTime, db_port, auctionhouseRefreshTime, createListingVolume, createListingPitch, listingBoughtVolume, listingBoughtPitch;
     @Getter
     private AkarianConfiguration configFile;
     @Getter
@@ -65,16 +65,6 @@ public class Configuration {
     public void reloadConfig() {
 
         configFile = fm.getConfig("config");
-
-        List<String> header = new ArrayList<>();
-        header.add("Akarian Auction House v" + AuctionHouse.getInstance().getDescription().getVersion());
-        header.add(" ");
-        header.add("database: This is how the database will be saved. Available types are FILE MYSQL FILE2MYSQL MYSQL2FILE");
-        header.add("updates: Whether or not to enable updates.");
-        header.add("Listing Delay: Delay between listings. Set to 0 to disable. Permission to bypass \"auctionhouse.delay.bypass\"");
-        header.add("Listing Time: Time that a listing is on the auction house in seconds. 86400 = 1 day.");
-        header.add("Listing Fee: For percentage of listing, use \"5%\". To take a flat rate, use \"5\".");
-        configFile.setHeader(header);
 
         /* Defaults */
         {
@@ -198,15 +188,41 @@ public class Configuration {
             }
             auctionhouseRefreshTime = configFile.getInt("Auction House Refresh Time");
 
-            if (!configFile.contains("Sounds.Create Listing Sound")) {
-                configFile.set("Sounds.Create Listing Sound", Sound.BLOCK_PISTON_CONTRACT.toString());
+            if (!configFile.contains("Sounds.Create Listing Sound.Sound")) {
+                if (configFile.contains("Sounds.Create Listing Sound")) {
+                    configFile.set("Sounds.Create Listing Sound.Sound", configFile.getString("Sounds.Create Listing Sound"));
+                } else
+                    configFile.set("Sounds.Create Listing Sound.Sound", Sound.BLOCK_PISTON_CONTRACT.toString());
             }
-            createListingSound = Sound.valueOf(configFile.getString("Sounds.Create Listing Sound"));
+            createListingSound = Sound.valueOf(configFile.getString("Sounds.Create Listing Sound.Sound"));
 
-            if (!configFile.contains("Sounds.Listing Bought Sound")) {
-                configFile.set("Sounds.Listing Bought Sound", Sound.ENTITY_PLAYER_LEVELUP.toString());
+            if (!configFile.contains("Sounds.Create Listing Sound.Volume")) {
+                configFile.set("Sounds.Create Listing Sound.Volume", 5);
             }
-            listingBoughtSound = Sound.valueOf(configFile.getString("Sounds.Listing Bought Sound"));
+            createListingVolume = configFile.getInt("Sounds.Create Listing Sound.Volume");
+
+            if (!configFile.contains("Sounds.Create Listing Sound.Pitch")) {
+                configFile.set("Sounds.Create Listing Sound.Pitch", 1);
+            }
+            createListingPitch = configFile.getInt("Sounds.Create Listing Sound.Pitch");
+
+            if (!configFile.contains("Sounds.Listing Bought Sound.Sound")) {
+                if (configFile.contains("Sounds.Listing Bought Sound"))
+                    configFile.set("Sounds.Listing Bought Sound.Sound", configFile.getString("Sounds.Listing Bought Sound"));
+                else
+                    configFile.set("Sounds.Listing Bought Sound.Sound", Sound.ENTITY_PLAYER_LEVELUP.toString());
+            }
+            listingBoughtSound = Sound.valueOf(configFile.getString("Sounds.Listing Bought Sound.Sound"));
+
+            if (!configFile.contains("Sounds.Listing Bought Sound.Volume")) {
+                configFile.set("Sounds.Listing Bought Sound.Volume", 5);
+            }
+            listingBoughtVolume = configFile.getInt("Sounds.Listing Bought Sound.Volume");
+
+            if (!configFile.contains("Sounds.Listing Bought Sound.Pitch")) {
+                configFile.set("Sounds.Listing Bought Sound.Pitch", 1);
+            }
+            listingBoughtPitch = configFile.getInt("Sounds.Listing Bought Sound.Pitch");
 
 
         }
@@ -282,7 +298,18 @@ public class Configuration {
         }
         3 = configFile.getInt("1");
         */
+
         fm.saveFile(configFile, "config");
+    }
+
+    public void checkVersion() {
+        if (version == 0) version = 1;
+        if (version == 1) {
+            version = 2;
+            configFile.set("Version", 2);
+            AuctionHouse.getInstance().getChat().log("Config File update complete. Now version " + version, true);
+            fm.saveFile(configFile, "config");
+        }
     }
 
     public void saveConfig() {
@@ -321,8 +348,12 @@ public class Configuration {
             configFile.set("Default Player Settings.Sounds", dps_sounds);
             configFile.set("Default Player Settings.Create Notify", dps_create);
             configFile.set("Creative Listing", creativeListing);
-            configFile.set("Sounds.Create Listing Sound", createListingSound.toString());
-            configFile.set("Sounds.Listing Bought Sound", listingBoughtSound.toString());
+            configFile.set("Sounds.Create Listing Sound.Sound", createListingSound.toString());
+            configFile.set("Sounds.Create Listing Sound.Volume", createListingVolume);
+            configFile.set("Sounds.Create Listing Sound.Pitch", createListingPitch);
+            configFile.set("Sounds.Listing Bought Sound.Sound", listingBoughtSound.toString());
+            configFile.set("Sounds.Listing Bought Sound.Volume", listingBoughtVolume);
+            configFile.set("Sounds.Listing Bought Sound.Pitch", listingBoughtPitch);
 
         }
         /* MySQL */

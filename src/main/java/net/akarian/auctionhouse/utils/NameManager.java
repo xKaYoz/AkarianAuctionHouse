@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.utils;
 import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitTask;
 import org.geysermc.floodgate.api.FloodgateApi;
 
 import java.io.BufferedReader;
@@ -22,7 +23,7 @@ public class NameManager {
     private final HashMap<String, HashMap<String, Object>> cache = new HashMap<>();
     private final List<String> queued = new ArrayList<>();
     private final String NAME_URL = "https://sessionserver.mojang.com" + "/session/minecraft/profile/";
-    private int timer;
+    private BukkitTask timer;
 
     public NameManager() {
         startCacheTimer();
@@ -75,7 +76,7 @@ public class NameManager {
             try {
                 return floodgate.getPlayer(UUID.fromString(uuid)).getUsername();
             } catch (NullPointerException e) {
-                checkDatabase(uuid);
+                return checkDatabase(uuid);
             }
         }
         //Check with the MojangAPI
@@ -136,18 +137,15 @@ public class NameManager {
     }
 
     private void startCacheTimer() {
-        timer = Bukkit.getScheduler().scheduleSyncRepeatingTask(AuctionHouse.getInstance(), new Runnable() {
-            @Override
-            public void run() {
-                List<String> toRemove = new ArrayList<>();
-                for (String uuid : cache.keySet()) {
-                    HashMap<String, Object> lc = cache.get(uuid);
-                    long time = (long) lc.get("Timer");
-                    if (time + (10 * 60 * 1000) < System.currentTimeMillis()) toRemove.add(uuid);
+        timer = Bukkit.getScheduler().runTaskTimerAsynchronously(AuctionHouse.getInstance(), () -> {
+            List<String> toRemove = new ArrayList<>();
+            for (String uuid : cache.keySet()) {
+                HashMap<String, Object> lc = cache.get(uuid);
+                long time = (long) lc.get("Timer");
+                if (time + (10 * 60 * 1000) < System.currentTimeMillis()) toRemove.add(uuid);
 
-                }
-                toRemove.forEach(cache::remove);
             }
+            toRemove.forEach(cache::remove);
         }, 0, 30 * 20);
     }
 
@@ -173,30 +171,27 @@ public class NameManager {
                     return uuid;
                 }
                 queued.add(uuid);
-                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            MySQL mySQL = AuctionHouse.getInstance().getMySQL();
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    try {
+                        MySQL mySQL = AuctionHouse.getInstance().getMySQL();
 
-                            PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
-                            statement.setString(1, finalUUID);
-                            ResultSet rs = statement.executeQuery();
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                        statement.setString(1, finalUUID);
+                        ResultSet rs = statement.executeQuery();
 
-                            if (rs.next()) {
-                                HashMap<String, Object> sc = new HashMap<>();
-                                sc.put("Name", rs.getString(1));
-                                sc.put("Timer", System.currentTimeMillis());
-                                cache.put(finalUUID, sc);
-                                s[0] = rs.getString(1);
-                                queued.remove(finalUUID);
-                            }
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
+                        if (rs.next()) {
+                            HashMap<String, Object> sc = new HashMap<>();
+                            sc.put("Name", rs.getString(1));
+                            sc.put("Timer", System.currentTimeMillis());
+                            cache.put(finalUUID, sc);
+                            s[0] = rs.getString(1);
+                            queued.remove(finalUUID);
                         }
 
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
+
                 });
                 return s[0];
         }

@@ -482,6 +482,7 @@ public class ListingManager {
 
         //Create our new listing
         Listing listing = new Listing(id, creator, itemStack, price, start);
+        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
         switch (databaseType) {
             case MYSQL:
@@ -507,8 +508,6 @@ public class ListingManager {
 
                         chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
 
-                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
-
                         p.getInventory().removeItem(itemStack);
                         AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
@@ -530,8 +529,6 @@ public class ListingManager {
                 fm.saveFile(listingsFile, "/database/listings");
 
                 chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
-
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
                 AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 

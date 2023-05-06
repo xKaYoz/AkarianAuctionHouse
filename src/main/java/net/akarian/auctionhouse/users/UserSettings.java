@@ -159,8 +159,8 @@ public class UserSettings {
                         statement.setLong(5, alertNearExpireTime);
                         statement.setBoolean(6, alertListingBought);
                         statement.setBoolean(7, autoConfirmListing);
-                        statement.setBoolean(9, sounds);
-                        statement.setString(8, user.getUuid().toString());
+                        statement.setBoolean(8, sounds);
+                        statement.setString(9, user.getUuid().toString());
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
