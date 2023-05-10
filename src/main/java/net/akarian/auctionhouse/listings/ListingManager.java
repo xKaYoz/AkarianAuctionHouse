@@ -8,6 +8,7 @@ import net.akarian.auctionhouse.utils.*;
 import net.akarian.auctionhouse.utils.events.ListingBoughtEvent;
 import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -29,13 +30,13 @@ public class ListingManager {
     private final MySQL mySQL;
     private final Chat chat;
     @Getter
-    private final List<Listing> active;
+    private final ArrayList<Listing> active;
     @Getter
-    private final List<Listing> unclaimed;
+    private final ArrayList<Listing> unclaimed;
     @Getter
-    private final List<Listing> expired;
+    private final ArrayList<Listing> expired;
     @Getter
-    private final List<Listing> completed;
+    private final ArrayList<Listing> completed;
     private final FileManager fm;
     private DatabaseType databaseType;
     private BukkitTask expireTimer;
@@ -882,7 +883,7 @@ public class ListingManager {
                             active.add(l);
                             num.getAndIncrement();
 
-                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         }
 
@@ -897,25 +898,30 @@ public class ListingManager {
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
                     if (listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
+                    if (item == null || item.getType() == Material.AIR) {
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     if (!listingsFile.contains(str + ".Price")) {
-                        chat.log("Error while loading auction with price " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with price " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     double price = listingsFile.getDouble(str + ".Price");
                     if (!listingsFile.contains(str + ".Creator")) {
-                        chat.log("Error while loading auction with creator " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with creator " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
                     if (!listingsFile.contains(str + ".Start")) {
-                        chat.log("Error while loading auction with Start " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with Start " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
@@ -940,7 +946,7 @@ public class ListingManager {
                     active.add(l);
                     num.getAndIncrement();
 
-                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
                 }
                 break;
         }
@@ -988,7 +994,7 @@ public class ListingManager {
                             if (!reclaimed) unclaimed.add(l);
                             expired.add(l);
 
-                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         }
                         chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
@@ -1006,11 +1012,16 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if (listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
+                    if (item == null || item.getType() == Material.AIR) {
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     double price = listingsFile.getDouble(str + ".Price");
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
                     long start = listingsFile.getLong(str + ".Start");
@@ -1028,7 +1039,7 @@ public class ListingManager {
                     if (!reclaimed) unclaimed.add(l);
                     expired.add(l);
 
-                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 }
                 chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
@@ -1068,7 +1079,7 @@ public class ListingManager {
 
                             completed.add(l);
 
-                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         }
                         chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
@@ -1103,7 +1114,7 @@ public class ListingManager {
 
                     completed.add(l);
 
-                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 }
                 chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
