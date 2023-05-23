@@ -56,7 +56,7 @@ public class MySQL {
                 chat.log("", AuctionHouse.getInstance().isDebug());
                 chat.log("Checking Tables...", AuctionHouse.getInstance().isDebug());
                 chat.log("", AuctionHouse.getInstance().isDebug());
-                if (checkTable(listingsTable, "ID VARCHAR(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) DEFAULT '0', BUYER varchar(255) DEFAULT NULL"))
+                if (checkTable(listingsTable, "ID VARCHAR(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) DEFAULT '0', BUYER varchar(255) DEFAULT NULL, UPDATED bigint(20) NOT NULL"))
                     chat.log("Listings table checked.", AuctionHouse.getInstance().isDebug());
                 else
                     chat.log("!! Listings Table Failed Check !!", true);
@@ -125,6 +125,14 @@ public class MySQL {
                 }
 
             }
+            if (tableName.equalsIgnoreCase(listingsTable)) {
+                try {
+                    s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN UPDATED bigint(20) NOT NULL AFTER BUYER");
+                } catch (SQLException e) {
+                    return true;
+                }
+            }
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();

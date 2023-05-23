@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.guis;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.comparators.*;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
@@ -14,23 +15,31 @@ import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class ExpireReclaimGUI implements AkarianInventory {
 
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final Player player;
     private final AuctionHouseGUI auctionHouseGUI;
-    private final int page;
     @Getter
-    @Setter
-    private List<Listing> listings;
+    private static final HashMap<UUID, ExpireReclaimGUI> searchMap = new HashMap<>();
+    private int page;
     @Getter
     private Inventory inv;
     @Getter
-    private int viewable;
+    @Setter
+    private ArrayList<Listing> listings;
+    @Getter
+    private boolean update;
+    private boolean search = false;
+    private String searchStr = "";
+    @Getter
+    @Setter
+    private boolean sortBool;
+    @Getter
+    @Setter
+    private SortType sortType;
 
     /**
      * Reclaim expired listings
@@ -44,6 +53,17 @@ public class ExpireReclaimGUI implements AkarianInventory {
         this.auctionHouseGUI = auctionHouseGUI;
         this.listings = new ArrayList<>();
         this.page = page;
+        this.sortType = SortType.EXPIRE_TIME;
+        this.sortBool = true;
+        this.update = true;
+    }
+
+    public ExpireReclaimGUI search(String search) {
+        this.search = !search.equals("");
+        this.searchStr = search;
+        this.page = 1;
+        update = true;
+        return this;
     }
 
     @Override
@@ -53,20 +73,34 @@ public class ExpireReclaimGUI implements AkarianInventory {
                 player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 45:
-                if (item.getType() == Material.NETHER_STAR)
-                    player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page - 1)).getInventory());
+                if (item.getType() == Material.NETHER_STAR && page != 1) {
+                    page--;
+                    update = true;
+                    updateInventory();
+                }
+                return;
+            case 47:
+                player.closeInventory();
+                searchMap.put(player.getUniqueId(), this);
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
+                return;
+            case 51:
+                player.openInventory(new SortGUI(this).getInventory());
+                update = true;
                 return;
             case 53:
-                if (item.getType() == Material.NETHER_STAR)
-                    player.openInventory(new ExpireReclaimGUI(player, auctionHouseGUI, (page + 1)).getInventory());
+                if (item.getType() == Material.NETHER_STAR && (listings.size() > 36 * page)) {
+                    page++;
+                    update = true;
+                    updateInventory();
+                }
                 return;
-        }
-        if (slot == 8) {
-            player.openInventory(auctionHouseGUI.getInventory());
         }
 
         //Is an Expired Listing
         if (slot >= 9 && slot <= 45) {
+            update = true;
             Listing listing = AuctionHouse.getInstance().getListingManager().get(item);
             if (listing == null) return;
             switch (AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true)) {
@@ -77,10 +111,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
                     chat.sendMessage(player, "&cYou cannot hold that item.");
                     break;
             }
-
-
         }
-
     }
 
     @Override
@@ -100,6 +131,11 @@ public class ExpireReclaimGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
+        inv.setItem(47, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+
+        //Sort Item
+        inv.setItem(51, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+
         //Expired Listings
         updateInventory();
 
@@ -107,46 +143,127 @@ public class ExpireReclaimGUI implements AkarianInventory {
     }
 
     public void updateInventory() {
-        listings.clear();
-        listings.addAll(AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(player.getUniqueId()));
-        viewable = 0;
 
-        int end = page * 36;
-        int start = end - 36;
-        int t = start;
+        if (AuctionHouse.getInstance().getListingManager().getExpired(player.getUniqueId()).size() == 0) {
+            clear();
+            updateButtons();
+            return;
+        }
+
+        int amountToDisplay;
+        int amountCanDisplay = 36;
+        int end = page * amountCanDisplay;
+        int displayStart = end - amountCanDisplay;
+        ArrayList<Listing> expiredListings;
+        if (update) {
+            expiredListings = AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(player.getUniqueId());
+            if (search) {
+                ArrayList<Listing> searchedListings = new ArrayList<>();
+                for (Listing listing : expiredListings) {
+                    if (search(listing)) searchedListings.add(listing);
+                }
+                expiredListings = searchedListings;
+            }
+            expiredListings = sortListings(expiredListings);
+            listings = expiredListings;
+        } else {
+            expiredListings = listings;
+        }
+        amountToDisplay = Math.min(expiredListings.size(), amountCanDisplay);
+        ArrayList<ItemStack> displayItems = getDisplays(displayStart, amountToDisplay);
+        int tick = 0;
         int slot = 9;
 
+        for (int i = displayStart; i <= end; i++) {
+            if (displayItems.size() <= tick) {
+                inv.setItem(slot, null);
+            } else inv.setItem(slot, displayItems.get(tick));
+            tick++;
+            slot++;
+        }
+
+        updateButtons();
+    }
+
+    public ArrayList<ItemStack> getDisplays(int start, int amount) {
+        ArrayList<ItemStack> displays = new ArrayList<>();
+        List<Listing> activeListings = listings;
+
+        for (int i = start; i < start + amount; i++) {
+            if (i >= activeListings.size()) break;
+            Listing listing = activeListings.get(i);
+            displays.add(listing.createExpiredListing(player));
+        }
+
+        return displays;
+    }
+
+    public ArrayList<Listing> sortListings(ArrayList<Listing> l) {
+        //Get all active listings and put them in an array
+        Listing[] listings = l.toArray(new Listing[0]);
+
+        //Switch between the sort type and set according to the determined direction
+        switch (sortType) {
+            case OVERALL_PRICE:
+                if (!sortBool) Arrays.sort(listings, new PriceComparatorLG());
+                else Arrays.sort(listings, new PriceComparatorGL());
+
+                break;
+            case EXPIRE_TIME:
+                if (!sortBool) Arrays.sort(listings, new TimeExpiredComparatorLG());
+                else Arrays.sort(listings, new TimeExpiredComparatorLG());
+                break;
+            case AMOUNT:
+                if (!sortBool) Arrays.sort(listings, new AmountComparatorLG());
+                else Arrays.sort(listings, new AmountComparatorGL());
+                break;
+            case COST_PER_ITEM:
+                if (!sortBool) Arrays.sort(listings, new CostPerComparatorLG());
+                else Arrays.sort(listings, new CostPerComparatorGL());
+                break;
+        }
+        return new ArrayList<>(Arrays.asList(listings));
+    }
+
+    public boolean search(Listing listing) {
+        //Checking if player is searching
+        if (this.search) {
+            //Check if the search is searching by seller
+            if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
+                String playerName = searchStr.split(":")[1];
+                UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
+                return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
+            } else {
+                //Returning whether the listing's item contains the search query
+                return chat.formatItem(listing.getItemStack()).toLowerCase(Locale.ROOT).contains(searchStr.toLowerCase(Locale.ROOT));
+            }
+        }
+        return true;
+    }
+
+    private void clear() {
         for (int i = 9; i <= 44; i++) {
             inv.setItem(i, null);
         }
+    }
 
-        for (int i = start; i <= end; i++) {
-            if (listings.size() == t || t >= end) {
-                break;
-            }
-            Listing listing = listings.get(i);
-            inv.setItem(slot, listing.createExpiredListing(player));
-            viewable++;
-            slot++;
-            t++;
-        }
-
+    private void updateButtons() {
         //Previous Page
+
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(listings.size() / 45)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         } else {
             inv.setItem(45, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        //Next Page
+
         if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(listings.size() / 45)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         } else {
             inv.setItem(53, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
-
     }
 
 }

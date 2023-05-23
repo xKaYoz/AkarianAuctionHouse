@@ -23,6 +23,7 @@ public class NameManager {
     private final HashMap<String, HashMap<String, Object>> cache = new HashMap<>();
     private final List<String> queued = new ArrayList<>();
     private final String NAME_URL = "https://sessionserver.mojang.com" + "/session/minecraft/profile/";
+
     private BukkitTask timer;
 
     public NameManager() {
@@ -84,8 +85,11 @@ public class NameManager {
                 return checkDatabase(uuid);
             }
         }
+        return checkDatabase(uuid);
+        /*
         //Check with the MojangAPI
         final String[] s = new String[1];
+        s[0] = uuid;
         final String fuuid = uuid;
         Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
             try {
@@ -96,6 +100,7 @@ public class NameManager {
                 String output = callURL(NAME_URL + edit);
                 StringBuilder result = new StringBuilder();
                 for (int i = 0; i < 20000; i++) {
+                    if(output.length() == 0) return;
                     if (output.charAt(i) == 'n' && output.charAt(i + 1) == 'a' && output.charAt(i + 2) == 'm' && output.charAt(i + 3) == 'e') {
                         for (int k = i + 9; k < 20000; k++) {
                             char curr = output.charAt(k);
@@ -116,7 +121,7 @@ public class NameManager {
                 e.printStackTrace();
             }
         });
-        return s[0];
+        return s[0]; */
     }
 
     private String callURL(String urlStr) {
@@ -140,8 +145,7 @@ public class NameManager {
                 in.close();
             }
         } catch (Exception e) {
-            if (AuctionHouse.getInstance().isDebug()) e.printStackTrace();
-            else AuctionHouse.getInstance().getChat().log("Error while trying to connect to NameManager URL.", false);
+            AuctionHouse.getInstance().getChat().log("Error while trying to connect to NameManager URL.", AuctionHouse.getInstance().isDebug());
         }
         return sb.toString();
     }

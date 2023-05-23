@@ -5,7 +5,9 @@ import net.akarian.auctionhouse.guis.ConfirmListGUI;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.InventoryHandler;
 import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -44,7 +46,7 @@ public class ListSubCommand extends AkarianCommand {
         }
 
         //Check create listing
-        if(p.getGameMode() == GameMode.CREATIVE && !AuctionHouse.getInstance().getConfigFile().isCreativeListing()) {
+        if (p.getGameMode() == GameMode.CREATIVE && !AuctionHouse.getInstance().getConfigFile().isCreativeListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_creativeListing_message());
             return;
         }
@@ -61,8 +63,7 @@ public class ListSubCommand extends AkarianCommand {
             try {
                 int amount = Integer.parseInt(value);
 
-                if (amount > maxListings.get())
-                    maxListings.set(amount);
+                if (amount > maxListings.get()) maxListings.set(amount);
             } catch (NumberFormatException ignored) {
             }
         });
@@ -89,14 +90,12 @@ public class ListSubCommand extends AkarianCommand {
         }
 
         if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaximumListing()
-                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaximumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
             return;
         }
 
         if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing()
-                    .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
             return;
         }
 
@@ -105,14 +104,24 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
-        //Play sounds
+        //Encode check
+        String encoded = AuctionHouse.getInstance().encode(itemStack, false);
+        ItemStack decoded = AuctionHouse.getInstance().decode(encoded);
+        if (decoded == null || decoded.getType() == Material.AIR) {
+            chat.sendMessage(p, "There was an error creating this listing. Please try again.");
+            return;
+        }
+
+        //Determine if auto-confirm
         if (user.getUserSettings().isAutoConfirmListing()) {
-            AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
+            //Remove item from Inventory
+            InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
+            AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), encoded, price);
+            //Play sounds
             if (user.getUserSettings().isSounds())
                 p.playSound(p.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 5, 1);
         } else {
             p.openInventory(new ConfirmListGUI(p, itemStack, price).getInventory());
-
         }
     }
 }

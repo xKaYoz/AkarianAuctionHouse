@@ -65,6 +65,7 @@ public class Listing {
         if (itemStack.getType() == Material.AIR) {
             chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
             chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getActive().remove(this);
             return null;
         }
 
@@ -119,6 +120,7 @@ public class Listing {
         if (itemStack.getType() == Material.AIR) {
             chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
             chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getCompleted().remove(this);
             return null;
         }
 
@@ -176,7 +178,7 @@ public class Listing {
 
         if (itemStack.getType() == Material.AIR) {
             chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
-            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getExpired().remove(this);
             return null;
         }
 
@@ -234,6 +236,7 @@ public class Listing {
         if (itemStack.getType() == Material.AIR) {
             chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
             chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getExpired().remove(this);
             return null;
         }
 
@@ -289,12 +292,26 @@ public class Listing {
         return AuctionHouse.getInstance().getListingManager().getActive().contains(this);
     }
 
+    public void setComplete(UUID buyer, long end) {
+        this.buyer = buyer;
+        this.end = end;
+        AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+        AuctionHouse.getInstance().getListingManager().getCompleted().add(this);
+    }
+
+    public void setExpired(long end, boolean reclaimed) {
+        this.end = end;
+        AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+        AuctionHouse.getInstance().getListingManager().getExpired().add(this);
+        if (!reclaimed) AuctionHouse.getInstance().getListingManager().getUnclaimed().add(this);
+    }
+
     public ItemStack createActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
 
         if (itemStack.getType() == Material.AIR) {
             chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
-            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getActive().remove(this);
             return null;
         }
 

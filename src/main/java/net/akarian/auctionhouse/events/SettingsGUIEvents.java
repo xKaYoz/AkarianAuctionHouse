@@ -67,6 +67,7 @@ public class SettingsGUIEvents implements Listener {
             }
             long sec = Long.parseLong(input);
             AuctionHouse.getInstance().getConfigFile().setDps_expireTime(sec);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(DefaultPlayerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
                 DefaultPlayerSettingsGUI.getTimeMap().remove(p.getUniqueId());
@@ -116,6 +117,7 @@ public class SettingsGUIEvents implements Listener {
                 return;
             }
             AuctionHouse.getInstance().getConfigFile().setListingTime(sec);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
@@ -146,6 +148,7 @@ public class SettingsGUIEvents implements Listener {
                 }
             }
             AuctionHouse.getInstance().getConfigFile().setListingFee(input);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getFeeMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getFeeMap().remove(p.getUniqueId());
@@ -176,6 +179,7 @@ public class SettingsGUIEvents implements Listener {
                 }
             }
             AuctionHouse.getInstance().getConfigFile().setListingTax(input);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getTaxMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getTaxMap().remove(p.getUniqueId());

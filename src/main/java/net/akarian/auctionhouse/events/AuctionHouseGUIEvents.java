@@ -2,6 +2,7 @@ package net.akarian.auctionhouse.events;
 
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.AuctionHouseGUI;
+import net.akarian.auctionhouse.guis.ExpireReclaimGUI;
 import net.akarian.auctionhouse.guis.ListingEditGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
@@ -37,6 +38,14 @@ public class AuctionHouseGUIEvents implements Listener {
                 AuctionHouseGUI.getSearchMap().remove(p.getUniqueId());
             });
         }
+        //Expire Reclaim GUI Search
+        else if (ExpireReclaimGUI.getSearchMap().containsKey(p.getUniqueId())) {
+            e.setCancelled(true);
+            Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
+                p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).search(input).getInventory());
+                ExpireReclaimGUI.getSearchMap().remove(p.getUniqueId());
+            });
+        }
         //Listing Edit Price
         else if (ListingEditGUI.getPriceMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
@@ -52,8 +61,7 @@ public class AuctionHouseGUIEvents implements Listener {
             }
 
             if (price <= AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing()
-                        .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
                 return;
             }
 
@@ -78,8 +86,7 @@ public class AuctionHouseGUIEvents implements Listener {
             }
 
             if (price <= AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing()
-                        .replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
                 return;
             }
 
@@ -192,9 +199,12 @@ public class AuctionHouseGUIEvents implements Listener {
         //Auction House GUI Search
         if (AuctionHouseGUI.getSearchMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
-
             p.openInventory(AuctionHouseGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
             AuctionHouseGUI.getSearchMap().remove(p.getUniqueId());
+        } else if (ExpireReclaimGUI.getSearchMap().containsKey(p.getUniqueId())) {
+            e.setCancelled(true);
+            p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
+            ExpireReclaimGUI.getSearchMap().remove(p.getUniqueId());
         }
         //Listing Edit Price
         else if (ListingEditGUI.getPriceMap().containsKey(p.getUniqueId())) {
