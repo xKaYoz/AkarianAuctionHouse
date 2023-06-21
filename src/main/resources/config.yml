@@ -29,3 +29,4 @@ MySQL:
 Minimum Listing: 10.00
 Maximum Listing: 1000000000.00
 Auction House Refresh Time: 1
+DiscordWebhookURL: ""

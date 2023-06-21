@@ -11,6 +11,9 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class Configuration {
 
@@ -20,7 +23,7 @@ public class Configuration {
     private String prefix, db_database, db_host, db_username, db_password, db_listings, db_expired, db_completed, db_users;
     @Getter
     @Setter
-    private String listingFee, listingTax;
+    private String listingFee, listingTax, discordWebhookURL;
     @Getter
     private DatabaseType databaseType;
     @Getter
@@ -201,13 +204,25 @@ public class Configuration {
             if (!configFile.contains("Sounds.Create Listing Sound")) {
                 configFile.set("Sounds.Create Listing Sound", Sound.BLOCK_PISTON_CONTRACT.toString());
             }
-            createListingSound = Sound.valueOf(configFile.getString("Sounds.Create Listing Sound"));
-
+            try {
+                createListingSound = Sound.valueOf(configFile.getString("Sounds.Create Listing Sound"));
+            }catch(Exception e){
+                getLogger().log(Level.INFO, "Sound not Found - Using default");
+                createListingSound = Sound.BLOCK_PISTON_CONTRACT;
+            }
             if (!configFile.contains("Sounds.Listing Bought Sound")) {
                 configFile.set("Sounds.Listing Bought Sound", Sound.ENTITY_PLAYER_LEVELUP.toString());
             }
+            try{
             listingBoughtSound = Sound.valueOf(configFile.getString("Sounds.Listing Bought Sound"));
-
+            }catch(Exception e){
+                getLogger().log(Level.INFO, "BoughtSound not Found - Using default");
+                listingBoughtSound = Sound.ENTITY_PLAYER_LEVELUP;
+            }
+            if(!configFile.contains("DiscordWebhookURL")) {
+                configFile.set("DiscordWebhookURL", "");
+            }
+            discordWebhookURL = configFile.getString("DiscordWebhookURL");
 
         }
         /* MySQL */
@@ -323,6 +338,7 @@ public class Configuration {
             configFile.set("Creative Listing", creativeListing);
             configFile.set("Sounds.Create Listing Sound", createListingSound.toString());
             configFile.set("Sounds.Listing Bought Sound", listingBoughtSound.toString());
+            configFile.set("DiscordWebhookURL", discordWebhookURL);
 
         }
         /* MySQL */
