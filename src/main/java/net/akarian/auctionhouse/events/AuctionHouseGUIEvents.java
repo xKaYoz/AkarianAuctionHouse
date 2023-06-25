@@ -42,7 +42,7 @@ public class AuctionHouseGUIEvents implements Listener {
         else if (ExpireReclaimGUI.getSearchMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
-                p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).search(input).getInventory());
+                p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).searchListings(input).getInventory());
                 ExpireReclaimGUI.getSearchMap().remove(p.getUniqueId());
             });
         }
@@ -56,6 +56,11 @@ public class AuctionHouseGUIEvents implements Listener {
             try {
                 price = Double.parseDouble(input);
             } catch (NumberFormatException ex) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                return;
+            }
+
+            if (input.equalsIgnoreCase("nan")) {
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
                 return;
             }
@@ -81,9 +86,15 @@ public class AuctionHouseGUIEvents implements Listener {
             try {
                 price = Double.parseDouble(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a compatible price.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
                 return;
             }
+
+            if (input.equalsIgnoreCase("nan")) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                return;
+            }
+
 
             if (price <= AuctionHouse.getInstance().getConfigFile().getMinListing()) {
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
@@ -201,9 +212,11 @@ public class AuctionHouseGUIEvents implements Listener {
             e.setCancelled(true);
             p.openInventory(AuctionHouseGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
             AuctionHouseGUI.getSearchMap().remove(p.getUniqueId());
-        } else if (ExpireReclaimGUI.getSearchMap().containsKey(p.getUniqueId())) {
+        }
+        //Expire Reclaim Search
+        else if (ExpireReclaimGUI.getSearchMap().containsKey(p.getUniqueId())) {
             e.setCancelled(true);
-            p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).search("").getInventory());
+            p.openInventory(ExpireReclaimGUI.getSearchMap().get(p.getUniqueId()).searchListings("").getInventory());
             ExpireReclaimGUI.getSearchMap().remove(p.getUniqueId());
         }
         //Listing Edit Price

@@ -64,7 +64,7 @@ public class MySQL {
                     chat.log("Expired table checked.", AuctionHouse.getInstance().isDebug());
                 else
                     chat.log("!! Expired Table Failed Check !!", true);
-                if (checkTable(completedTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, BUYER varchar(255) NOT NULL"))
+                if (checkTable(completedTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, BUYER varchar(255) NOT NULL, CLAIMED BOOLEAN DEFAULT '1'"))
                     chat.log("Completed table checked.", AuctionHouse.getInstance().isDebug());
                 else
                     chat.log("!! Completed Table Failed Check !!", true);
@@ -133,6 +133,14 @@ public class MySQL {
                 }
             }
 
+            if (tableName.equalsIgnoreCase(completedTable)) {
+                try {
+                    s.executeUpdate("ALTER TABLE " + completedTable + " ADD COLUMN CLAIMED BOOLEAN DEFAULT 1 AFTER BUYER");
+                } catch (SQLException e) {
+                    return true;
+                }
+            }
+
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -191,9 +199,10 @@ public class MySQL {
             long start = completedFile.getLong(s + ".Start");
             long end = completedFile.getLong(s + ".End");
             String buyer = completedFile.getString(s + ".Buyer");
+            boolean claimed = completedFile.getBoolean(s + ".Reclaimed");
 
             try {
-                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
+                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER,CLAIMED) VALUES (?,?,?,?,?,?,?,?)");
 
                 statement.setString(1, s);
                 statement.setString(2, itemstack);
@@ -202,6 +211,7 @@ public class MySQL {
                 statement.setLong(5, start);
                 statement.setLong(6, end);
                 statement.setString(7, buyer);
+                statement.setBoolean(8, claimed);
 
                 statement.executeUpdate();
                 statement.closeOnCompletion();
@@ -267,6 +277,8 @@ public class MySQL {
         AtomicInteger lt = new AtomicInteger(0);
         YamlConfiguration listingsFile = fm.getConfig("/database/listings");
         Set<String> listingsKeySet = listingsFile.getValues(false).keySet();
+        int size = listingsKeySet.size();
+        //TODO send chat messages about completion percentage
         for (String s : listingsKeySet) {
             String itemstack = listingsFile.getString(s + ".ItemStack");
             double price = listingsFile.getDouble(s + ".Price");

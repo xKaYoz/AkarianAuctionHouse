@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.events;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.users.UserManager;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -17,15 +18,18 @@ public class UserEvents implements Listener {
         Player p = e.getPlayer();
         UserManager um = AuctionHouse.getInstance().getUserManager();
 
+        Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+            User user = um.loadUser(p.getUniqueId());
 
-        User user = um.loadUser(p.getUniqueId());
+            if (!p.getName().equals(user.getUsername())) {
+                final String oldUsername = user.getUsername();
+                user.setUsername(p.getName());
+                user.getUserSettings().saveUsername();
+                AuctionHouse.getInstance().getChat().log("Saved new username for " + p.getUniqueId() + " - New: " + user.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
+            }
+        });
 
-        if (!p.getName().equals(user.getUsername())) {
-            final String oldUsername = user.getUsername();
-            user.setUsername(p.getName());
-            user.getUserSettings().saveUsername();
-            AuctionHouse.getInstance().getChat().log("Saved new username for " + p.getUniqueId() + " - New: " + user.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
-        }
+
     }
 
     @EventHandler
@@ -35,7 +39,7 @@ public class UserEvents implements Listener {
         UserManager um = AuctionHouse.getInstance().getUserManager();
         User user = um.getUser(p);
 
-        um.unloadUser(user);
+        Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> um.unloadUser(user));
     }
 
 }

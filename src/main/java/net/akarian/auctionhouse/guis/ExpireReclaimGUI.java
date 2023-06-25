@@ -31,6 +31,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
     @Setter
     private ArrayList<Listing> listings;
     @Getter
+    @Setter
     private boolean update;
     private boolean search = false;
     private String searchStr = "";
@@ -58,7 +59,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         this.update = true;
     }
 
-    public ExpireReclaimGUI search(String search) {
+    public ExpireReclaimGUI searchListings(String search) {
         this.search = !search.equals("");
         this.searchStr = search;
         this.page = 1;
@@ -98,18 +99,22 @@ public class ExpireReclaimGUI implements AkarianInventory {
                 return;
         }
 
-        //Is an Expired Listing
+        //Is a Listing
         if (slot >= 9 && slot <= 45) {
             update = true;
             Listing listing = AuctionHouse.getInstance().getListingManager().get(item);
             if (listing == null) return;
-            switch (AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true)) {
-                case -2:
+            //Is reclaiming a completed listing
+            if (listing.isCompleted()) {
+                if (AuctionHouse.getInstance().getListingManager().reclaimCompleted(listing, player, true) == -2) {
                     chat.sendMessage(player, "&cThat listing is already reclaimed!");
-                    break;
-                case -1:
-                    chat.sendMessage(player, "&cYou cannot hold that item.");
-                    break;
+                }
+            }
+            //Is reclaiming an expired listing
+            else if (listing.isExpired()) {
+                if (AuctionHouse.getInstance().getListingManager().reclaimExpire(listing, player, true) == -2) {
+                    chat.sendMessage(player, "&cThat listing is already reclaimed!");
+                }
             }
         }
     }
@@ -144,7 +149,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
     public void updateInventory() {
 
-        if (AuctionHouse.getInstance().getListingManager().getExpired(player.getUniqueId()).size() == 0) {
+        if (AuctionHouse.getInstance().getListingManager().getExpired(player.getUniqueId()).size() == 0 && AuctionHouse.getInstance().getListingManager().getUnclaimedCompleted(player.getUniqueId()).size() == 0) {
             clear();
             updateButtons();
             return;
@@ -154,32 +159,41 @@ public class ExpireReclaimGUI implements AkarianInventory {
         int amountCanDisplay = 36;
         int end = page * amountCanDisplay;
         int displayStart = end - amountCanDisplay;
-        ArrayList<Listing> expiredListings;
-        if (update) {
-            expiredListings = AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(player.getUniqueId());
-            if (search) {
-                ArrayList<Listing> searchedListings = new ArrayList<>();
-                for (Listing listing : expiredListings) {
-                    if (search(listing)) searchedListings.add(listing);
-                }
-                expiredListings = searchedListings;
-            }
-            expiredListings = sortListings(expiredListings);
-            listings = expiredListings;
-        } else {
-            expiredListings = listings;
-        }
-        amountToDisplay = Math.min(expiredListings.size(), amountCanDisplay);
-        ArrayList<ItemStack> displayItems = getDisplays(displayStart, amountToDisplay);
-        int tick = 0;
-        int slot = 9;
 
-        for (int i = displayStart; i <= end; i++) {
-            if (displayItems.size() <= tick) {
-                inv.setItem(slot, null);
-            } else inv.setItem(slot, displayItems.get(tick));
-            tick++;
-            slot++;
+        ArrayList<Listing> expiredListings = AuctionHouse.getInstance().getListingManager().getUnclaimedExpired(player.getUniqueId());
+        ArrayList<Listing> completed = AuctionHouse.getInstance().getListingManager().getUnclaimedCompleted(player.getUniqueId());
+        ArrayList<Listing> allListings;
+
+        if (update) {
+            ArrayList<Listing> searchedListings = new ArrayList<>();
+            if (search) {
+                for (Listing listing : expiredListings) {
+                    if (searchListings(listing)) searchedListings.add(listing);
+                }
+                for (Listing listing : completed) {
+                    if (searchListings(listing)) searchedListings.add(listing);
+                }
+            } else {
+                searchedListings.addAll(expiredListings);
+                searchedListings.addAll(completed);
+            }
+            listings = sortListings(searchedListings);
+
+            allListings = listings;
+            amountToDisplay = Math.min(allListings.size(), amountCanDisplay);
+            ArrayList<ItemStack> displayItems = getDisplays(displayStart, amountToDisplay);
+            int tick = 0;
+            int slot = 9;
+
+            for (int i = displayStart; i <= end; i++) {
+                if (displayItems.size() <= tick) {
+                    inv.setItem(slot, null);
+                } else inv.setItem(slot, displayItems.get(tick));
+                tick++;
+                slot++;
+            }
+
+            update = false;
         }
 
         updateButtons();
@@ -187,14 +201,16 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
     public ArrayList<ItemStack> getDisplays(int start, int amount) {
         ArrayList<ItemStack> displays = new ArrayList<>();
-        List<Listing> activeListings = listings;
-
+        List<Listing> allListings = listings;
         for (int i = start; i < start + amount; i++) {
-            if (i >= activeListings.size()) break;
-            Listing listing = activeListings.get(i);
-            displays.add(listing.createExpiredListing(player));
+            if (i >= allListings.size()) break;
+            Listing listing = allListings.get(i);
+            if (listing.isExpired()) {
+                displays.add(listing.createExpiredListing(player));
+            } else if (listing.isCompleted()) {
+                displays.add(listing.createUnclaimedCompleteListing(player));
+            }
         }
-
         return displays;
     }
 
@@ -225,7 +241,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         return new ArrayList<>(Arrays.asList(listings));
     }
 
-    public boolean search(Listing listing) {
+    public boolean searchListings(Listing listing) {
         //Checking if player is searching
         if (this.search) {
             //Check if the search is searching by seller
@@ -235,7 +251,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
                 return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
             } else {
                 //Returning whether the listing's item contains the search query
-                return chat.formatItem(listing.getItemStack()).toLowerCase(Locale.ROOT).contains(searchStr.toLowerCase(Locale.ROOT));
+                return chat.formatItem(listing.getItemStack()).toLowerCase().contains(searchStr.toLowerCase());
             }
         }
         return true;

@@ -15,7 +15,7 @@ public class Messages {
             st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_sounds_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message, st_creativeListing_message, gui_sound_title, gui_cl_title, st_salesTax_name, st_salesTax_message;
 
     @Getter
-    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore,
+    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore, completedLore,
             st_admin_lore, st_expire_lore, st_expireTime_lore, st_created_lore, st_sounds_lore, st_bought_lore, st_autoConfirm_lore, gui_npc_lore, st_creativeListing_lore, st_listingFee_lore, st_listingTime_lore, gui_cl_lore, st_salesTax_lore;
     @Getter
     private YamlConfiguration messagesFile;
@@ -204,7 +204,7 @@ public class Messages {
                 st_created_lore = messagesFile.getStringList("Settings.Listing Created.Lore");
 
                 if(!messagesFile.contains("Settings.Listing Created.Message")) {
-                    messagesFile.set("Settings.Listing Created.Message", "&e%seller%&f has created a listing for &e%listing%&f for &2$%price%&f.");
+                    messagesFile.set("Settings.Listing Created.Message", "&e%seller%&f has created a listing for &e%listing%&f for &2%price%&f.");
                 }
                 st_created_message = messagesFile.getString("Settings.Listing Created.Message");
 
@@ -643,6 +643,26 @@ public class Messages {
                 }
                 completedAdminLore = messagesFile.getStringList("GUIs.AuctionHouse.Completed.Admin Description");
 
+                //Version 2
+                if (!messagesFile.contains("GUIs.AuctionHouse.Completed.Description")) {
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------------");
+                    lore.add("");
+                    lore.add("  &fStarted &8&m&l-&e %start%");
+                    lore.add("  &fBought &8&m&l-&e %end%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
+                    lore.add("  &fSeller &8&m&l-&e %seller%");
+                    lore.add("");
+                    lore.add("%shulker%");
+                    lore.add("  &7Left click to claim listing.");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Completed.Description", lore);
+
+                }
+                completedLore = messagesFile.getStringList("GUIs.AuctionHouse.Completed.Description");
+
                 if (!messagesFile.contains("GUIs.AuctionHouse.Seller Tag")) {
                     messagesFile.set("GUIs.AuctionHouse.Seller Tag", "seller");
                 }
@@ -925,6 +945,10 @@ public class Messages {
                 version = 2;
                 messagesFile.set("Version", 2);
                 AuctionHouse.getInstance().getChat().log("Message File update complete. Now version " + version, true);
+                break;
+            case 2:
+                messagesFile.set("GUIs.Expire Reclaim.Title", "&6&lListing Reclaim");
+                version = 3;
                 break;
         }
         fm.saveFile(messagesFile, "messages");
