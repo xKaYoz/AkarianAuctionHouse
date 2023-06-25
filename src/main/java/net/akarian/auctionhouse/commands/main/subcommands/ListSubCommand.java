@@ -89,6 +89,11 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
+        if (args[1].equalsIgnoreCase("NaN")) {
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+            return;
+        }
+
         if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaximumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
             return;

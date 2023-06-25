@@ -117,27 +117,30 @@ public class UserSettings {
                 }
                 break;
             case MYSQL:
-                try {
-                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    try {
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getUsersTable() + " WHERE ID=?");
 
-                    statement.setString(1, user.getUuid().toString());
+                        statement.setString(1, user.getUuid().toString());
 
-                    ResultSet rs = statement.executeQuery();
+                        ResultSet rs = statement.executeQuery();
 
-                    while (rs.next()) {
-                        user.setUsername(rs.getString(2));
-                        alertCreateListings = rs.getBoolean(3);
-                        openAdminMode = rs.getBoolean(4);
-                        alertNearExpire = rs.getBoolean(5);
-                        alertNearExpireTime = rs.getLong(6);
-                        alertListingBought = rs.getBoolean(7);
-                        autoConfirmListing = rs.getBoolean(8);
-                        sounds = rs.getBoolean(9);
+                        while (rs.next()) {
+                            user.setUsername(rs.getString(2));
+                            alertCreateListings = rs.getBoolean(3);
+                            openAdminMode = rs.getBoolean(4);
+                            alertNearExpire = rs.getBoolean(5);
+                            alertNearExpireTime = rs.getLong(6);
+                            alertListingBought = rs.getBoolean(7);
+                            autoConfirmListing = rs.getBoolean(8);
+                            sounds = rs.getBoolean(9);
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
+                });
 
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
                 break;
         }
         return this;

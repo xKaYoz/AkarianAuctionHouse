@@ -5,6 +5,7 @@ import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.FileManager;
 import net.akarian.auctionhouse.utils.MySQL;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.sql.PreparedStatement;
@@ -35,34 +36,36 @@ public class User {
         return userSettings = new UserSettings(this).create();
     }
 
-    public UserSettings loadUserSettings() {
+    public void loadUserSettings() {
+
         switch (AuctionHouse.getInstance().getDatabaseType()) {
             case FILE:
                 YamlConfiguration usersFile = fm.getConfig("/database/users");
                 if (!usersFile.isConfigurationSection(uuid.toString())) {
-                    return userSettings = createUserSettings().load();
+                    userSettings = createUserSettings().load();
                 } else {
-                    return userSettings = new UserSettings(this).load();
+                    userSettings = new UserSettings(this).load();
                 }
+                break;
             case MYSQL:
                 MySQL mySQL = AuctionHouse.getInstance().getMySQL();
-                try {
-                    PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
-                    statement.setString(1, uuid.toString());
-                    ResultSet rs = statement.executeQuery();
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    try {
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                        statement.setString(1, uuid.toString());
+                        ResultSet rs = statement.executeQuery();
 
-                    if (rs.next()) {
-                        return userSettings = new UserSettings(this).load();
-                    } else {
-                        return userSettings = createUserSettings().load();
+                        if (rs.next()) {
+                            userSettings = new UserSettings(User.this).load();
+                        } else {
+                            userSettings = createUserSettings().load();
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return null;
-                }
+                });
         }
-        return userSettings = new UserSettings(this).load();
     }
 
 }
