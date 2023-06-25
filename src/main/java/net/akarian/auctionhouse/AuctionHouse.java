@@ -209,6 +209,7 @@ public final class AuctionHouse extends JavaPlugin {
 
     private boolean setupChat() {
         RegisteredServiceProvider<net.milkbowl.vault.chat.Chat> rsp = getServer().getServicesManager().getRegistration(net.milkbowl.vault.chat.Chat.class);
+        if (rsp == null) return false;
         vaultChat = rsp.getProvider();
         return vaultChat != null;
     }
