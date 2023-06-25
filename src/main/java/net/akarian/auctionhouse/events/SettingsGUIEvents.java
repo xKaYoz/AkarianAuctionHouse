@@ -41,7 +41,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             long sec = Long.parseLong(input);
@@ -62,11 +62,12 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             long sec = Long.parseLong(input);
             AuctionHouse.getInstance().getConfigFile().setDps_expireTime(sec);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(DefaultPlayerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
                 DefaultPlayerSettingsGUI.getTimeMap().remove(p.getUniqueId());
@@ -98,7 +99,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Integer.parseInt(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, "&cYou must provide a valid number.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
                 return;
             }
             int sec = Integer.parseInt(input);
@@ -116,6 +117,7 @@ public class SettingsGUIEvents implements Listener {
                 return;
             }
             AuctionHouse.getInstance().getConfigFile().setListingTime(sec);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getTimeMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getTimeMap().remove(p.getUniqueId());
@@ -137,15 +139,16 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                         return;
                     }
                 } else {
-                    chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                    chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                     return;
                 }
             }
             AuctionHouse.getInstance().getConfigFile().setListingFee(input);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getFeeMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getFeeMap().remove(p.getUniqueId());
@@ -167,7 +170,7 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, "&cYou must provide a valid percentage.");
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
                         return;
                     }
                 } else {
@@ -176,6 +179,7 @@ public class SettingsGUIEvents implements Listener {
                 }
             }
             AuctionHouse.getInstance().getConfigFile().setListingTax(input);
+            AuctionHouse.getInstance().getConfigFile().saveConfig();
             Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> {
                 p.openInventory(ServerSettingsGUI.getTaxMap().get(p.getUniqueId()).getInventory());
                 ServerSettingsGUI.getTaxMap().remove(p.getUniqueId());

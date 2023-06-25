@@ -3,6 +3,8 @@ package net.akarian.auctionhouse.utils;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -210,16 +212,22 @@ public class Chat {
         sender.sendMessage(format(str));
     }
 
-    /** Send a user a prefixed message
+    /**
+     * Send a user a prefixed message
      *
      * @param sender - CommandSender to send the message to
-     * @param str - Message to send
+     * @param str    - Message to send
      */
     public void sendMessage(CommandSender sender, String str) {
         sender.sendMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7" + str));
     }
 
-    /** Broadcast a formatted message to all players
+    public void sendMessage(Player player, BaseComponent[] component) {
+        player.spigot().sendMessage(new ComponentBuilder(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7")).append(component).create());
+    }
+
+    /**
+     * Broadcast a formatted message to all players
      *
      * @param str - Message to send
      */

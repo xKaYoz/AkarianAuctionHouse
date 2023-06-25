@@ -86,27 +86,35 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
         List<String> result = new ArrayList<>();
-        if(!sender.hasPermission("auctionhouse.admin")) return result;
+        if (!sender.hasPermission("auctionhouse.admin")) return result;
         if (args.length == 1) {
-            result.add("database");
-            result.add("help");
-            result.add("layout");
-            result.add("npc");
-            result.add("reload");
-            result.add("settings");
-            result.add("update");
-        }
 
-        if (args.length == 2) {
-            if (args[0].equalsIgnoreCase("update")) {
-                result.add("enable");
-                result.add("disable");
-                result.add("toggle");
+            List<AkarianCommand> commands = new ArrayList<>();
+
+            for (AkarianCommand command : AdminCommandManager.getInstance().getCommands().values()) {
+                if (sender.hasPermission(command.getPermission()) || sender.isOp()) commands.add(command);
             }
-            if (args[0].equalsIgnoreCase("settings")) {
-                result.add("force");
+
+            for (AkarianCommand command : commands) {
+                result.add(command.getName());
+            }
+            result.add(" ");
+        } else if (args.length == 2) {
+            switch (args[0]) {
+                case "update":
+                    result.add("enable");
+                    result.add("disable");
+                    result.add("toggle");
+                    break;
+                case "settings":
+                    result.add("force");
+                    break;
+                case "reload":
+                    result.add("messages");
+                    result.add("config");
+                    break;
             }
         }
 

@@ -70,7 +70,7 @@ public class LayoutSelectGUI implements AkarianInventory {
         }
 
         if (slot == 31) {
-            AuctionHouse.getInstance().getLayoutManager().createDefaultLayout(cloned.size() + 1 + "", false);
+            AuctionHouse.getInstance().getLayoutManager().createDefaultLayout(String.valueOf(cloned.size() + 1), false);
         } else if (slot == 34 && item.getType() == Material.NETHER_STAR) {
             page++;
             updateInventory();
@@ -104,14 +104,14 @@ public class LayoutSelectGUI implements AkarianInventory {
         }
 
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(cloned.size() / 18)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(28, previous);
         } else {
             inv.setItem(28, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         if (cloned.size() > 18 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(cloned.size() / 18)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(34, next);
         } else {
             inv.setItem(34, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -136,11 +136,6 @@ public class LayoutSelectGUI implements AkarianInventory {
         updateInventory();
 
         inv.setItem(31, ItemBuilder.build(Material.DIAMOND, 1, "&aNew Layout", Collections.singletonList("&7Click to create a new layout.")));
-
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(28, previous);
-        }
 
         return inv;
     }

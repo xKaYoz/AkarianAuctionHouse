@@ -131,7 +131,7 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(Material.LIGHT_GRAY_WOOL, 1, "&6Loading...", Collections.singletonList("&eYou can close this menu. It will reopen when updated.")));
         }
 
-        player.openInventory(inv);
+        Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> player.openInventory(inv));
 
         AuctionHouse.getInstance().getMySQL().setTransferring(player.getUniqueId());
         transferringMap.put(player.getUniqueId(), this);

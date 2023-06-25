@@ -11,11 +11,11 @@ public class Messages {
 
     private final FileManager fm;
     @Getter
-    private String safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings,
-            st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_sounds_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message, st_creativeListing_message, gui_cl_title, st_salesTax_name, st_salesTax_message;
+    private String incompatibleListingPrice, listingFeePoor, ahReloadComplete, ahReload, safeRemove, prefixIcon, createListing, expiredJoinMessage, gui_er_title, auctionHouseTitle, gui_aha_title, listingRemoved, listingBoughtBuyer, listingBoughtCreator, error_player, list_syntax, list_item, list_price, search_syntax, gui_ah_sn, gui_ah_sl, gui_ah_sr, gui_ah_cn, gui_buttons_ppn, gui_buttons_npn, gui_ah_st, gui_ah_in, gui_ah_en, gui_ah_stn, gui_cb_title, gui_buttons_cn, gui_buttons_dn, gui_le_pc, gui_le_ac, gui_le_title, gui_buttons_rt, gui_le_pn, gui_le_an, error_deleted, error_tooSmallStackSize, error_greaterThanZero, error_validPercentage, error_validNumber, error_poor, gui_sv_title, gui_st_title, gui_st_op, gui_st_tl, gui_st_cp, gui_st_ai, gui_st_lg, gui_st_st, gui_st_hg, gui_st_lw, minimumListing, maximumListing, cooldownTimer, expiredReclaim, maxListings,
+            st_admin_name, st_expire_name, st_expireTime_name, st_created_name, st_bought_name, st_sounds_name, st_autoConfirm_name, st_expireTime_message, st_expire_message, st_bought_message, st_created_message, st_listingFee_name, st_creativeListing_name, st_listingTime_name, st_listingFee_message, st_listingTime_message, st_creativeListing_message, gui_sound_title, gui_cl_title, st_salesTax_name, st_salesTax_message;
 
     @Getter
-    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore,
+    private List<String> listingLore, gui_aha_listing, gui_sv_sh, selfInfoCreator, selfInfoBuyer, gui_ah_sd, gui_ah_cd, gui_buttons_ppd, gui_buttons_npd, gui_ah_id, gui_ah_ed, gui_ah_std, gui_buttons_cd, gui_buttons_dd, gui_buttons_rd, gui_le_pd, gui_le_ad, gui_st_od, gui_st_td, gui_st_cd, gui_st_ad, expiredAdminLore, completedAdminLore, expiredLore, completedLore,
             st_admin_lore, st_expire_lore, st_expireTime_lore, st_created_lore, st_sounds_lore, st_bought_lore, st_autoConfirm_lore, gui_npc_lore, st_creativeListing_lore, st_listingFee_lore, st_listingTime_lore, gui_cl_lore, st_salesTax_lore;
     @Getter
     private YamlConfiguration messagesFile;
@@ -79,6 +79,27 @@ public class Messages {
                     messagesFile.set("Messages.Errors.Too Poor", "&cYou do not have enough money to purchase that.");
                 }
                 error_poor = messagesFile.getString("Messages.Errors.Too Poor");
+
+                if (!messagesFile.contains("Messages.Errors.Valid Number")) {
+                    messagesFile.set("Messages.Errors.Valid Number", "&cYou must provide a valid number.");
+                }
+                error_validNumber = messagesFile.getString("Messages.Errors.Valid Number");
+
+                if (!messagesFile.contains("Messages.Errors.Valid Percentage")) {
+                    messagesFile.set("Messages.Errors.Valid Percentage", "&cYou must provide a valid percentage.");
+                }
+                error_validPercentage = messagesFile.getString("Messages.Errors.Valid Percentage");
+
+                if (!messagesFile.contains("Messages.Errors.Greater Than Zero")) {
+                    messagesFile.set("Messages.Errors.Greater Than Zero", "&cThe amount must be greater than 0.");
+                }
+                error_greaterThanZero = messagesFile.getString("Messages.Errors.Greater Than Zero");
+
+                if (!messagesFile.contains("Messages.Errors.Too Small Stack Size")) {
+                    messagesFile.set("Messages.Errors.Too Small Stack Size", "&cThe amount must be less than the max stack size of the item.");
+                }
+                error_tooSmallStackSize = messagesFile.getString("Messages.Errors.Too Small Stack Size");
+
             }
             /*Settings*/
             {
@@ -183,7 +204,7 @@ public class Messages {
                 st_created_lore = messagesFile.getStringList("Settings.Listing Created.Lore");
 
                 if(!messagesFile.contains("Settings.Listing Created.Message")) {
-                    messagesFile.set("Settings.Listing Created.Message", "&e%seller%&f has created a listing for &e%listing%&f for &2$%price%&f.");
+                    messagesFile.set("Settings.Listing Created.Message", "&e%seller%&f has created a listing for &e%listing%&f for &2%price%&f.");
                 }
                 st_created_message = messagesFile.getString("Settings.Listing Created.Message");
 
@@ -339,6 +360,29 @@ public class Messages {
                 }
                 safeRemove = messagesFile.getString("Messages.Safe Remove");
 
+                //Cannot afford listing fee Message
+                if (!messagesFile.contains("Messages.Cannot Afford Listing Fee")) {
+                    messagesFile.set("Messages.Cannot Afford Listing Fee", "&cYou do not have enough money to cover the listing fee.");
+                }
+                listingFeePoor = messagesFile.getString("Messages.Cannot Afford Listing Fee");
+
+                //Listing Edit Incompatible Price
+                if (!messagesFile.contains("Messages.Listing Edit Incompatible Price")) {
+                    messagesFile.set("Messages.Listing Edit Incompatible Price", "&cYou must provide a compatible price.");
+                }
+                incompatibleListingPrice = messagesFile.getString("Messages.Listing Edit Incompatible Price");
+
+                //Auction House Reload Message
+                if (!messagesFile.contains("Messages.Auction House Reload")) {
+                    messagesFile.set("Messages.Auction House Reload", "&7Reloading...");
+                }
+                ahReload = messagesFile.getString("Messages.Auction House Reload");
+
+                //Auction House Reload Complete Message
+                if (!messagesFile.contains("Messages.Auction House Reload Complete")) {
+                    messagesFile.set("Messages.Auction House Reload Complete", "&aReload complete.");
+                }
+                ahReloadComplete = messagesFile.getString("Messages.Auction House Reload Complete");
             }
         }
 
@@ -599,6 +643,26 @@ public class Messages {
                 }
                 completedAdminLore = messagesFile.getStringList("GUIs.AuctionHouse.Completed.Admin Description");
 
+                //Version 2
+                if (!messagesFile.contains("GUIs.AuctionHouse.Completed.Description")) {
+
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------------");
+                    lore.add("");
+                    lore.add("  &fStarted &8&m&l-&e %start%");
+                    lore.add("  &fBought &8&m&l-&e %end%");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
+                    lore.add("  &fSeller &8&m&l-&e %seller%");
+                    lore.add("");
+                    lore.add("%shulker%");
+                    lore.add("  &7Left click to claim listing.");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Completed.Description", lore);
+
+                }
+                completedLore = messagesFile.getStringList("GUIs.AuctionHouse.Completed.Description");
+
                 if (!messagesFile.contains("GUIs.AuctionHouse.Seller Tag")) {
                     messagesFile.set("GUIs.AuctionHouse.Seller Tag", "seller");
                 }
@@ -815,6 +879,13 @@ public class Messages {
                 }
                 gui_cl_title = messagesFile.getString("GUIs.Confirm List.Title");
             }
+            /* Sound Select GUI */
+            {
+                if (!messagesFile.contains("GUIs.Main Sound.Title")) {
+                    messagesFile.set("GUIs.Main Sound.Title", "&6Select Sound to Change...");
+                }
+                gui_sound_title = messagesFile.getString("GUIs.Main Sound.Title");
+            }
         }
 
         /* Templates
@@ -840,31 +911,45 @@ public class Messages {
     }
 
     public void checkVersion() {
-        if (version == 0) {
-            AuctionHouse.getInstance().getChat().log("Starting Message file update. Version 1", AuctionHouse.getInstance().isDebug());
-            //Listing lore to add taxes and total cost
-            if (listingLore.size() == 10) {
-                AuctionHouse.getInstance().getChat().log("Changed Listing Lore message.", AuctionHouse.getInstance().isDebug());
-                List<String> lore = new ArrayList<>();
-                lore.add("&8&m&l---------------------------");
-                lore.add("");
-                lore.add("  &fTime Left &8&m&l-&e %time%");
-                lore.add("  &fCreator &8&m&l-&e %creator%");
-                lore.add("");
-                lore.add("  &fPrice &8&m&l-&2 %price%");
-                lore.add("  &fTax &8&m&l-&2 %tax%");
-                lore.add("  &fTotal &8&m&l-&2 %total%");
-                lore.add("");
-                lore.add("%shulker%");
-                lore.add("%self_info%");
-                lore.add("");
-                lore.add("&8&m&l---------------------------");
-                messagesFile.set("GUIs.AuctionHouse.Listing.Description", lore);
-            }
-            listingLore = messagesFile.getStringList("GUIs.AuctionHouse.Listing.Description");
-            version = 1;
-            messagesFile.set("Version", 1);
-            AuctionHouse.getInstance().getChat().log("Message File update complete. Now version 1", AuctionHouse.getInstance().isDebug());
+
+        switch (version) {
+            case 0:
+                AuctionHouse.getInstance().getChat().log("Starting Message file update. Version 1", AuctionHouse.getInstance().isDebug());
+                //Listing lore to add taxes and total cost
+                if (listingLore.size() == 10) {
+                    AuctionHouse.getInstance().getChat().log("Changed Listing Lore message.", AuctionHouse.getInstance().isDebug());
+                    List<String> lore = new ArrayList<>();
+                    lore.add("&8&m&l---------------------------");
+                    lore.add("");
+                    lore.add("  &fTime Left &8&m&l-&e %time%");
+                    lore.add("  &fCreator &8&m&l-&e %creator%");
+                    lore.add("");
+                    lore.add("  &fPrice &8&m&l-&2 %price%");
+                    lore.add("  &fTax &8&m&l-&2 %tax%");
+                    lore.add("  &fTotal &8&m&l-&2 %total%");
+                    lore.add("");
+                    lore.add("%shulker%");
+                    lore.add("%self_info%");
+                    lore.add("");
+                    lore.add("&8&m&l---------------------------");
+                    messagesFile.set("GUIs.AuctionHouse.Listing.Description", lore);
+                }
+                listingLore = messagesFile.getStringList("GUIs.AuctionHouse.Listing.Description");
+                version = 1;
+                messagesFile.set("Version", 1);
+                AuctionHouse.getInstance().getChat().log("Message File update complete. Now version " + version, true);
+                break;
+            case 1:
+                messagesFile.set("GUIs.Buttons.Next Page.Name", messagesFile.getString("GUIs.Buttons.Next Page.Name") + " &7&o(%next%/%max%)");
+                messagesFile.set("GUIs.Buttons.Previous Page.Name", messagesFile.getString("GUIs.Buttons.Previous Page.Name") + " &7&o(%previous%/%max%)");
+                version = 2;
+                messagesFile.set("Version", 2);
+                AuctionHouse.getInstance().getChat().log("Message File update complete. Now version " + version, true);
+                break;
+            case 2:
+                messagesFile.set("GUIs.Expire Reclaim.Title", "&6&lListing Reclaim");
+                version = 3;
+                break;
         }
         fm.saveFile(messagesFile, "messages");
     }

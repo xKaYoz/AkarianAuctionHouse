@@ -26,11 +26,11 @@ public class AuctionHouseGUI implements AkarianInventory {
     @Getter
     private static final HashMap<UUID, AuctionHouseGUI> searchMap = new HashMap<>();
     @Getter
-    private int page;
-    @Getter
     private final Player player;
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final Layout layout;
+    @Getter
+    private int page;
     @Getter
     @Setter
     private SortType sortType;
@@ -40,7 +40,7 @@ public class AuctionHouseGUI implements AkarianInventory {
     private String searchStr = "";
     @Getter
     @Setter
-    private List<Listing> listings;
+    private ArrayList<Listing> listings;
     @Getter
     private Inventory inv;
     @Getter
@@ -48,6 +48,7 @@ public class AuctionHouseGUI implements AkarianInventory {
     @Getter
     @Setter
     private boolean sortBool;
+    private boolean update;
 
     /**
      * Auction House GUI
@@ -62,12 +63,15 @@ public class AuctionHouseGUI implements AkarianInventory {
         this.sortType = sortType;
         this.sortBool = sortBool;
         this.page = page;
-        this.adminMode = false;
         this.layout = AuctionHouse.getInstance().getLayoutManager().getActiveLayout();
+        this.listings = new ArrayList<>();
+        this.adminMode = AuctionHouse.getInstance().getUserManager().getUser(player).isAdminMode();
+        update = true;
     }
 
     public AuctionHouseGUI adminMode() {
         this.adminMode = true;
+        AuctionHouse.getInstance().getUserManager().getUser(player).setAdminMode(true);
         return this;
     }
 
@@ -81,6 +85,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         this.search = !search.equals("");
         this.searchStr = search;
         this.page = 1;
+        update = true;
         return this;
     }
 
@@ -88,13 +93,16 @@ public class AuctionHouseGUI implements AkarianInventory {
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         if (slot == layout.getAdminButton()) {
+            update = true;
             if (layout.getAdminButton() != -1) {
                 if (player.hasPermission("auctionhouse.admin.manage")) {
                     adminMode = !adminMode;
-                    if (!adminMode)
+                    if (!adminMode) {
                         inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
-                    else {
+                        AuctionHouse.getInstance().getUserManager().getUser(player).setAdminMode(false);
+                    } else {
                         inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
+                        AuctionHouse.getInstance().getUserManager().getUser(player).setAdminMode(true);
                     }
                 }
             }
@@ -103,9 +111,9 @@ public class AuctionHouseGUI implements AkarianInventory {
             player.closeInventory();
             return;
         } else if (layout.getPreviousPageButtons().contains(slot) && page != 1) {
-            if (adminMode)
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).adminMode().getInventory());
-            else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page - 1)).getInventory());
+            page--;
+            update = true;
+            updateInventory();
             return;
         } else if (slot == layout.getSearchButton()) {
             player.closeInventory();
@@ -114,17 +122,21 @@ public class AuctionHouseGUI implements AkarianInventory {
             chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
             return;
         } else if (slot == layout.getExpiredItemsButton()) {
+            update = true;
             player.openInventory(new ExpireReclaimGUI(player, this, 1).getInventory());
             return;
         } else if (slot == layout.getSortButton()) {
+            update = true;
             player.openInventory(new SortGUI(this).getInventory());
             return;
         } else if (layout.getNextPageButtons().contains(slot) && (listings.size() > layout.getListingItems().size() * page)) {
-            if (adminMode)
-                player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
-            else player.openInventory(new AuctionHouseGUI(player, sortType, sortBool, (page + 1)).getInventory());
+            page++;
+            update = true;
+            updateInventory();
             return;
         }
+
+        //TODO Validate that new page buttons work.
 
         //Is a Listing
 
@@ -182,8 +194,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             //View shulker or confirm buy
             if (itemStack.getType() == Material.SHULKER_BOX)
                 player.openInventory(new ShulkerViewGUI(player, listing, this).getInventory());
-            else
-                player.openInventory(new ConfirmBuyGUI(player, listing, this).getInventory());
+            else player.openInventory(new ConfirmBuyGUI(player, listing, this).getInventory());
         }
 
     }
@@ -198,69 +209,26 @@ public class AuctionHouseGUI implements AkarianInventory {
         }
 
         //Admin Button
-        if(layout.getAdminButton() != -1) {
+        if (layout.getAdminButton() != -1) {
             if (player.hasPermission("auctionhouse.admin.manage")) {
-                if (!adminMode)
+                if (!adminMode) {
                     inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
-                else {
+                } else {
                     inv.setItem(layout.getAdminButton(), ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
                 }
             }
         }
 
         //Close Button
-        if(layout.getExitButton() != -1)
+        if (layout.getExitButton() != -1)
             inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
 
         //Listings
-        updateInventory();
-
-        //Previous Page
-        if (!layout.getPreviousPageButtons().contains(-1)) {
-            if (page != 1) {
-                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-                for (Integer i : layout.getPreviousPageButtons()) {
-                    inv.setItem(i, previous);
-                }
-            } else {
-                if (layout.isSpacerPageItems()) {
-                    for (Integer i : layout.getPreviousPageButtons()) {
-                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
-                    }
-                }
-            }
-        }
-
-        //Next Page
-        if (!layout.getNextPageButtons().contains(-1)) {
-            if (listings.size() > layout.getListingItems().size() * page) {
-                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-                for (Integer i : layout.getNextPageButtons()) {
-                    inv.setItem(i, next);
-                }
-            } else {
-                if (layout.isSpacerPageItems()) {
-                    for (Integer i : layout.getNextPageButtons()) {
-                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
-                    }
-                }
-            }
-        }
+        Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), this::updateInventory);
 
         //Search Item
         if (layout.getSearchButton() != -1)
             inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
-
-        //Info Item
-        List<String> infoDesc = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
-            else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
-        }
-        if (layout.getInfoButton() != -1)
-            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
 
         //Expired Reclaim Item
         if (layout.getExpiredItemsButton() != -1)
@@ -270,63 +238,6 @@ public class AuctionHouseGUI implements AkarianInventory {
         if (layout.getSortButton() != -1)
             inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
 
-        /* OLD
-
-        //Top Lining
-        for (int i = 0; i <= 7; i++) {
-            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
-        }
-        //Admin Button
-        if (player.hasPermission("auctionhouse.admin.manage")) {
-            if (!adminMode)
-                inv.setItem(1, ItemBuilder.build(Material.GRAY_DYE, 1, "&cAdmin Mode", Collections.singletonList("&cAdmin mode is disabled.")));
-            else {
-                inv.setItem(1, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
-            }
-        }
-        //Close Button
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
-
-        //Listings
-        updateInventory();
-
-
-        //Bottom Lining
-        for (int i = 45; i <= 53; i++) {
-            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
-        }
-
-        //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(45, previous);
-        }
-
-        //Next Page
-        if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(53, next);
-        }
-
-        //Search Item
-        inv.setItem(46, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
-
-        //Info Item
-        List<String> infoDesc = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
-            else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
-        }
-        inv.setItem(48, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
-
-        //Expired Reclaim Item
-        inv.setItem(50, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
-
-        //Sort Item
-        inv.setItem(52, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
-        */
         return inv;
     }
 
@@ -346,92 +257,54 @@ public class AuctionHouseGUI implements AkarianInventory {
         return true;
     }
 
-    private Listing[] sortedList() {
-
-        //Get all active listings and put them in an array
-        Listing[] listings = AuctionHouse.getInstance().getListingManager().getActive().toArray(new Listing[0]);
-
-        //Switch between the sort type and set according to the determined direction
-        switch (sortType) {
-            case OVERALL_PRICE:
-                if (!sortBool)
-                    Arrays.sort(listings, new PriceComparatorLG());
-                else
-                    Arrays.sort(listings, new PriceComparatorGL());
-
-                break;
-            case TIME_LEFT:
-                if (!sortBool)
-                    Arrays.sort(listings, new TimeRemainingComparatorLG());
-                else
-                    Arrays.sort(listings, new TimeRemainingComparatorGL());
-                break;
-            case AMOUNT:
-                if (!sortBool)
-                    Arrays.sort(listings, new AmountComparatorLG());
-                else
-                    Arrays.sort(listings, new AmountComparatorGL());
-                break;
-            case COST_PER_ITEM:
-                if (!sortBool)
-                    Arrays.sort(listings, new CostPerComparatorLG());
-                else
-                    Arrays.sort(listings, new CostPerComparatorGL());
-                break;
-        }
-
-        //Returns listings in correct order
-        return listings;
-    }
-
     public void updateInventory() {
 
-        List<Listing> searchedListings = new ArrayList<>();
-        //Loop through all listings that are sorted to check if they match the search query
-        for (Listing listing : sortedList()) {
-            if (!search) {
-                searchedListings.add(listing);
-            } else {
-                if (search(listing)) {
-                    searchedListings.add(listing);
+        if (AuctionHouse.getInstance().getListingManager().getActive().size() == 0) {
+            clear();
+            updateButtons();
+            return;
+        }
+
+        int amountToDisplay;
+        int amountCanDisplay = layout.getListingItems().size();
+        int end = page * amountCanDisplay;
+        int displayStart = end - amountCanDisplay;
+        ArrayList<Listing> activeListings;
+        if (update) {
+            activeListings = AuctionHouse.getInstance().getListingManager().getActive();
+            if (search) {
+                ArrayList<Listing> searchedListings = new ArrayList<>();
+                for (Listing listing : activeListings) {
+                    if (search(listing)) searchedListings.add(listing);
                 }
+                activeListings = searchedListings;
             }
+            activeListings = sortListings(activeListings);
+            listings = activeListings;
+        } else {
+            activeListings = listings;
         }
-        //Settings the stored listings to the listings we want to display
-        listings = searchedListings;
-        //Set the end of our displayed listings to the page multiplied by the amount of displayed items we have
-        int end = page * layout.getListingItems().size();
-        //Set the beginning of our displayed listings to the end minus the amount of displayed items we have
-        int display = end - layout.getListingItems().size();
-        //Set the display items we currently have to null to remove them
+        amountToDisplay = Math.min(activeListings.size(), amountCanDisplay);
+        ArrayList<ItemStack> displayItems = getDisplays(displayStart, amountToDisplay);
+        int tick = 0;
+
         for (Integer i : layout.getListingItems()) {
-            inv.setItem(i, null);
+            if (displayItems.size() <= tick) {
+                inv.setItem(i, null);
+            } else
+                inv.setItem(i, displayItems.get(tick));
+            tick++;
         }
 
-        //Loop through the predefined display items from the layout and setting them ti listings
-        for (Integer i : layout.getListingItems()) {
-            //Break from loop if the amount of listings is empty or if we are at the end of our allocated display items
-            if (listings.size() == 0 || display >= end || listings.size() == display) {
-                break;
-            }
-            //Get the listing in our desired location
-            Listing listing = listings.get(display);
-            if (listing.getItemStack() == null) {
-                return;
-            }
-            //Display the active listing
-            if (adminMode)
-                inv.setItem(i, listing.createAdminActiveListing(player));
-            else
-                inv.setItem(i, listing.createActiveListing(player));
-            //Increment our display position
-            display++;
-        }
+        updateButtons();
 
+    }
+
+    private void updateButtons() {
         //Previous Page
         if (!layout.getPreviousPageButtons().contains(-1)) {
             if (page != 1) {
-                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
                 for (Integer i : layout.getPreviousPageButtons()) {
                     inv.setItem(i, previous);
                 }
@@ -447,7 +320,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Next Page
         if (!layout.getNextPageButtons().contains(-1)) {
             if (listings.size() > layout.getListingItems().size() * page) {
-                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
                 for (Integer i : layout.getNextPageButtons()) {
                     inv.setItem(i, next);
                 }
@@ -464,60 +337,169 @@ public class AuctionHouseGUI implements AkarianInventory {
         List<String> infoDesc = new ArrayList<>();
         for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
+                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size()))));
             else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
+                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size())));
         }
+        if (layout.getInfoButton() != -1)
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
 
-        /*int end = page * layout.getListingItems().size();
-        int start = end - layout.getListingItems().size();
-        int t = start;
-        int slot = layout.getListingItems().get(0);
+    }
 
-        for (int i = 9; i <= 44; i++) {
+    private void clear() {
+        //Set the display items we currently have to null to remove them
+        for (Integer i : layout.getListingItems()) {
             inv.setItem(i, null);
         }
+    }
 
-        for (int i = start; i <= end; i++) {
-            if (listings.size() == t || t >= end) {
+    public ArrayList<Listing> sortListings(ArrayList<Listing> l) {
+        //Get all active listings and put them in an array
+        Listing[] listings = l.toArray(new Listing[0]);
+
+        //Switch between the sort type and set according to the determined direction
+        switch (sortType) {
+            case OVERALL_PRICE:
+                if (!sortBool) Arrays.sort(listings, new PriceComparatorLG());
+                else Arrays.sort(listings, new PriceComparatorGL());
+
+                break;
+            case TIME_LEFT:
+                if (!sortBool) Arrays.sort(listings, new TimeRemainingComparatorLG());
+                else Arrays.sort(listings, new TimeRemainingComparatorGL());
+                break;
+            case AMOUNT:
+                if (!sortBool) Arrays.sort(listings, new AmountComparatorLG());
+                else Arrays.sort(listings, new AmountComparatorGL());
+                break;
+            case COST_PER_ITEM:
+                if (!sortBool) Arrays.sort(listings, new CostPerComparatorLG());
+                else Arrays.sort(listings, new CostPerComparatorGL());
+                break;
+        }
+        return new ArrayList<>(Arrays.asList(listings));
+    }
+
+    /**
+     * @param start  display number
+     * @param amount amount to display
+     * @return List of created ItemStacks.
+     */
+    public ArrayList<ItemStack> getDisplays(int start, int amount) {
+        ArrayList<ItemStack> displays = new ArrayList<>();
+        List<Listing> activeListings = listings;
+
+
+        for (int i = start; i < start + amount; i++) {
+
+            if (i >= activeListings.size()) break;
+            Listing listing = activeListings.get(i);
+
+            if (adminMode) displays.add(listing.createAdminActiveListing(player));
+            else displays.add(listing.createActiveListing(player));
+
+        }
+
+        return displays;
+    }
+
+     /*public void updateInventory() {
+
+        List<Listing> searchedListings = new ArrayList<>();
+        boolean needsNewListings;
+
+        if (listings.isEmpty()) {
+            if (AuctionHouse.getInstance().getListingManager().getActive().isEmpty()) {
+                return;
+            } else {
+                needsNewListings = true;
+            }
+        } else {
+            needsNewListings = false;
+            for (Listing listing : listings) {
+                if (!listing.isActive()) {
+                    needsNewListings = true;
+                }
+            }
+        }
+
+        if (needsNewListings) {
+            for (Listing listing : sortedList()) {
+                if (!search) {
+                    searchedListings.add(listing);
+                } else {
+                    if (search(listing)) {
+                        searchedListings.add(listing);
+                    }
+                }
+            }
+            //Settings the stored listings to the listings we want to display
+            listings = searchedListings;
+        }
+
+        //Set the end of our displayed listings to the page multiplied by the amount of displayed items we have
+        int end = page * layout.getListingItems().size();
+        //Set the beginning of our displayed listings to the end minus the amount of displayed items we have
+        int display = end - layout.getListingItems().size();
+
+        //Loop through the predefined display items from the layout and setting them to listings
+        for (Integer i : layout.getListingItems()) {
+            //Break from loop if the amount of listings is empty or if we are at the end of our allocated display items
+            if (listings.size() == 0 || display >= end || listings.size() == display) {
                 break;
             }
-            Listing listing = listings.get(i);
-            if (adminMode)
-                inv.setItem(slot, listing.createAdminActiveListing(player));
-            else
-                inv.setItem(slot, listing.createActiveListing(player));
-            slot++;
-            t++;
+            //Get the listing in our desired location
+            Listing listing = listings.get(display);
+            if (listing.getItemStack() == null) {
+                return;
+            }
+            //Display the active listing
+            if (adminMode) inv.setItem(i, listing.createAdminActiveListing(player));
+            else inv.setItem(i, listing.createActiveListing(player));
+            //Increment our display position
+            display++;
+        }
+
+        //Previous Page
+        if (!layout.getPreviousPageButtons().contains(-1)) {
+            if (page != 1) {
+                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(listings.size() / layout.getListingItems().size())), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+                for (Integer i : layout.getPreviousPageButtons()) {
+                    inv.setItem(i, previous);
+                }
+            } else {
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getPreviousPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
+            }
+        }
+
+        //Next Page
+        if (!layout.getNextPageButtons().contains(-1)) {
+            if (listings.size() > layout.getListingItems().size() * page) {
+                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(listings.size() / layout.getListingItems().size())), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+                for (Integer i : layout.getNextPageButtons()) {
+                    inv.setItem(i, next);
+                }
+            } else {
+                if (layout.isSpacerPageItems()) {
+                    for (Integer i : layout.getNextPageButtons()) {
+                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
+                    }
+                }
+            }
         }
 
         //Info Item
         List<String> infoDesc = new ArrayList<>();
         for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
+                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size()))));
             else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
+                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size())));
         }
-        inv.setItem(48, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
-
-
-        //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(45, previous);
-        } else {
-            inv.setItem(45, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
-        }
-
-        //Next Page
-        if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(53, next);
-        } else {
-            inv.setItem(53, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
-        } */
-
-    }
+    } */
 }
 

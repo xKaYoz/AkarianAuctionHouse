@@ -5,4 +5,5 @@ public enum SortType {
     TIME_LEFT,
     COST_PER_ITEM,
     AMOUNT,
+    EXPIRE_TIME,
 }

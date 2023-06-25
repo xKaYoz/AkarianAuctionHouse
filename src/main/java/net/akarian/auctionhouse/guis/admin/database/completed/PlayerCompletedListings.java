@@ -21,32 +21,48 @@ import java.util.UUID;
 
 public class PlayerCompletedListings implements AkarianInventory {
 
-    private final int page;
     private final UUID uuid;
     private final Chat chat;
     private final Player player;
+    private final CompletedListingsGUI previousGUI;
+    private int page;
     private Inventory inv;
     private List<Listing> listings;
+    private boolean update;
 
-    public PlayerCompletedListings(Player player, UUID uuid, int page) {
+    /**
+     * @param player Player viewing the GUI
+     * @param uuid   UUID of player viewing
+     * @param page   Page of GUI
+     * @param gui    Previous GUI
+     */
+    public PlayerCompletedListings(Player player, UUID uuid, int page, CompletedListingsGUI gui) {
         this.player = player;
         this.uuid = uuid;
         this.page = page;
         this.chat = AuctionHouse.getInstance().getChat();
         this.listings = new ArrayList<>();
+        this.previousGUI = gui;
+        this.update = false;
     }
 
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
         switch (slot) {
             case 8:
-                p.openInventory(new CompletedListingsGUI(player, 1).getInventory());
+                p.openInventory(previousGUI.getInventory());
                 return;
             case 45:
-                p.openInventory(new PlayerCompletedListings(player, uuid, page - 1).getInventory());
+                if (page == 1) return;
+                page--;
+                update = true;
+                updateInventory();
                 return;
             case 53:
-                p.openInventory(new PlayerCompletedListings(player, uuid, page + 1).getInventory());
+                if (!(listings.size() > 36 * page)) break;
+                page++;
+                update = true;
+                updateInventory();
                 return;
         }
 
@@ -82,24 +98,16 @@ public class PlayerCompletedListings implements AkarianInventory {
 
         updateInventory();
 
-        //Previous Page
-        if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-            inv.setItem(45, previous);
-        }
-
-        //Next Page
-        if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-            inv.setItem(53, next);
-        }
-
         return inv;
     }
 
     public void updateInventory() {
 
+        List<Listing> oldListings = listings;
+
         listings = AuctionHouse.getInstance().getListingManager().getCompleted(uuid);
+
+        if (oldListings.equals(listings) && !update) return;
 
         int end = page * 36;
         int start = end - 36;
@@ -117,6 +125,20 @@ public class PlayerCompletedListings implements AkarianInventory {
             inv.setItem(slot, listings.get(i).createAdminCompleteListing(player));
             t++;
             slot++;
+        }
+
+        update = false;
+
+        //Previous Page
+        if (page != 1) {
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            inv.setItem(45, previous);
+        }
+
+        //Next Page
+        if (listings.size() > 36 * page) {
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            inv.setItem(53, next);
         }
 
     }

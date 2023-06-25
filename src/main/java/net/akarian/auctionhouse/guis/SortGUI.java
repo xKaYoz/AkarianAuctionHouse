@@ -24,6 +24,7 @@ public class SortGUI implements AkarianInventory {
     private Inventory inv;
 
     private final AuctionHouseGUI auctionHouseGUI;
+    private final ExpireReclaimGUI reclaimGUI;
 
     /**
      * Sort the AuctionHouse
@@ -32,58 +33,59 @@ public class SortGUI implements AkarianInventory {
      */
     public SortGUI(AuctionHouseGUI auctionHouseGUI) {
         this.auctionHouseGUI = auctionHouseGUI;
+        this.reclaimGUI = null;
         sortType = auctionHouseGUI.getSortType();
         sortBool = auctionHouseGUI.isSortBool();
     }
+
+    public SortGUI(ExpireReclaimGUI reclaimGUI) {
+        this.reclaimGUI = reclaimGUI;
+        this.auctionHouseGUI = null;
+        sortType = reclaimGUI.getSortType();
+        sortBool = reclaimGUI.isSortBool();
+    }
+
 
     @Override
     public void onGUIClick(Inventory inventory, Player player, int slot, ItemStack itemStack, ClickType clickType) {
 
         switch (slot) {
             case 8:
-                player.openInventory(auctionHouseGUI.getInventory());
-                break;
+                if (auctionHouseGUI == null)
+                    player.openInventory(reclaimGUI.getInventory());
+                else
+                    player.openInventory(auctionHouseGUI.getInventory());
+                return;
             case 10:
-                if (sortType == SortType.OVERALL_PRICE) {
-                    sortBool = clickType.isLeftClick();
-                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
-                } else {
-                    sortType = SortType.OVERALL_PRICE;
-                    auctionHouseGUI.setSortType(SortType.OVERALL_PRICE);
-                }
-                player.openInventory(getInventory());
+                sortBool = !sortBool;
+                sortType = SortType.OVERALL_PRICE;
                 break;
             case 12:
-                if (sortType == SortType.TIME_LEFT) {
-                    sortBool = clickType.isLeftClick();
-                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
+                sortBool = !sortBool;
+                if (auctionHouseGUI == null) {
+                    sortType = SortType.EXPIRE_TIME;
                 } else {
                     sortType = SortType.TIME_LEFT;
-                    auctionHouseGUI.setSortType(SortType.TIME_LEFT);
                 }
-                player.openInventory(getInventory());
                 break;
             case 14:
-                if (sortType == SortType.COST_PER_ITEM) {
-                    sortBool = clickType.isLeftClick();
-                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
-                } else {
-                    sortType = SortType.COST_PER_ITEM;
-                    auctionHouseGUI.setSortType(SortType.COST_PER_ITEM);
-                }
-                player.openInventory(getInventory());
+                sortBool = !sortBool;
+                sortType = SortType.COST_PER_ITEM;
                 break;
             case 16:
-                if (sortType == SortType.AMOUNT) {
-                    sortBool = clickType.isLeftClick();
-                    auctionHouseGUI.setSortBool(clickType.isLeftClick());
-                } else {
-                    sortType = SortType.AMOUNT;
-                    auctionHouseGUI.setSortType(SortType.AMOUNT);
-                }
-                updateInventory();
+                sortBool = !sortBool;
+                sortType = SortType.AMOUNT;
                 break;
         }
+
+        if (auctionHouseGUI == null) {
+            reclaimGUI.setSortBool(sortBool);
+            reclaimGUI.setSortType(sortType);
+        } else {
+            auctionHouseGUI.setSortBool(sortBool);
+            auctionHouseGUI.setSortType(sortType);
+        }
+        updateInventory();
 
     }
 
@@ -93,7 +95,7 @@ public class SortGUI implements AkarianInventory {
             inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_op(), highestList()));
         else
             inv.setItem(10, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_op(), AuctionHouse.getInstance().getMessages().getGui_st_od()));
-        if (sortType == SortType.TIME_LEFT)
+        if (sortType == SortType.TIME_LEFT || sortType == SortType.EXPIRE_TIME) //TODO Create own message
             inv.setItem(12, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), longestList()));
         else
             inv.setItem(12, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), AuctionHouse.getInstance().getMessages().getGui_st_td()));
