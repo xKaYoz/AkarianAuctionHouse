@@ -1,13 +1,11 @@
 package net.akarian.auctionhouse.guis;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.discord.DiscordWebhook;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.InventoryHandler;
 import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -17,9 +15,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-
-import static org.bukkit.Bukkit.getLogger;
 
 public class ConfirmListGUI implements AkarianInventory {
 
@@ -53,33 +48,11 @@ public class ConfirmListGUI implements AkarianInventory {
                 InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
                 AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), encoded, price);
                 player.playSound(player.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 5, 1);
-                sendWebhook(p.getDisplayName());
 
                 break;
             case RED_STAINED_GLASS_PANE:
                 player.closeInventory();
                 break;
-        }
-    }
-
-    private void sendWebhook(String username) {
-        username = ChatColor.stripColor(username);
-        getLogger().log(Level.INFO, username);
-        String itemName = chat.formatItem(itemStack);
-        getLogger().log(Level.INFO, itemName);
-        getLogger().log(Level.INFO, String.valueOf(price));
-        String webhookUrl = AuctionHouse.getInstance().getConfigFile().getDiscordWebhookURL();
-        if (webhookUrl.trim().isEmpty() || webhookUrl == null || webhookUrl.equals("")) {
-            return;
-        }
-        DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
-        webhook.setContent("**" + username + "** has created a listing of **" + itemName + "** in the AuctionHouse for **"
-                + chat.formatMoney(String.valueOf(price)) + "**");
-        webhook.setUsername(username + "@AuctionHouse");
-        try {
-            webhook.execute(); // Handle exception
-        } catch (Exception e) {
-            getLogger().log(Level.WARNING, e.toString());
         }
     }
 
