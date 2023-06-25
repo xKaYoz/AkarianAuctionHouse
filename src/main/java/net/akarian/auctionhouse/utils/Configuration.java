@@ -11,6 +11,9 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getLogger;
 
 public class Configuration {
 
@@ -20,7 +23,7 @@ public class Configuration {
     private String prefix, db_database, db_host, db_username, db_password, db_listings, db_expired, db_completed, db_users;
     @Getter
     @Setter
-    private String listingFee, listingTax;
+    private String listingFee, listingTax, discordWebhookURL;
     @Getter
     private DatabaseType databaseType;
     @Getter
@@ -223,7 +226,11 @@ public class Configuration {
                 configFile.set("Sounds.Listing Bought Sound.Pitch", 1);
             }
             listingBoughtPitch = configFile.getInt("Sounds.Listing Bought Sound.Pitch");
-
+          
+            if(!configFile.contains("DiscordWebhookURL")) {
+                configFile.set("DiscordWebhookURL", "");
+            }
+            discordWebhookURL = configFile.getString("DiscordWebhookURL");
 
         }
         /* MySQL */
@@ -354,6 +361,7 @@ public class Configuration {
             configFile.set("Sounds.Listing Bought Sound.Sound", listingBoughtSound.toString());
             configFile.set("Sounds.Listing Bought Sound.Volume", listingBoughtVolume);
             configFile.set("Sounds.Listing Bought Sound.Pitch", listingBoughtPitch);
+            configFile.set("DiscordWebhookURL", discordWebhookURL);
 
         }
         /* MySQL */

@@ -42,3 +42,8 @@ MySQL:
     Listings: ah_listings
     Completed: ah_completed
     Expired: ah_expired
+#Auction House Prices
+Minimum Listing: 10.00
+Maximum Listing: 1000000000.00
+Auction House Refresh Time: 1
+DiscordWebhookURL: ""
