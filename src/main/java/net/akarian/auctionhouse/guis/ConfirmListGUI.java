@@ -7,6 +7,7 @@ import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.InventoryHandler;
 import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
@@ -62,17 +63,18 @@ public class ConfirmListGUI implements AkarianInventory {
     }
 
     private void sendWebhook(String username) {
+        username = ChatColor.stripColor(username);
         getLogger().log(Level.INFO, username);
-        String itemName = itemStack.getType().toString();
-        getLogger().log(Level.INFO, itemStack.getType().toString());
+        String itemName = chat.formatItem(itemStack);
+        getLogger().log(Level.INFO, itemName);
         getLogger().log(Level.INFO, String.valueOf(price));
         String webhookUrl = AuctionHouse.getInstance().getConfigFile().getDiscordWebhookURL();
         if (webhookUrl.trim().isEmpty() || webhookUrl == null || webhookUrl.equals("")) {
             return;
         }
         DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
-        webhook.setContent("**" + username + "** inserted " + itemName + " in the AuctionHouse for **"
-                + String.valueOf(price) + "**");
+        webhook.setContent("**" + username + "** has created a listing of **" + itemName + "** in the AuctionHouse for **"
+                + chat.formatMoney(String.valueOf(price)) + "**");
         webhook.setUsername(username + "@AuctionHouse");
         try {
             webhook.execute(); // Handle exception
