@@ -2,12 +2,14 @@ package net.akarian.auctionhouse.listings;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.ExpireReclaimGUI;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.*;
 import net.akarian.auctionhouse.utils.events.ListingBoughtEvent;
 import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -29,17 +31,19 @@ public class ListingManager {
     private final MySQL mySQL;
     private final Chat chat;
     @Getter
-    private final List<Listing> active;
+    private final ArrayList<Listing> active;
     @Getter
-    private final List<Listing> unclaimed;
+    private final ArrayList<Listing> unclaimed;
     @Getter
-    private final List<Listing> expired;
+    private final ArrayList<Listing> expired;
     @Getter
-    private final List<Listing> completed;
+    private final ArrayList<Listing> completed;
     private final FileManager fm;
     private DatabaseType databaseType;
     private BukkitTask expireTimer;
     private BukkitTask refreshTimer;
+    private BukkitTask mysqlSyncTask;
+    private long mysqlSyncTime;
     private boolean transferring;
 
     public ListingManager() {
@@ -119,6 +123,7 @@ public class ListingManager {
                 fm.saveFile(listingsFile, "/database/listings");
                 chat.log("Transferred " + lt + " active listings from MySQL.", false);
                 chat.alert("Transferred " + lt + " active listings from MySQL.");
+                chat.alert("Now loading expired listings...");
                 statement.closeOnCompletion();
 
             } catch (Exception e) {
@@ -155,6 +160,7 @@ public class ListingManager {
                 fm.saveFile(expiredFile, "/database/expired");
                 chat.log("Transferred " + et + " expired listings from MySQL.", false);
                 chat.alert("Transferred " + et + " expired listings from MySQL.");
+                chat.alert("Now transferring completed listings...");
                 statement.closeOnCompletion();
 
             } catch (Exception e) {
@@ -178,6 +184,7 @@ public class ListingManager {
                     completedFile.set(id + ".Start", rs.getLong(5));
                     completedFile.set(id + ".End", rs.getLong(6));
                     completedFile.set(id + ".Buyer", rs.getString(7));
+                    completedFile.set(id + ".Reclaimed", rs.getBoolean(8));
 
                     ct.getAndIncrement();
 
@@ -189,6 +196,7 @@ public class ListingManager {
                 }
                 fm.saveFile(completedFile, "/database/completed");
                 chat.alert("Transferred " + ct + " completed listings from MySQL.");
+                chat.alert("Now transferring user profiles...");
                 statement.closeOnCompletion();
 
             } catch (Exception e) {
@@ -261,8 +269,11 @@ public class ListingManager {
         Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
             //Transfer listings and users
             int activeTransferred = mySQL.transferActiveListingsFromFileToMySQL();
+            chat.alert("Now transferring expired listings...");
             int expiredTransferred = mySQL.transferExpiredFromFileToMySQL();
+            chat.alert("Now transferring completed listings...");
             int completedTransferred = mySQL.transferCompletedFromFileToMySQL();
+            chat.alert("Now transferring user profiles...");
             int usersTransferred = mySQL.transferUsersFromFileToMySQL();
 
             //Set the database type to MySQL
@@ -436,39 +447,48 @@ public class ListingManager {
         return false;
     }
 
-    public List<Listing> getActive(UUID uuid) {
-        List<Listing> personal = new ArrayList<>();
+    public ArrayList<Listing> getActive(UUID uuid) {
+        ArrayList<Listing> personal = new ArrayList<>();
         for (Listing listing : active) {
             if (listing.getCreator().toString().equalsIgnoreCase(uuid.toString())) personal.add(listing);
         }
         return personal;
     }
 
-    public List<Listing> getExpired(UUID uuid) {
-        List<Listing> personal = new ArrayList<>();
+    public ArrayList<Listing> getExpired(UUID uuid) {
+        ArrayList<Listing> personal = new ArrayList<>();
         for (Listing listing : expired) {
             if (listing.getCreator().toString().equalsIgnoreCase(uuid.toString())) personal.add(listing);
         }
         return personal;
     }
 
-    public List<Listing> getCompleted(UUID uuid) {
-        List<Listing> personal = new ArrayList<>();
+    public ArrayList<Listing> getCompleted(UUID uuid) {
+        ArrayList<Listing> personal = new ArrayList<>();
         for (Listing listing : completed) {
             if (listing.getCreator().toString().equalsIgnoreCase(uuid.toString())) personal.add(listing);
         }
         return personal;
     }
 
+    public ArrayList<Listing> getUnclaimedCompleted(UUID uuid) {
+        ArrayList<Listing> unclaimed = new ArrayList<>();
+        for (Listing listing : completed) {
+            if (listing.getBuyer().toString().equalsIgnoreCase(uuid.toString()) && !listing.isReclaimed())
+                unclaimed.add(listing);
+        }
+        return unclaimed;
+    }
+
     /**
      * Create a new Listing
      *
-     * @param creator   Creator of the Auction
-     * @param itemStack Listing item
-     * @param price     Listing price
+     * @param creator Creator of the Auction
+     * @param encoded Listing item
+     * @param price   Listing price
      * @return New Listing object
      */
-    public Listing create(UUID creator, ItemStack itemStack, Double price) {
+    public Listing create(UUID creator, String encoded, Double price) {
         Player p = Bukkit.getPlayer(creator);
 
         //Take out the listing fee
@@ -477,27 +497,26 @@ public class ListingManager {
         UUID id = UUID.randomUUID();
         long start = System.currentTimeMillis();
 
-        //Remove item from Inventory
-        InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
-
         //Create our new listing
-        Listing listing = new Listing(id, creator, itemStack, price, start);
+        Listing listing = new Listing(id, creator, AuctionHouse.getInstance().decode(encoded), price, start);
+        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
         switch (databaseType) {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
 
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getListingsTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getListingsTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER,UPDATED) VALUES (?,?,?,?,?,?,?,?)");
 
 
                         statement.setString(1, id.toString());
-                        statement.setString(2, AuctionHouse.getInstance().encode(itemStack, false));
+                        statement.setString(2, encoded);
                         statement.setDouble(3, price);
                         statement.setString(4, creator.toString());
                         statement.setLong(5, start);
                         statement.setLong(6, 0);
                         statement.setString(7, null);
+                        statement.setLong(8, start);
 
                         active.add(listing);
 
@@ -505,24 +524,23 @@ public class ListingManager {
 
                         statement.close();
 
-                        chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
-
-                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
-
-                        p.getInventory().removeItem(itemStack);
-                        AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
-
-
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 });
+
+                chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
+
+                AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
+
+                Bukkit.getServer().getPluginManager().callEvent(new ListingCreateEvent(listing));
+
                 return listing;
             case FILE:
                 YamlConfiguration listingsFile = fm.getConfig("/database/listings");
                 active.add(listing);
 
-                listingsFile.set(id + ".ItemStack", AuctionHouse.getInstance().encode(itemStack, false));
+                listingsFile.set(id + ".ItemStack", encoded);
                 listingsFile.set(id + ".Price", price);
                 listingsFile.set(id + ".Creator", creator.toString());
                 listingsFile.set(id + ".Start", start);
@@ -530,8 +548,6 @@ public class ListingManager {
                 fm.saveFile(listingsFile, "/database/listings");
 
                 chat.log("Created listing " + chat.formatItem(listing.getItemStack()) + " " + id, AuctionHouse.getInstance().isDebug());
-
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
 
                 AuctionHouse.getInstance().getCooldownManager().setCooldown(p);
 
@@ -562,6 +578,8 @@ public class ListingManager {
         AuctionHouse.getInstance().getEcon().withdrawPlayer(buyer, price);
         AuctionHouse.getInstance().getEcon().depositPlayer(Bukkit.getOfflinePlayer(listing.getCreator()), listing.getPrice());
 
+        boolean claimed = InventoryHandler.canCarryItem(buyer.getPlayer(), listing.getItemStack(), true);
+
         long end = System.currentTimeMillis();
 
         AtomicBoolean ret = new AtomicBoolean(false);
@@ -572,7 +590,7 @@ public class ListingManager {
                     try {
                         remove(listing);
 
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER,CLAIMED) VALUES (?,?,?,?,?,?,?,?)");
 
                         statement.setString(1, listing.getId().toString());
                         statement.setString(2, AuctionHouse.getInstance().encode(listing.getItemStack(), false));
@@ -581,11 +599,10 @@ public class ListingManager {
                         statement.setLong(5, listing.getStart());
                         statement.setLong(6, end);
                         statement.setString(7, buyer.getUniqueId().toString());
+                        statement.setBoolean(8, claimed);
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
-
-                        completed.add(listing);
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -606,17 +623,20 @@ public class ListingManager {
                 completedFile.set(listing.getId().toString() + ".Start", listing.getStart());
                 completedFile.set(listing.getId().toString() + ".End", end);
                 completedFile.set(listing.getId().toString() + ".Buyer", buyer.getUniqueId().toString());
-
-                completed.add(listing);
+                completedFile.set(listing.getId().toString() + ".Reclaimed", claimed);
 
                 fm.saveFile(completedFile, "/database/completed");
                 break;
         }
 
-        InventoryHandler.addItem(buyer, listing.getItemStack());
+        listing.setComplete(buyer.getUniqueId(), end);
 
-        listing.setEnd(end);
-        listing.setBuyer(buyer.getUniqueId());
+        if (claimed)
+            InventoryHandler.addItem(buyer, listing.getItemStack());
+        else {
+            chat.sendMessage(buyer, "&cYou do not have enough space in your inventory. Open the Reclaim GUI to receive it.");
+            listing.setReclaimed(false);
+        }
 
         chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(price)));
 
@@ -624,8 +644,9 @@ public class ListingManager {
         chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getBuyer().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
         if (creator != null) {
             chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
-            if (AuctionHouse.getInstance().getUserManager().getUser(creator).getUserSettings().isSounds())
-                creator.playSound(creator.getLocation(), AuctionHouse.getInstance().getConfigFile().getListingBoughtSound(), 1, 1);
+            if (AuctionHouse.getInstance().getUserManager().getUser(creator) != null)
+                if (AuctionHouse.getInstance().getUserManager().getUser(creator).getUserSettings().isSounds())
+                    creator.playSound(creator.getLocation(), AuctionHouse.getInstance().getConfigFile().getListingBoughtSound(), 1, 1);
             return 2;
         }
         return 1;
@@ -643,10 +664,11 @@ public class ListingManager {
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
 
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET PRICE=? WHERE ID=?");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET PRICE=?,UPDATED=? WHERE ID=?");
 
                         statement.setDouble(1, newPrice);
-                        statement.setString(2, listing.getId().toString());
+                        statement.setLong(2, System.currentTimeMillis());
+                        statement.setString(3, listing.getId().toString());
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
@@ -710,12 +732,13 @@ public class ListingManager {
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
 
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET ITEM_STACK=? WHERE ID=?");
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET ITEM_STACK=?,UPDATED=? WHERE ID=?");
 
                         listing.getItemStack().setAmount(newAmount);
 
                         statement.setString(1, AuctionHouse.getInstance().encode(listing.getItemStack(), false));
-                        statement.setString(2, listing.getId().toString());
+                        statement.setLong(2, System.currentTimeMillis());
+                        statement.setString(3, listing.getId().toString());
 
                         statement.executeUpdate();
                         statement.closeOnCompletion();
@@ -795,19 +818,30 @@ public class ListingManager {
 
         Player creator = Bukkit.getPlayer(listing.getCreator());
 
-        if (creator != null && notify) {
-            chat.sendMessage(creator, "&fYour listing for &e" + chat.formatItem(listing.getItemStack()) + "&f has expired.");
-        }
-
         switch (databaseType) {
             case MYSQL:
                 AtomicInteger ret = new AtomicInteger(-2);
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
+
+                        PreparedStatement preCheck = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getExpiredTable() + " WHERE ID=?");
+                        preCheck.setString(1, listing.getId().toString());
+                        ResultSet rs = preCheck.executeQuery();
+
+                        if (rs.next()) {
+                            ret.set(-3);
+                            if (!rs.getBoolean(8)) {
+                                unclaimed.add(listing);
+                                active.remove(listing);
+                                expired.add(listing);
+                            }
+                            return;
+                        }
+
                         remove(listing);
 
                         long newEnd = System.currentTimeMillis();
-                        listing.setEnd(newEnd);
+                        listing.setExpired(newEnd, false);
 
                         PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getExpiredTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,REASON,RECLAIMED) VALUES (?,?,?,?,?,?,?,?)");
 
@@ -822,10 +856,20 @@ public class ListingManager {
 
                         statement.executeUpdate();
                         statement.close();
-                        unclaimed.add(listing);
-                        expired.add(listing);
-                        active.remove(listing);
                         ret.set(1);
+
+                        if (creator != null) {
+                            if (notify)
+                                chat.sendMessage(creator, "&fYour listing for &e" + chat.formatItem(listing.getItemStack()) + "&f has expired.");
+                            if (AuctionHouse.getInstance().getGuiManager().getGui().containsKey(creator.getUniqueId().toString())) {
+                                AkarianInventory inv = AuctionHouse.getInstance().getGuiManager().getGui().get(creator.getUniqueId().toString());
+                                if (inv instanceof ExpireReclaimGUI) {
+                                    ((ExpireReclaimGUI) inv).setUpdate(true);
+                                    inv.updateInventory();
+                                }
+                            }
+                        }
+
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -834,7 +878,6 @@ public class ListingManager {
             case FILE:
                 long newEnd = System.currentTimeMillis();
                 YamlConfiguration expiredFile = fm.getConfig("/database/expired");
-                listing.setEnd(newEnd);
                 expiredFile.set(listing.getId().toString() + ".ItemStack", AuctionHouse.getInstance().encode(listing.getItemStack(), false));
                 expiredFile.set(listing.getId().toString() + ".Price", listing.getPrice());
                 expiredFile.set(listing.getId().toString() + ".Creator", listing.getCreator().toString());
@@ -843,12 +886,23 @@ public class ListingManager {
                 expiredFile.set(listing.getId().toString() + ".Reason", reason);
                 expiredFile.set(listing.getId().toString() + ".Reclaimed", false);
 
-                unclaimed.add(listing);
-                active.remove(listing);
-                expired.add(listing);
+                listing.setExpired(newEnd, false);
 
                 fm.saveFile(expiredFile, "/database/expired");
                 remove(listing);
+
+                if (creator != null) {
+                    if (notify)
+                        chat.sendMessage(creator, "&fYour listing for &e" + chat.formatItem(listing.getItemStack()) + "&f has expired.");
+                    if (AuctionHouse.getInstance().getGuiManager().getGui().containsKey(creator.getUniqueId().toString())) {
+                        AkarianInventory inv = AuctionHouse.getInstance().getGuiManager().getGui().get(creator.getUniqueId().toString());
+                        if (inv instanceof ExpireReclaimGUI) {
+                            ((ExpireReclaimGUI) inv).setUpdate(true);
+                            inv.updateInventory();
+                        }
+                    }
+                }
+
                 return 1;
         }
         return 0;
@@ -866,10 +920,7 @@ public class ListingManager {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable() + " WHERE END=?");
-
-                        statement.setLong(1, 0);
-
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable());
                         ResultSet rs = statement.executeQuery();
 
                         while (rs.next()) {
@@ -885,9 +936,13 @@ public class ListingManager {
                             active.add(l);
                             num.getAndIncrement();
 
-                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         }
+
+                        chat.log("Loaded " + num.get() + " active listings.", AuctionHouse.getInstance().isDebug());
+                        mysqlSyncTime = System.currentTimeMillis();
+                        startMySQLSync();
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -900,25 +955,30 @@ public class ListingManager {
                 for (String str : map.keySet()) {
                     UUID id = UUID.fromString(str);
                     if (listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
+                    if (item == null || item.getType() == Material.AIR) {
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     if (!listingsFile.contains(str + ".Price")) {
-                        chat.log("Error while loading auction with price " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with price " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     double price = listingsFile.getDouble(str + ".Price");
                     if (!listingsFile.contains(str + ".Creator")) {
-                        chat.log("Error while loading auction with creator " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with creator " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
                     if (!listingsFile.contains(str + ".Start")) {
-                        chat.log("Error while loading auction with Start " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with Start " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
@@ -943,13 +1003,13 @@ public class ListingManager {
                     active.add(l);
                     num.getAndIncrement();
 
-                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
                 }
+                chat.log("Loaded " + num.get() + " active listings.", AuctionHouse.getInstance().isDebug());
                 break;
         }
         startExpireCheck();
         startAuctionHouseRefresh();
-        chat.log("Loaded " + num.get() + " active listings.", AuctionHouse.getInstance().isDebug());
         if (errors.get() > 0) {
             AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " auctions. Please review console to see which.");
             chat.log("There was an error loading " + errors.get() + " auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
@@ -987,11 +1047,12 @@ public class ListingManager {
                             l.setEnd(end);
                             l.setEndReason(reason);
                             l.setReclaimed(reclaimed);
+                            l.setExpired(true);
 
                             if (!reclaimed) unclaimed.add(l);
                             expired.add(l);
 
-                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                         }
                         chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
@@ -1009,11 +1070,16 @@ public class ListingManager {
 
                     UUID id = UUID.fromString(str);
                     if (listingsFile.getString(str + ".ItemStack") == null) {
-                        chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
                         continue;
                     }
                     ItemStack item = AuctionHouse.getInstance().decode(Objects.requireNonNull(listingsFile.getString(str + ".ItemStack")));
+                    if (item == null || item.getType() == Material.AIR) {
+                        chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
+                        errors.incrementAndGet();
+                        continue;
+                    }
                     double price = listingsFile.getDouble(str + ".Price");
                     UUID creator = UUID.fromString(Objects.requireNonNull(listingsFile.getString(str + ".Creator")));
                     long start = listingsFile.getLong(str + ".Start");
@@ -1027,11 +1093,12 @@ public class ListingManager {
                     l.setEndReason(reason);
                     l.setReclaimed(false);
                     l.setReclaimed(reclaimed);
+                    l.setExpired(true);
 
                     if (!reclaimed) unclaimed.add(l);
                     expired.add(l);
 
-                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded expired listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString(), AuctionHouse.getInstance().isDebug());
 
                 }
                 chat.log("Loaded " + expired.size() + " expired listings, " + unclaimed.size() + " of which are unclaimed.", AuctionHouse.getInstance().isDebug());
@@ -1063,15 +1130,18 @@ public class ListingManager {
                             long start = rs.getLong(5);
                             long end = rs.getLong(6);
                             UUID buyer = UUID.fromString(rs.getString(7));
+                            boolean reclaimed = rs.getBoolean(8);
 
                             Listing l = new Listing(id, creator, item, price, start);
 
                             l.setEnd(end);
                             l.setBuyer(buyer);
+                            l.setReclaimed(reclaimed);
+                            l.setCompleted(true);
 
                             completed.add(l);
 
-                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                            chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString() + " reclaimed=" + reclaimed, AuctionHouse.getInstance().isDebug());
 
                         }
                         chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
@@ -1098,15 +1168,22 @@ public class ListingManager {
                     long start = completedFile.getLong(str + ".Start");
                     long end = completedFile.getLong(str + ".End");
                     UUID buyer = UUID.fromString(Objects.requireNonNull(completedFile.getString(str + ".Buyer")));
+                    //Version 1.3.0_Pre-4 Adding Reclaimed to completed listings, listings already claimed.
+                    if (!completedFile.isBoolean(str + ".Reclaimed")) {
+                        completedFile.set(str + ".Reclaimed", true);
+                    }
+                    boolean reclaimed = completedFile.getBoolean(str + ".Reclaimed");
 
                     Listing l = new Listing(id, creator, item, price, start);
 
                     l.setEnd(end);
                     l.setBuyer(buyer);
+                    l.setReclaimed(reclaimed);
+                    l.setCompleted(true);
 
                     completed.add(l);
 
-                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()), AuctionHouse.getInstance().isDebug());
+                    chat.log("Loaded completed listing " + chat.formatItem(l.getItemStack()) + " id=" + l.getId().toString() + " reclaimed=" + reclaimed, AuctionHouse.getInstance().isDebug());
 
                 }
                 chat.log("Loaded " + completed.size() + " completed listings.", AuctionHouse.getInstance().isDebug());
@@ -1114,8 +1191,101 @@ public class ListingManager {
                     AuctionHouse.getInstance().getLogger().log(Level.SEVERE, "There was an error loading " + errors.get() + " completed auctions. Please review console to see which.");
                     chat.log("There was an error loading " + errors.get() + " completed auctions. Please review console to see which.", AuctionHouse.getInstance().isDebug());
                 }
+                fm.saveFile(completedFile, "/database/completed");
                 break;
         }
+    }
+
+    public int reclaimCompleted(Listing listing, Player player, boolean returnItem) {
+        AtomicInteger returnVal = new AtomicInteger(0);
+        if (listing.isReclaimed()) return -2;
+        if (returnItem) {
+            final ItemStack[] itemStack = {null};
+            switch (databaseType) {
+                case MYSQL:
+                    Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+
+                        try {
+
+                            PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getCompletedTable() + " WHERE ID=?");
+
+                            statement.setString(1, listing.getId().toString());
+
+                            ResultSet rs = statement.executeQuery();
+
+                            while (rs.next()) {
+                                if (rs.getBoolean(8)) {
+                                    listing.setReclaimed(true);
+                                    unclaimed.remove(listing);
+                                    returnVal.set(-2);
+                                } else {
+                                    itemStack[0] = AuctionHouse.getInstance().decode(rs.getString(2));
+                                    assert itemStack[0] != null;
+                                    if (!InventoryHandler.canCarryItem(player, itemStack[0], true)) {
+                                        chat.sendMessage(player, "&cYou do not have enough space in your inventory to hold this item.");
+                                        returnVal.set(-1);
+                                    } else {
+                                        InventoryHandler.addItem(player, itemStack[0]);
+                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                                    }
+                                }
+                            }
+                            statement.close();
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                    });
+                    break;
+                case FILE:
+                    YamlConfiguration completedFile = fm.getConfig("/database/completed");
+                    if (completedFile.getBoolean(listing.getId() + ".Reclaimed")) {
+                        listing.setReclaimed(true);
+                        return -2;
+                    }
+                    itemStack[0] = AuctionHouse.getInstance().decode(Objects.requireNonNull(completedFile.getString(listing.getId() + ".ItemStack")));
+                    assert itemStack[0] != null;
+                    if (!InventoryHandler.canCarryItem(player, itemStack[0], true)) {
+                        chat.sendMessage(player, "&cYou do not have enough space in your inventory to hold this item.");
+                        return -1;
+                    }
+                    InventoryHandler.addItem(player, itemStack[0]);
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                    listing.setReclaimed(true);
+                    break;
+            }
+        }
+        //Update the database
+        switch (databaseType) {
+            case MYSQL:
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    try {
+                        PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getCompletedTable() + " SET RECLAIMED=? WHERE ID=?");
+
+                        update.setBoolean(1, true);
+                        update.setString(2, listing.getId().toString());
+
+                        update.executeUpdate();
+                        update.closeOnCompletion();
+                        unclaimed.remove(listing);
+                        listing.setReclaimed(true);
+                        returnVal.set(1);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        returnVal.set(-3);
+                    }
+                });
+                return returnVal.get();
+            case FILE:
+                YamlConfiguration expiredFile = fm.getConfig("/database/completed");
+                expiredFile.set(listing.getId().toString() + ".Reclaimed", true);
+                fm.saveFile(expiredFile, "/database/completed");
+                listing.setReclaimed(true);
+                return 1;
+        }
+
+        return 0;
     }
 
     /**
@@ -1140,8 +1310,11 @@ public class ListingManager {
                             ResultSet rs = statement.executeQuery();
 
                             while (rs.next()) {
-                                if (rs.getBoolean(8)) ret.set(-2);
-                                else {
+                                if (rs.getBoolean(8)) {
+                                    listing.setReclaimed(true);
+                                    unclaimed.remove(listing);
+                                    ret.set(-2);
+                                } else {
                                     itemStack[0] = AuctionHouse.getInstance().decode(rs.getString(2));
                                     assert itemStack[0] != null;
                                     if (!InventoryHandler.canCarryItem(player, itemStack[0], true)) {
@@ -1161,7 +1334,11 @@ public class ListingManager {
                     break;
                 case FILE:
                     YamlConfiguration expiredFile = fm.getConfig("/database/expired");
-                    if (expiredFile.getBoolean(listing.getId() + ".Reclaimed")) return -2;
+                    if (expiredFile.getBoolean(listing.getId() + ".Reclaimed")) {
+                        unclaimed.remove(listing);
+                        listing.setReclaimed(true);
+                        return -2;
+                    }
                     itemStack[0] = AuctionHouse.getInstance().decode(Objects.requireNonNull(expiredFile.getString(listing.getId() + ".ItemStack")));
                     assert itemStack[0] != null;
                     if (!InventoryHandler.canCarryItem(player, itemStack[0], true)) {
@@ -1210,8 +1387,8 @@ public class ListingManager {
      * @param uuid UUID of player
      * @return List of ItemStack
      */
-    public List<Listing> getUnclaimedExpired(UUID uuid) {
-        List<Listing> a = new ArrayList<>();
+    public ArrayList<Listing> getUnclaimedExpired(UUID uuid) {
+        ArrayList<Listing> a = new ArrayList<>();
 
         for (Listing listing : unclaimed) {
             if (!listing.getCreator().toString().equalsIgnoreCase(uuid.toString())) continue;
@@ -1264,6 +1441,114 @@ public class ListingManager {
                 }
             }
         }, 0, 20);
+    }
+
+    public void startMySQLSync() {
+        if (AuctionHouse.getInstance().getDatabaseType() != DatabaseType.MYSQL) return;
+
+        AtomicInteger loaded = new AtomicInteger();
+        AtomicInteger complete = new AtomicInteger();
+        AtomicInteger expire = new AtomicInteger();
+
+        mysqlSyncTask = Bukkit.getScheduler().runTaskTimerAsynchronously(AuctionHouse.getInstance(), () -> {
+            long newSync = System.currentTimeMillis();
+            loaded.set(0);
+            complete.set(0);
+            expire.set(0);
+
+            if (AuctionHouse.getInstance().getDatabaseType() != DatabaseType.MYSQL)
+                Bukkit.getScheduler().cancelTask(mysqlSyncTask.getTaskId());
+
+            try {
+                PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable() + " WHERE UPDATED>=?");
+                statement.setLong(1, mysqlSyncTime);
+                ResultSet rs = statement.executeQuery();
+
+                while (rs.next()) {
+
+                    UUID id = UUID.fromString(rs.getString(1));
+                    ItemStack item = AuctionHouse.getInstance().decode(rs.getString(2));
+                    double price = rs.getDouble(3);
+                    UUID creator = UUID.fromString(rs.getString(4));
+                    long start = rs.getLong(5);
+
+                    Listing l;
+
+                    if (get(id) == null) {
+                        l = new Listing(id, creator, item, price, start);
+                        active.add(l);
+                    } else {
+                        l = get(id);
+                        l.setPrice(price);
+                        l.setItemStack(item);
+                    }
+
+                    loaded.incrementAndGet();
+                    chat.log("Synced listing " + id + ". item= " + chat.formatItem(item), AuctionHouse.getInstance().isDebug());
+                }
+
+                statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getCompletedTable() + " WHERE END>?");
+                statement.setLong(1, mysqlSyncTime);
+                rs = statement.executeQuery();
+
+                while (rs.next()) {
+                    UUID id = UUID.fromString(rs.getString(1));
+                    if (isCompleted(id)) {
+                        chat.log("Tried to sync completed listing " + id + " which is already completed.", AuctionHouse.getInstance().isDebug());
+                        continue;
+                    }
+                    long end = rs.getLong(6);
+                    UUID buyer = UUID.fromString(rs.getString(7));
+                    Listing listing = get(id);
+                    listing.setComplete(buyer, end);
+                    complete.incrementAndGet();
+                    chat.log("Synced bought listing " + id + " item= " + chat.formatItem(listing.getItemStack()) + " buyer= " + listing.getBuyer(), AuctionHouse.getInstance().isDebug());
+                }
+
+                statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getExpiredTable() + " WHERE END>?");
+                statement.setLong(1, mysqlSyncTime);
+                rs = statement.executeQuery();
+
+                while (rs.next()) {
+                    UUID id = UUID.fromString(rs.getString(1));
+                    if (isExpired(id)) {
+                        chat.log("Tried to sync expired listing " + id + " which is already expired.", AuctionHouse.getInstance().isDebug());
+                        continue;
+                    }
+                    long end = rs.getLong(6);
+                    boolean reclaimed = rs.getBoolean(8);
+                    Listing listing = get(id);
+                    listing.setExpired(end, reclaimed);
+                    expire.incrementAndGet();
+                    chat.log("Synced expired listing " + id + " item= " + chat.formatItem(listing.getItemStack()) + " reclaimed= " + reclaimed, AuctionHouse.getInstance().isDebug());
+                }
+
+                if (loaded.get() != 0)
+                    chat.log("Synced " + loaded.get() + " listings from MySQL.", AuctionHouse.getInstance().isDebug());
+                if (complete.get() != 0)
+                    chat.log("Synced " + complete.get() + " bought listings from MySQL", AuctionHouse.getInstance().isDebug());
+                if (expire.get() != 0)
+                    chat.log("Synced " + expire.get() + " expired listings from MySQL", AuctionHouse.getInstance().isDebug());
+
+                mysqlSyncTime = newSync;
+                statement.close();
+            } catch (Exception e) {
+                chat.log("There was an error while trying to sync with MySQL database", true);
+                e.printStackTrace();
+            }
+
+        }, 20 * 5, 20 * 5);
+
+    }
+
+    public boolean isCompleted(UUID uuid) {
+        for (Listing listing : completed) if (listing.getId().toString().equalsIgnoreCase(uuid.toString())) return true;
+        return false;
+    }
+
+    public boolean isExpired(UUID uuid) {
+        for (Listing listing : expired) if (listing.getId().toString().equalsIgnoreCase(uuid.toString())) return true;
+        return false;
     }
 
     /**

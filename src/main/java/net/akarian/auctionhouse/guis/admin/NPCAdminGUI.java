@@ -107,13 +107,13 @@ public class NPCAdminGUI implements AkarianInventory {
 
         //Previous Page
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(npcs.size() / 36)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
             inv.setItem(45, previous);
         }
 
         //Next Page
         if (npcs.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(npcs.size() / 36)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
             inv.setItem(53, next);
         }
 
@@ -163,7 +163,7 @@ public class NPCAdminGUI implements AkarianInventory {
             List<String> lore = new ArrayList<>();
 
             for(String s : AuctionHouse.getInstance().getMessages().getGui_npc_lore()) {
-                lore.add(s.replace("%x%", npc.getStoredLocation().getBlockX() + "").replace("%y%", ((int) npc.getStoredLocation().getY()) + "").replace("%z%", npc.getStoredLocation().getBlockZ() + ""));
+                lore.add(s.replace("%x%", String.valueOf(npc.getStoredLocation().getBlockX())).replace("%y%", String.valueOf((int) npc.getStoredLocation().getY())).replace("%z%", String.valueOf(npc.getStoredLocation().getBlockZ())));
             }
 
             meta.setLore(chat.formatList(lore));

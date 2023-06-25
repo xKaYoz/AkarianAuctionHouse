@@ -1,18 +1,35 @@
-#Plugin prefix
-Version: 0
-Prefix: "&6&lAuctionHouse"
+Version: 2
+Prefix: '&6&lAuctionHouse'
 Debug: false
-#Change to true if you want to bypass the bukkit UUID check
-UUID Bypass: false
-#This is how the database will be saved. Available types are FILE MYSQL
 database: FILE
-#Delay between listing times
-Listing Delay: 10
-Listing Time: 60000
-Listing Fee: 10%
-Sales Tax: 6%
-#Wheather or not to enable updates.
 updates: true
+UUID Bypass: false
+Minimum Listing: 10.0
+Maximum Listing: 1.0E9
+Listing Delay: 10
+Listing Time: 86400
+Listing Fee: 0%
+Sales Tax: 7%
+Spacer Item: GRAY_STAINED_GLASS_PANE
+Default Player Settings:
+  Admin Mode: false
+  Expire Notify: false
+  Expire Time: 300
+  Bought Notify: false
+  Create Notify: true
+  Auto Confirm Listing: false
+  Sounds: true
+Creative Listing: false
+Auction House Refresh Time: 1
+Sounds:
+  Create Listing Sound:
+    Sound: BLOCK_PISTON_CONTRACT
+    Volume: 5
+    Pitch: 1
+  Listing Bought Sound:
+    Sound: ENTITY_PLAYER_LEVELUP
+    Volume: 5
+    Pitch: 1
 #MySQL details if database is set accordingly
 MySQL:
   Connection:

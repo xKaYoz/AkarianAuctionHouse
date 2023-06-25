@@ -90,21 +90,26 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
 
     @Nullable
     @Override
-    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+    public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command cmd, @NotNull String alias, @NotNull String[] args) {
         List<String> result = new ArrayList<>();
         if (args.length == 1) {
-            result.add("expired");
-            result.add("help");
-            result.add("list");
-            result.add("search");
-            result.add("settings");
+
+            List<AkarianCommand> commands = new ArrayList<>();
+
+            for (AkarianCommand command : CommandManager.getInstance().getCommands().values()) {
+                if (sender.hasPermission(command.getPermission()) || sender.isOp()) commands.add(command);
+            }
+
+            for (AkarianCommand command : commands) {
+                result.add(command.getName());
+            }
             result.add(" ");
         }
 
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("list")) {
                 if (sender instanceof Player)
-                    result.add(AuctionHouse.getInstance().getConfigFile().getMinListing() + "");
+                    result.add(String.valueOf(AuctionHouse.getInstance().getConfigFile().getMinListing()));
             }
             if (args[0].equalsIgnoreCase("search")) {
                 for (Player p : Bukkit.getOnlinePlayers()) {

@@ -47,6 +47,9 @@ public class Listing {
     @Getter
     @Setter
     private boolean reclaimed;
+    @Getter
+    @Setter
+    private boolean expired, completed;
 
     public Listing(UUID id, UUID creator, ItemStack itemStack, Double price, Long start) {
         plugin = AuctionHouse.getInstance();
@@ -57,10 +60,20 @@ public class Listing {
         this.price = price;
         this.start = start;
         this.reclaimed = false;
+        this.expired = false;
+        this.completed = false;
     }
 
     public ItemStack createAdminActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+            return null;
+        }
+
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
@@ -89,17 +102,70 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else {
-                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
-                        .replace("%price%", chat.formatMoney(price)));
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%price%", chat.formatMoney(price)));
             }
         }
-        itemMeta.setLore(chat.formatList(tlore
-        ));
+        itemMeta.setLore(chat.formatList(tlore));
+        itemMeta.setDisplayName(chat.formatItem(itemStack));
+
+        itemStack.setItemMeta(itemMeta);
+        return itemStack;
+    }
+
+    public ItemStack createUnclaimedCompleteListing(Player player) {
+        ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            AuctionHouse.getInstance().getListingManager().getExpired().remove(this);
+            return null;
+        }
+
+        List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
+
+        if (itemStack.getType() == Material.SHULKER_BOX) {
+            lore = new ArrayList<>();
+        }
+
+        assert lore != null;
+
+        NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        assert itemMeta != null;
+        itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
+
+        for (String s : AuctionHouse.getInstance().getMessages().getCompletedLore()) {
+            if (s.equalsIgnoreCase("%shulker%")) {
+                if (itemStack.getType() == Material.SHULKER_BOX) {
+                    BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
+                    if (im.getBlockState() instanceof ShulkerBox) {
+                        ShulkerBox shulker = (ShulkerBox) im.getBlockState();
+                        int amount = 0;
+                        for (ItemStack si : shulker.getInventory().getContents()) {
+                            if (si != null) {
+                                amount += si.getAmount();
+                            }
+                        }
+                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                            lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
+                        }
+                    }
+                }
+            } else {
+                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator()))));
+                else
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator())));
+            }
+        }
+
+        itemMeta.setLore(chat.formatList(lore));
         itemMeta.setDisplayName(chat.formatItem(itemStack));
 
         itemStack.setItemMeta(itemMeta);
@@ -108,6 +174,14 @@ public class Listing {
 
     public ItemStack createAdminCompleteListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getCompleted().remove(this);
+            return null;
+        }
+
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
         if (itemStack.getType() == Material.SHULKER_BOX) {
@@ -136,21 +210,18 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price))).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
+                    tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price))).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
                 else
-                    tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
+                    tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
             }
         }
-        itemMeta.setLore(chat.formatList(tlore
-        ));
+        itemMeta.setLore(chat.formatList(tlore));
         itemMeta.setDisplayName(chat.formatItem(itemStack));
 
         itemStack.setItemMeta(itemMeta);
@@ -159,6 +230,12 @@ public class Listing {
 
     public ItemStack createExpiredListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            AuctionHouse.getInstance().getListingManager().getExpired().remove(this);
+            return null;
+        }
 
         List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -187,17 +264,15 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            lore.add(shulkers.replace("%amount%", amount + ""));
+                            lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price))));
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price))));
                 else
-                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price)));
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)));
             }
         }
 
@@ -210,6 +285,13 @@ public class Listing {
 
     public ItemStack createAdminExpiredListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            chat.sendMessage(player, "&cThere was an error while loading a listing. Please contact an admin to check the logs.");
+            AuctionHouse.getInstance().getListingManager().getExpired().remove(this);
+            return null;
+        }
 
         List<String> lore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -238,17 +320,15 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            lore.add(shulkers.replace("%amount%", amount + ""));
+                            lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
                 } else
-                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd()))
-                            .replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
             }
         }
 
@@ -263,8 +343,30 @@ public class Listing {
         return AuctionHouse.getInstance().getListingManager().getActive().contains(this);
     }
 
+    public void setComplete(UUID buyer, long end) {
+        this.buyer = buyer;
+        this.end = end;
+        this.completed = true;
+        AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+        AuctionHouse.getInstance().getListingManager().getCompleted().add(this);
+    }
+
+    public void setExpired(long end, boolean reclaimed) {
+        this.end = end;
+        this.expired = true;
+        AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+        AuctionHouse.getInstance().getListingManager().getExpired().add(this);
+        if (!reclaimed) AuctionHouse.getInstance().getListingManager().getUnclaimed().add(this);
+    }
+
     public ItemStack createActiveListing(Player player) {
         ItemStack itemStack = getItemStack().clone();
+
+        if (itemStack.getType() == Material.AIR) {
+            chat.log("Error while loading listing " + id.toString() + " from " + getCreator().toString() + ".", AuctionHouse.getInstance().isDebug());
+            AuctionHouse.getInstance().getListingManager().getActive().remove(this);
+            return null;
+        }
 
         List<String> tlore = itemStack.hasItemMeta() ? (itemStack.getItemMeta().hasLore() ? itemStack.getItemMeta().getLore() : new ArrayList<>()) : new ArrayList<>();
 
@@ -295,23 +397,20 @@ public class Listing {
                             }
                         }
                         for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
-                            tlore.add(shulkers.replace("%amount%", amount + ""));
+                            tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else if (s.equalsIgnoreCase("%self_info%")) {
                 if (getCreator().toString().equals(player.getUniqueId().toString())) {
                     tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoCreator());
-                } else
-                    tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
+                } else tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
             } else {
-                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator))
-                        .replace("%price%", chat.formatMoney(price)).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((price + tax))));
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%price%", chat.formatMoney(price)).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((price + tax))));
             }
         }
 
-        itemMeta.setLore(chat.formatList(tlore
-        ));
+        itemMeta.setLore(chat.formatList(tlore));
         itemMeta.setDisplayName(chat.formatItem(itemStack));
 
         itemStack.setItemMeta(itemMeta);

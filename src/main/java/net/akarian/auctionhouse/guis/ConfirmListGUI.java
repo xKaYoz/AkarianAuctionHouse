@@ -4,10 +4,10 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.discord.DiscordWebhook;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.InventoryHandler;
 import net.akarian.auctionhouse.utils.ItemBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
@@ -40,9 +40,20 @@ public class ConfirmListGUI implements AkarianInventory {
         switch (item.getType()) {
             case LIME_STAINED_GLASS_PANE:
                 player.closeInventory();
-                AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), itemStack, price);
-                player.playSound(player.getLocation(), Sound.BLOCK_PISTON_CONTRACT, 1, 1);
+
+                String encoded = AuctionHouse.getInstance().encode(itemStack, false);
+                ItemStack decoded = AuctionHouse.getInstance().decode(encoded);
+                if (decoded == null || decoded.getType() == Material.AIR) {
+                    chat.sendMessage(player, "There was an error creating this listing. Please try again.");
+                    player.closeInventory();
+                    return;
+                }
+                //Remove item from Inventory
+                InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
+                AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), encoded, price);
+                player.playSound(player.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 5, 1);
                 sendWebhook(p.getDisplayName());
+
                 break;
             case RED_STAINED_GLASS_PANE:
                 player.closeInventory();
