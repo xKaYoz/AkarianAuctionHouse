@@ -525,13 +525,13 @@ public class Messages {
                 gui_ah_id = messagesFile.getStringList("GUIs.AuctionHouse.Info Item.Description");
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Expired Listings.Name")) {
-                    messagesFile.set("GUIs.AuctionHouse.Expired Listings.Name", "&6Expired Listings");
+                    messagesFile.set("GUIs.AuctionHouse.Expired Listings.Name", "&6Claim Listings");
                 }
                 gui_ah_en = messagesFile.getString("GUIs.AuctionHouse.Expired Listings.Name");
 
                 if (!messagesFile.contains("GUIs.AuctionHouse.Expired Listings.Description")) {
                     List<String> lore = new ArrayList<>();
-                    lore.add("&7&oReclaim your expired listings.");
+                    lore.add("&7&oClaim your unclaimed listings.");
                     messagesFile.set("GUIs.AuctionHouse.Expired Listings.Description", lore);
                 }
                 gui_ah_ed = messagesFile.getStringList("GUIs.AuctionHouse.Expired Listings.Description");
@@ -948,8 +948,13 @@ public class Messages {
                 break;
             case 2:
                 messagesFile.set("GUIs.Expire Reclaim.Title", "&6&lListing Reclaim");
+                messagesFile.set("GUIs.AuctionHouse.Expired Listings.Name", "&6Claim Listings");
+                List<String> lore = new ArrayList<>();
+                lore.add("&7&oClaim your unclaimed listings.");
+                messagesFile.set("GUIs.AuctionHouse.Expired Listings.Description", lore);
                 version = 3;
                 break;
+
         }
         fm.saveFile(messagesFile, "messages");
     }

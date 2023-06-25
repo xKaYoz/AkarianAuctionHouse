@@ -230,7 +230,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         if (layout.getSearchButton() != -1)
             inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
 
-        //Expired Reclaim Item
+        //Reclaim Listings Item
         if (layout.getExpiredItemsButton() != -1)
             inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
 
