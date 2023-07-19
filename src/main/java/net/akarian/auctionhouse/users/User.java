@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.FileManager;
 import net.akarian.auctionhouse.utils.MySQL;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.sql.PreparedStatement;
@@ -37,35 +38,42 @@ public class User {
     }
 
     public void loadUserSettings() {
-
-        switch (AuctionHouse.getInstance().getDatabaseType()) {
-            case FILE:
-                YamlConfiguration usersFile = fm.getConfig("/database/users");
-                if (!usersFile.isConfigurationSection(uuid.toString())) {
-                    userSettings = createUserSettings().load();
-                } else {
-                    userSettings = new UserSettings(this).load();
-                }
-                break;
-            case MYSQL:
-                MySQL mySQL = AuctionHouse.getInstance().getMySQL();
-                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
-                    try {
-                        PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
-                        statement.setString(1, uuid.toString());
-                        ResultSet rs = statement.executeQuery();
-
-                        if (rs.next()) {
-                            userSettings = new UserSettings(User.this).load();
-                        } else {
-                            userSettings = createUserSettings().load();
-                        }
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
+        Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+            switch (AuctionHouse.getInstance().getDatabaseType()) {
+                case FILE:
+                    YamlConfiguration usersFile = fm.getConfig("/database/users");
+                    if (!usersFile.isConfigurationSection(uuid.toString())) {
+                        userSettings = createUserSettings().load();
+                    } else {
+                        userSettings = new UserSettings(this).load();
                     }
-                });
-        }
+                    break;
+                case MYSQL:
+                    MySQL mySQL = AuctionHouse.getInstance().getMySQL();
+                        try {
+                            PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT USERNAME FROM " + mySQL.getUsersTable() + " WHERE ID=?");
+                            statement.setString(1, uuid.toString());
+                            ResultSet rs = statement.executeQuery();
+
+                            if (rs.next()) {
+                                userSettings = new UserSettings(User.this).load();
+                            } else {
+                                userSettings = createUserSettings().load();
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+            }
+
+            OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(uuid);
+            if (!this.getUsername().equals(offPlayer.getName())) {
+                final String oldUsername = this.getUsername();
+                this.setUsername(offPlayer.getName());
+                this.getUserSettings().saveUsername();
+                AuctionHouse.getInstance().getChat().log("Saved new username for " + uuid + " - New: " + this.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
+            }
+        });
     }
 
 }
