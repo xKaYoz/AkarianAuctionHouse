@@ -7,6 +7,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.FileManager;
 import net.akarian.auctionhouse.utils.MySQL;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.sql.PreparedStatement;
@@ -115,6 +116,16 @@ public class UserSettings {
                 if (!usersFile.contains(user.getUuid().toString() + ".Username")) {
                     usersFile.set(user.getUuid().toString() + ".Username", Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())).getName());
                 }
+
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(user.getUuid()); // Running async because this makes an api call
+                    if (!user.getUsername().equals(offPlayer.getName())) {
+                        final String oldUsername = user.getUsername();
+                        user.setUsername(offPlayer.getName());
+                        user.getUserSettings().saveUsername();
+                        AuctionHouse.getInstance().getChat().log("Saved new username for " + user.getUuid() + " - New: " + user.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
+                    }
+                });
                 break;
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
@@ -134,6 +145,14 @@ public class UserSettings {
                             alertListingBought = rs.getBoolean(7);
                             autoConfirmListing = rs.getBoolean(8);
                             sounds = rs.getBoolean(9);
+                        }
+
+                        OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(user.getUuid());
+                        if (!user.getUsername().equals(offPlayer.getName())) {
+                            final String oldUsername = user.getUsername();
+                            user.setUsername(offPlayer.getName());
+                            user.getUserSettings().saveUsername();
+                            AuctionHouse.getInstance().getChat().log("Saved new username for " + user.getUuid() + " - New: " + user.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
                         }
 
                     } catch (Exception e) {

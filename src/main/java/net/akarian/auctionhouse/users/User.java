@@ -65,14 +65,6 @@ public class User {
                             e.printStackTrace();
                         }
             }
-
-            OfflinePlayer offPlayer = Bukkit.getOfflinePlayer(uuid);
-            if (!this.getUsername().equals(offPlayer.getName())) {
-                final String oldUsername = this.getUsername();
-                this.setUsername(offPlayer.getName());
-                this.getUserSettings().saveUsername();
-                AuctionHouse.getInstance().getChat().log("Saved new username for " + uuid + " - New: " + this.getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
-            }
         });
     }
 
