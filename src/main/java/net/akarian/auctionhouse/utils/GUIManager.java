@@ -138,35 +138,28 @@ public class GUIManager implements Listener {
                     p.setItemOnCursor(ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Collections.singletonList("&aAdmin mode is enabled.")));
                     gui.setAdminButton(false);
                 } else if (gui.isCloseButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
                     gui.setCloseButton(false);
                 } else if (gui.isListingItem()) {
                     p.setItemOnCursor(ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Place where you want listings to be placed.")));
                     gui.setListingItem(false);
                 } else if (gui.isInformationButton()) {
-                    List<String> infoDesc = new ArrayList<>();
-                    for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-                        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                            infoDesc.add(PlaceholderAPI.setPlaceholders(p, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(p))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size()))));
-                        else
-                            infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(p))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size())));
-                    }
-                    p.setItemOnCursor(ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+                    p.setItemOnCursor(ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + p.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(p)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
                     gui.setInformationButton(false);
                 } else if (gui.isNextPageButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE)));
                     gui.setNextPageButton(false);
                 } else if (gui.isPreviousPageButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE)));
                     gui.setPreviousPageButton(false);
                 } else if (gui.isSearchButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SEARCH_LORE)));
                     gui.setSearchButton(false);
                 } else if (gui.isSortButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SORT_LORE)));
                     gui.setSortButton(false);
                 } else if (gui.isExpiredListingsButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+                    p.setItemOnCursor(ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_UNCLAIMED_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_UNCLAIMED_LORE)));
                     gui.setExpiredListingsButton(false);
                 }
             }

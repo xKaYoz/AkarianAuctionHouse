@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -113,7 +114,7 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
             }
             if (args[0].equalsIgnoreCase("search")) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
-                    result.add(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":" + p.getName());
+                    result.add(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_SELLERTAG) + ":" + p.getName());
                 }
             }
         }

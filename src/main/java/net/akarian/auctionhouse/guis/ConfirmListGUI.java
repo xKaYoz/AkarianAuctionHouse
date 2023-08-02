@@ -1,10 +1,7 @@
 package net.akarian.auctionhouse.guis;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.utils.AkarianInventory;
-import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.InventoryHandler;
-import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -64,49 +61,24 @@ public class ConfirmListGUI implements AkarianInventory {
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessages().getGui_cl_title()));
+        inv = Bukkit.createInventory(this, 9, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_CONFIRMLIST_TITLE)));
 
-        inv.setItem(0,
-                ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(1,
-                ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(2,
-                ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(3,
-                ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
+        for (int i = 0; i < 4; i++) {
+            inv.setItem(i, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CONFIRM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CONFIRM_LORE)));
+        }
+
 
         List<String> lore = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_cl_lore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_CONFIRMLIST_LORE)) {
             lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%",
                     chat.formatMoney(AuctionHouse.getInstance().getConfigFile().calculateListingFee(price))));
         }
 
         inv.setItem(4, ItemBuilder.build(itemStack.getType(), 1, chat.formatItem(itemStack), lore));
 
-        inv.setItem(5,
-                ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(6,
-                ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(7,
-                ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(8,
-                ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1,
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dn(),
-                        AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
+        for (int i = 5; i < 9; i++) {
+            inv.setItem(i, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));
+        }
 
         return inv;
     }

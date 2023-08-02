@@ -5,6 +5,7 @@ import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import net.akarian.auctionhouse.utils.UUIDDataType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -89,7 +90,7 @@ public class Listing {
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
 
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_aha_listing()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAINADMIN_LISTING)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -101,7 +102,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
@@ -140,7 +141,7 @@ public class Listing {
         assert itemMeta != null;
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        for (String s : AuctionHouse.getInstance().getMessages().getCompletedLore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_LISTING_COMPLETED)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -152,7 +153,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
@@ -197,7 +198,7 @@ public class Listing {
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), getId());
 
-        for (String s : AuctionHouse.getInstance().getMessages().getCompletedAdminLore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_LISTING_COMPLETED_ADMIN)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -209,7 +210,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
@@ -251,7 +252,7 @@ public class Listing {
         assert itemMeta != null;
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        for (String s : AuctionHouse.getInstance().getMessages().getExpiredLore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_LISTING_EXPIRED)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -263,7 +264,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
@@ -307,7 +308,7 @@ public class Listing {
         assert itemMeta != null;
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        for (String s : AuctionHouse.getInstance().getMessages().getExpiredAdminLore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_LISTING_EXPIRED_ADMIN)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -319,7 +320,7 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             lore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
@@ -384,7 +385,7 @@ public class Listing {
 
         itemMeta.getPersistentDataContainer().set(key, new UUIDDataType(), id);
 
-        for (String s : AuctionHouse.getInstance().getMessages().getListingLore()) {
+        for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_LISTING_ACTIVE)) {
             if (s.equalsIgnoreCase("%shulker%")) {
                 if (itemStack.getType() == Material.SHULKER_BOX) {
                     BlockStateMeta im = (BlockStateMeta) itemStack.getItemMeta();
@@ -396,15 +397,16 @@ public class Listing {
                                 amount += si.getAmount();
                             }
                         }
-                        for (String shulkers : AuctionHouse.getInstance().getMessages().getGui_sv_sh()) {
+                        for (String shulkers : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SHULKER_LORE)) {
                             tlore.add(shulkers.replace("%amount%", String.valueOf(amount)));
                         }
                     }
                 }
             } else if (s.equalsIgnoreCase("%self_info%")) {
                 if (getCreator().toString().equals(player.getUniqueId().toString())) {
-                    tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoCreator());
-                } else tlore.addAll(AuctionHouse.getInstance().getMessages().getSelfInfoBuyer());
+                    tlore.addAll(AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_SELLER));
+                } else
+                    tlore.addAll(AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_BUYER));
             } else {
                 tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%price%", chat.formatMoney(price)).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((price + tax))));
             }

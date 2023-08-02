@@ -2,10 +2,7 @@ package net.akarian.auctionhouse.guis.admin.settings;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.utils.AkarianInventory;
-import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.ItemBuilder;
-import net.akarian.auctionhouse.utils.Messages;
+import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -42,12 +39,12 @@ public class ServerSettingsGUI implements AkarianInventory {
             case 10:
                 feeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_listingFee_message());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SETTINGS_LISTINGFEE_MESSAGE));
                 break;
             case 12:
                 taxMap.put(p.getUniqueId(), this);
                 p.closeInventory();
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_salesTax_message());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SETTINGS_SALESTAX_MESSAGE));
                 break;
             case 14:
                 AuctionHouse.getInstance().getConfigFile().setCreativeListing(!AuctionHouse.getInstance().getConfigFile().isCreativeListing());
@@ -57,56 +54,21 @@ public class ServerSettingsGUI implements AkarianInventory {
             case 16:
                 timeMap.put(p.getUniqueId(), this);
                 p.closeInventory();
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_listingTime_message());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SETTINGS_LISTINGTIME_MESSAGE));
                 break;
         }
     }
 
     @Override
     public void updateInventory() {
-        Messages m = AuctionHouse.getInstance().getMessages();
+        MessageManager mm = AuctionHouse.getInstance().getMessageManager();
 
+        String creativeLore = (AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? "&a&lEnabled" : "&c&lDisabled");
 
-        List<String> feeLore = new ArrayList<>();
-        for (String s : m.getSt_listingFee_lore()) {
-            if (s.contains("%fee%")) {
-                feeLore.add(s.replace("%fee%", AuctionHouse.getInstance().getConfigFile().getListingFee()));
-            } else {
-                feeLore.add(s);
-            }
-        }
-
-        List<String> taxLore = new ArrayList<>();
-        for (String s : m.getSt_salesTax_lore()) {
-            if (s.contains("%tax%")) {
-                taxLore.add(s.replace("%tax%", AuctionHouse.getInstance().getConfigFile().getListingTax()));
-            } else {
-                taxLore.add(s);
-            }
-        }
-
-        List<String> creativeLore = new ArrayList<>();
-        for (String s : m.getSt_creativeListing_lore()) {
-            if (s.contains("%status%")) {
-                creativeLore.add(s.replace("%status%", (AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? "&a&lEnabled" : "&c&lDisabled")));
-            } else {
-                creativeLore.add(s);
-            }
-        }
-
-        List<String> timeLore = new ArrayList<>();
-        for (String s : m.getSt_listingTime_lore()) {
-            if (s.contains("%time%")) {
-                timeLore.add(s.replace("%time%", chat.formatTime(AuctionHouse.getInstance().getConfigFile().getListingTime())));
-            } else {
-                timeLore.add(s);
-            }
-        }
-
-        inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingFee_name(), feeLore));
-        inv.setItem(12, ItemBuilder.build(Material.PAPER, 1, m.getSt_salesTax_name(), taxLore));
-        inv.setItem(14, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, m.getSt_creativeListing_name(), creativeLore));
-        inv.setItem(16, ItemBuilder.build(Material.PAPER, 1, m.getSt_listingTime_name(), timeLore));
+        inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGFEE_NAME), mm.getLore(MessageType.GUI_SETTINGS_LISTINGFEE_LORE, "%fee%;" + AuctionHouse.getInstance().getConfigFile().getListingFee())));
+        inv.setItem(12, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_SALESTAX_NAME), mm.getLore(MessageType.GUI_SETTINGS_SALESTAX_LORE, "%tax%;", AuctionHouse.getInstance().getConfigFile().getListingTax())));
+        inv.setItem(14, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_CREATIVELISTING_NAME), mm.getLore(MessageType.GUI_SETTINGS_CREATIVELISTING_LORE, "%status%;" + creativeLore)));
+        inv.setItem(16, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGTIME_NAME), mm.getLore(MessageType.GUI_SETTINGS_LISTINGTIME_LORE, "%time%;" + chat.formatTime(AuctionHouse.getInstance().getConfigFile().getListingTime()))));
 
     }
 
@@ -120,7 +82,7 @@ public class ServerSettingsGUI implements AkarianInventory {
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
         updateInventory();
         return inv;
     }

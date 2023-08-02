@@ -8,6 +8,7 @@ import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -56,17 +57,22 @@ public class AuctionHouseGUIEvents implements Listener {
             try {
                 price = Double.parseDouble(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_INCOMPATIBLEPRICE));
                 return;
             }
 
             if (input.equalsIgnoreCase("nan")) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_INCOMPATIBLEPRICE));
                 return;
             }
 
-            if (price <= AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+            if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+                return;
+            }
+
+            if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
                 return;
             }
 
@@ -86,18 +92,23 @@ public class AuctionHouseGUIEvents implements Listener {
             try {
                 price = Double.parseDouble(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_INCOMPATIBLEPRICE));
                 return;
             }
 
             if (input.equalsIgnoreCase("nan")) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getIncompatibleListingPrice());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_INCOMPATIBLEPRICE));
                 return;
             }
 
 
-            if (price <= AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+            if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+                return;
+            }
+
+            if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
                 return;
             }
 
@@ -117,17 +128,17 @@ public class AuctionHouseGUIEvents implements Listener {
             try {
                 amount = Integer.parseInt(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_NUMBER));
                 return;
             }
 
             if (amount <= 0) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_greaterThanZero());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_ZERO));
                 return;
             }
 
             if (amount > listing.getItemStack().getMaxStackSize()) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_tooSmallStackSize());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_STACKSIZE));
                 return;
             }
 
@@ -198,7 +209,7 @@ public class AuctionHouseGUIEvents implements Listener {
 
         if (ListingEditGUI.getAmountMap().containsKey(player.getUniqueId()) || ListingEditAdminGUI.getAmountMap().containsKey(player.getUniqueId())) {
             e.setCancelled(true);
-            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_ac());
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_AMOUNT_MESSAGE));
         }
     }
 

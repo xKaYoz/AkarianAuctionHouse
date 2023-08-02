@@ -1,0 +1,257 @@
+Version: 1
+MESSAGE_SYNTAX_LIST: '/ah list <價格>'
+MESSAGE_SYNTAX_SEARCH: '/ah search <關鍵字>'
+MESSAGE_SYNTAX_SELLERTAG: '賣家'
+MESSAGE_ERRORS_PLAYER: '&c您必須是一名玩家才能執行此命令。'
+MESSAGE_ERRORS_NOITEM: '&c您必須手持物品才能執行此命令。'
+MESSAGE_ERRORS_PRICE: '&c價格必須高於$0。'
+MESSAGE_ERRORS_LISTINGNOTFOUND: '&c找不到該拍賣物品。'
+MESSAGE_ERRORS_POOR: '&c您沒有足夠的錢來購買該物品。'
+MESSAGE_ERRORS_NUMBER: '&c您必須提供有效的數字。'
+MESSAGE_ERRORS_PERCENTAGE: '&c您必須提供有效的百分比。'
+MESSAGE_ERRORS_ZERO: '&c數量必須大於0。'
+MESSAGE_ERRORS_STACKSIZE: '&c數量必須小於該物品的最大堆疊數量。'
+MESSAGE_GEN_PREFIX: '»'
+MESSAGE_GEN_BOUGHTBUYER: '&f您以&2%price%&f的價格購買了&e%item%&f。'
+MESSAGE_GEN_BOUGHTCREATOR: '&c%buyer%&f以&2%price%&f的價格購買了&e%item%&f。'
+MESSAGE_GEN_LISTINGREMOVED: '&f您的拍賣物品&e%item%&f已被刪除。'
+MESSAGE_GEN_LISTINGCREATED: '&f您已創建了一個以價格&e%price%&f拍賣的物品&e%item%&f。'
+MESSAGE_GEN_EXPIREDJOIN: '&f您有&e%amount%&x個已過期的物品待領取。使用&7&o/ah expired&f命令來領取。'
+MESSAGE_GEN_MINLISTINGPRICE: '&c您的拍賣價格太低！必須高於%price%。'
+MESSAGE_GEN_MAXLISTINGPRICE: '&c您的拍賣價格太高！必須低於%price%。'
+MESSAGE_GEN_COOLDOWN: '&e您還需要等待%time%才能再次創建拍賣。'
+MESSAGE_GEN_MAXLISTINGS: '&c錯誤！您最多只能創建%max%個拍賣物品。'
+MESSAGE_GEN_EXPIREDRECLAIMED: '&f您已領取了&e%item%&f的過期物品。'
+MESSAGE_GEN_SAFEREMOVE: '&f您已成功移除了&e%item%&f的拍賣物品。'
+MESSAGE_GEN_POORLISTINGFEE: '&c您沒有足夠的錢支付拍賣費用。'
+MESSAGE_GEN_INCOMPATIBLEPRICE: '&c您必須提供相容的價格。'
+MESSAGE_GEN_RELOADSTART: '&7正在重新加載...'
+MESSAGE_GEN_RELOADCOMPLETE: '&a重新加載完成。'
+GUI_SETTINGS_ADMINMODE_NAME: '&e管理員模式'
+GUI_SETTINGS_ADMINMODE_LORE:
+  - '&7自動以管理員模式打開拍賣行。'
+  - '%status%'
+GUI_SETTINGS_EXPIRATION_NAME: '&e即將過期通知'
+GUI_SETTINGS_EXPIRATION_LORE:
+  - '&7當拍賣即將過期時通知您。'
+  - '%status%'
+GUI_SETTINGS_EXPIRATION_MESSAGE: '&e%seller%&f的拍賣物品&e%listing%&f即將在&e%time%&f後過期。'
+GUI_SETTINGS_EXPIRATIONTIME_NAME: '&e通知時間'
+GUI_SETTINGS_EXPIRATIONTIME_LORE:
+  - '&7選擇在拍賣結束前要通知您的時間。'
+  - '&7當前設置: &e%time%'
+GUI_SETTINGS_EXPIRATIONTIME_MESSAGE: '&e輸入在拍賣結束前剩餘多少秒時通知您。'
+GUI_SETTINGS_LISTINGBOUGHT_NAME: '&e購買通知'
+GUI_SETTINGS_LISTINGBOUGHT_LORE:
+  - '&7在拍賣物品被購買時通知您。'
+  - '%status%'
+GUI_SETTINGS_LISTINGBOUGHT_MESSAGE: '&e%buyer%&f以&e%price%&f的價格購買了&e%seller%&f的拍賣物品&e%listing%&f。'
+GUI_SETTINGS_SOUNDS_NAME: '&e切換音效'
+GUI_SETTINGS_SOUNDS_LORE:
+  - '&7在與拍賣行互動時切換音效。'
+  - '%status%'
+GUI_SETTINGS_LISTINGCREATED_NAME: '&e創建通知'
+GUI_SETTINGS_LISTINGCREATED_LORE:
+  - '&7在創建拍賣時通知您。'
+  - '%status%'
+GUI_SETTINGS_LISTINGCREATED_MESSAGE: '&e%seller%&f創建了一個以價格&e%price%&f的拍賣物品&e%listing%&f。'
+GUI_SETTINGS_AUTOCONFIRM_NAME: '&e自動確認拍賣'
+GUI_SETTINGS_AUTOCONFIRM_LORE:
+  - '&7自動確認您的拍賣物品創建。'
+  - '%status%'
+GUI_SETTINGS_LISTINGFEE_NAME: '&e拍賣費用'
+GUI_SETTINGS_LISTINGFEE_MESSAGE: '&e輸入新的拍賣費用，或左鍵點擊取消。'
+GUI_SETTINGS_LISTINGFEE_LORE:
+  - '&7更改拍賣費用的金額或百分比。'
+  - '&f當前費用: &e%fee%'
+GUI_SETTINGS_SALESTAX_NAME: '&e銷售稅'
+GUI_SETTINGS_SALESTAX_MESSAGE: '&e輸入新的銷售稅，或左鍵點擊取消。'
+GUI_SETTINGS_SALESTAX_LORE:
+  - '&7更改銷售稅的金額或百分比。'
+  - '&f當前稅率: &e%tax%'
+GUI_SETTINGS_CREATIVELISTING_NAME: '&e創造模式拍賣'
+GUI_SETTINGS_CREATIVELISTING_MESSAGE: '&c您不能在創造模式下創建拍賣物品。'
+GUI_SETTINGS_CREATIVELISTING_LORE:
+  - '&7允許玩家在創造模式下創建拍賣物品。'
+  - '%status%'
+GUI_SETTINGS_LISTINGTIME_NAME: '&e拍賣時間'
+GUI_SETTINGS_LISTINGTIME_MESSAGE: '&e輸入新的拍賣時間（以秒為單位），或左鍵點擊取消。'
+GUI_SETTINGS_LISTINGTIME_LORE:
+  - '&7更改拍賣物品的展示時間。'
+  - '&f當前時間: &e%time%'
+BUTTONS_PPAGE_NAME: '&6上一頁 &7&o(%previous%/%max%)'
+BUTTONS_PPAGE_LORE:
+  - '&7前往上一頁。'
+BUTTONS_NPAGE_NAME: '&6下一頁 &7&o(%next%/%max%)'
+BUTTONS_NPAGE_LORE:
+  - '&7前往下一頁。'
+BUTTONS_CONFIRM_NAME: '&a&l確認'
+BUTTONS_CONFIRM_LORE:
+  - '&7點擊以確認。'
+BUTTONS_DENY_NAME: '&c&l取消'
+BUTTONS_DENY_LORE:
+  - '&7點擊以取消。'
+BUTTONS_RETURN_NAME: '&c&l返回'
+BUTTONS_RETURN_LORE:
+  - '&7&o返回上一頁。'
+BUTTONS_CLOSE_NAME: '&c&l關閉'
+BUTTONS_CLOSE_LORE:
+  - '&7&o關閉菜單。'
+GUI_MAIN_TITLE: '&6&l拍賣&f&l行'
+GUI_MAIN_SEARCH_NAME: '&6搜索'
+GUI_MAIN_SEARCH_LORE:
+  - '&7搜索特定的拍賣物品。'
+GUI_MAIN_SEARCH_LEFT: '&e左鍵點擊以清除'
+GUI_MAIN_SEARCH_RIGHT: '&e輸入搜索內容...'
+GUI_MAIN_INFO_NAME: '&6資訊'
+GUI_MAIN_INFO_LORE:
+  - '&8&m&l-----------------------------------'
+  - ''
+  - '  &7歡迎來到拍賣行！'
+  - '  &7目前有&e%items%&7個物品出售。'
+  - '  &7您可以使用&e/ah list <價格>&7在拍賣行上列出物品。'
+  - ''
+  - '  &7您的餘額 &8&m&l-&e %balance%'
+  - ''
+  - '&8&m&l-----------------------------------'
+GUI_MAIN_UNCLAIMED_NAME: '&6領取物品'
+GUI_MAIN_UNCLAIMED_LORE:
+  - '&7&o領取您未領取的物品。'
+GUI_MAIN_SORT_NAME: '&6排序'
+GUI_MAIN_SORT_LORE:
+  - '&7&o對物品進行排序。'
+GUI_MAIN_LISTING_ACTIVE:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &f剩餘時間 &8&m&l-&e %time%'
+  - '  &f創建者 &8&m&l-&e %creator%'
+  - ''
+  - '  &f價格 &8&m&l-&2 %price%'
+  - '  &f稅收 &8&m&l-&2 %tax%'
+  - '  &f總計 &8&m&l-&2 %total%'
+  - ''
+  - '%shulker%'
+  - '%self_info%'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_MAIN_INFO_SELLER:
+  - '  &c&o左鍵點擊以編輯'
+  - '  &c&oShift + 右鍵點擊以移除'
+GUI_MAIN_INFO_BUYER:
+  - '  &7&o點擊以購買'
+GUI_MAIN_LISTING_EXPIRED:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &f開始時間 &8&m&l-&e %start%'
+  - '  &f結束時間 &8&m&l-&e %end%'
+  - '  &f價格 &8&m&l-&2 %price%'
+  - ''
+  - '  &7點擊以領取物品。'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_MAIN_LISTING_EXPIRED_ADMIN:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &f開始時間 &8&m&l-&e %start%'
+  - '  &f結束時間 &8&m&l-&e %end%'
+  - '  &f價格 &8&m&l-&2 %price%'
+  - '  &f領取 &8&m&l-&e %reclaimed%'
+  - '%shulker%'
+  - ''
+  - '  &7Shift + 右鍵點擊以移除拍賣。'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_MAIN_LISTING_COMPLETED_ADMIN:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &f開始時間 &8&m&l-&e %start%'
+  - '  &f購買時間 &8&m&l-&e %end%'
+  - '  &f價格 &8&m&l-&2 %price%'
+  - '  &f買家 &8&m&l-&e %buyer%'
+  - ''
+  - '%shulker%'
+  - '  &7Shift + 右鍵點擊以移除並退款拍賣。'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_MAIN_LISTING_COMPLETED:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &f開始時間 &8&m&l-&e %start%'
+  - '  &f購買時間 &8&m&l-&e %end%'
+  - '  &f價格 &8&m&l-&2 %price%'
+  - '  &f賣家 &8&m&l-&e %seller%'
+  - ''
+  - '%shulker%'
+  - '  &7左鍵點擊以領取拍賣。'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_CONFIRMBUY_TITLE: '&e是否確定？'
+GUI_UNCLAIMED_TITLE: '&6&l領取拍賣物品'
+GUI_LISTINGEDIT_TITLE: '&e編輯拍賣物品'
+GUI_LISTINGEDIT_PRICE_MESSAGE: '&e輸入拍賣物品的新價格，或左鍵點擊取消。'
+GUI_LISTINGEDIT_PRICE_NAME: '&6價格'
+GUI_LISTINGEDIT_PRICE_LORE:
+  - '&7&o點擊以編輯價格。'
+GUI_LISTINGEDIT_AMOUNT_NAME: '&6數量'
+GUI_LISTINGEDIT_AMOUNT_LORE:
+  - '&e如果您輸入比當前拍賣更高的數量，'
+  - '&e您必須擁有物品在您的背包中。'
+  - '&e如果您輸入比當前拍賣更低的數量，'
+  - '&e系統將把您移除的物品退還給您。'
+  - ' '
+  - '&7&o點擊以添加或移除物品到拍賣物品中。'
+GUI_LISTINGEDIT_AMOUNT_MESSAGE: '&e輸入拍賣物品的新數量，或左鍵點擊取消。'
+GUI_SHULKER_TITLE: '&e您確定嗎？？？'
+GUI_SHULKER_LORE:
+  - ' &f此箱中有&e%amount%&f個物品。'
+  - ''
+GUI_SORT_TITLE: '&e排序選單'
+GUI_SORT_OVERALLPRICE_NAME: 總價格
+GUI_SORT_OVERALLPRICE_LORE:
+  - 點擊以按總價格進行排序
+GUI_SORT_TIMELEFT_NAME: 剩餘時間
+GUI_SORT_TIMELEFT_LORE:
+  - 點擊以按剩餘時間進行排序。
+GUI_SORT_COSTPERITEM_NAME: 單個物品價格
+GUI_SORT_COSTPERITEM_LORE:
+  - 點擊以按每個物品的價格進行排序。
+GUI_SORT_AMOUNTOFITEMS_NAME: 物品數量
+GUI_SORT_AMOUNTOFITEMS_LORE:
+  - 點擊以按物品數量進行排序。
+GUI_SORT_LONGEST: 最長
+GUI_SORT_SHORTEST: 最短
+GUI_SORT_HIGHEST: 最高
+GUI_SORT_LOWEST: 最低
+GUI_MAINADMIN_TITLE: '&6&l拍賣行管理員選單'
+GUI_MAINADMIN_LISTING:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &f剩餘時間 &8&m&l-&e %time%'
+  - '  &f創建者 &8&m&l-&e %creator%'
+  - '  &f價格 &8&m&l-&2 %price%'
+  - ''
+  - '%shulker%'
+  - '  &c左鍵點擊以編輯拍賣'
+  - '  &cShift + 右鍵點擊以安全移除'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_NPC_LORE:
+  - '&f位置：'
+  - '&fX坐標：&e%x%'
+  - '&fY坐標：&e%y%'
+  - '&fZ坐標：&e%z%'
+  - ' '
+  - '&7左鍵點擊以傳送'
+  - '&7Shift + 左鍵點擊以移除拍賣者特性'
+  - '&7Shift + 右鍵點擊以刪除NPC'
+GUI_CONFIRMLIST_LORE:
+  - '&8&m&l-------------------------------'
+  - ' '
+  - ' &f拍賣物品數量：&e%amount%'
+  - ' &f拍賣費用：&e%fee%'
+  - ' '
+  - '&7&o上架時將收取拍賣費用'
+  - ' '
+  - '&8&m&l-------------------------------'
+GUI_CONFIRMLIST_TITLE: '&6確認上架'
+GUI_SOUND_TITLE: '&6選擇要更改的音效...'

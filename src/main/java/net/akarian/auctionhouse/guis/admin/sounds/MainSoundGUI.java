@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -57,7 +58,7 @@ public class MainSoundGUI implements AkarianInventory {
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 36, chat.format(AuctionHouse.getInstance().getMessages().getGui_sound_title()));
+        inv = Bukkit.createInventory(this, 36, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SOUND_TITLE)));
 
         inv.setItem(0, ItemBuilder.build(Material.MUSIC_DISC_FAR, 1, "Create Listing Sound", Arrays.asList("&7Sound played when player creates a listing.", "&7Current: &e" + AuctionHouse.getInstance().getConfigFile().getCreateListingSound())));
         inv.setItem(1, ItemBuilder.build(Material.MUSIC_DISC_FAR, 1, "Listing Bought Sound", Arrays.asList("&7Sound played on creator when listing is bought.", "&7Current: &e" + AuctionHouse.getInstance().getConfigFile().getListingBoughtSound())));

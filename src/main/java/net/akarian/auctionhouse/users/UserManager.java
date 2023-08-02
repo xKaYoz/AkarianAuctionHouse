@@ -38,14 +38,15 @@ public class UserManager {
 
     public void loadOnlineUsers() {
         for (Player p : Bukkit.getOnlinePlayers()) {
-            loadUser(p.getUniqueId());
+            loadUser(p.getUniqueId(), p.getName());
         }
     }
 
-    public User loadUser(UUID uuid) {
+    public User loadUser(UUID uuid, String username) {
         User user = new User(uuid);
         users.add(user);
-        user.loadUserSettings();
+        user.loadUserSettings(username);
+
         return user;
     }
 

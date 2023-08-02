@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -55,7 +56,7 @@ public class MainSettingsGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
 
         inv.setItem(11, ItemBuilder.build(Material.DIAMOND_SWORD, 1, "&eDefault Player Settings", Collections.singletonList("&7Click to edit default player settings.")));
         inv.setItem(15, ItemBuilder.build(Material.REDSTONE, 1, "&eServer Settings", Collections.singletonList("&7Click to edit server settings.")));

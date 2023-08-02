@@ -9,6 +9,7 @@ import net.akarian.auctionhouse.layouts.Layout;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -382,14 +383,14 @@ public class LayoutEditGUI implements AkarianInventory {
         else {
             player.getInventory().setItem(9, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, "&6Spacer Item", Collections.singletonList("&7Click to get a Spacer item.")));
             player.getInventory().setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&cAdmin Mode", Arrays.asList("&7Click to get the Admin Mode button.", "&eYou can only have one of these items!")));
-            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), Arrays.asList("&7Click to get the Close button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(11, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), Arrays.asList("&7Click to get the Close button.", "&eYou can only have one of these items!")));
             player.getInventory().setItem(12, ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Click to get a Listing Item item.")));
-            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), Collections.singletonList("&7Click to get a Previous Page button.")));
-            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), Collections.singletonList("&7Click to get the Next Page button.")));
-            player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), Arrays.asList("&7Click to get the Search button.", "&eYou can only have one of these items!")));
-            player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), Arrays.asList("&7Click to get the Information button.", "&eYou can only have one of these items!")));
-            player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), Arrays.asList("&7Click to get the Sort button.", "&eYou can only have one of these items!")));
-            player.getInventory().setItem(18, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), Arrays.asList("&7Click to get the Expired Listings button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(13, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME), Collections.singletonList("&7Click to get a Previous Page button.")));
+            player.getInventory().setItem(14, ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME), Collections.singletonList("&7Click to get the Next Page button.")));
+            player.getInventory().setItem(15, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), Arrays.asList("&7Click to get the Search button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(16, ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), Arrays.asList("&7Click to get the Information button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(17, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), Arrays.asList("&7Click to get the Sort button.", "&eYou can only have one of these items!")));
+            player.getInventory().setItem(18, ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_UNCLAIMED_NAME), Arrays.asList("&7Click to get the Expired Listings button.", "&eYou can only have one of these items!")));
         }
     }
 
@@ -404,7 +405,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
 
         //Close Button
-        inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+        inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
 
         //Listings
         for (Integer i : layout.getListingItems()) {
@@ -412,37 +413,29 @@ public class LayoutEditGUI implements AkarianInventory {
         }
 
         //Previous Page
-        ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+        ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
         for (Integer i : layout.getPreviousPageButtons()) {
             inv.setItem(i, previous);
         }
 
 
         //Next Page
-        ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+        ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
         for (Integer i : layout.getNextPageButtons()) {
             inv.setItem(i, next);
         }
 
 
         //Search Item
-        inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+        inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SEARCH_LORE)));
 
-        //Info Item
-        List<String> infoDesc = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
-            else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
-        }
-        inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+        inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + player.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
 
         //Expired Reclaim Item
-        inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+        inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_UNCLAIMED_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_UNCLAIMED_LORE)));
 
         //Sort Item
-        inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+        inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SORT_LORE)));
 
 
         //Bottom Lining
@@ -465,7 +458,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Close Button
         if (layout.getExitButton() != -1)
-            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
 
         //Listings
         for (Integer i : layout.getListingItems()) {
@@ -474,7 +467,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Previous Page
         if (!layout.getPreviousPageButtons().contains(-1)) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn(), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
             for (Integer i : layout.getPreviousPageButtons()) {
                 inv.setItem(i, previous);
             }
@@ -483,7 +476,7 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Next Page
         if (!layout.getNextPageButtons().contains(-1)) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn(), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
             for (Integer i : layout.getNextPageButtons()) {
                 inv.setItem(i, next);
             }
@@ -492,28 +485,21 @@ public class LayoutEditGUI implements AkarianInventory {
 
         //Search Item
         if (layout.getSearchButton() != -1) {
-            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SEARCH_LORE)));
         }
 
         //Info Item
         if (layout.getInfoButton() != -1) {
-            List<String> infoDesc = new ArrayList<>();
-            for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-                if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + "")));
-                else
-                    infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", AuctionHouse.getInstance().getListingManager().getActive().size() + ""));
-            }
-            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + player.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
         }
 
         //Expired Reclaim Item
         if (layout.getExpiredItemsButton() != -1)
-            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_UNCLAIMED_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_UNCLAIMED_LORE)));
 
         //Sort Item
         if (layout.getSortButton() != -1)
-            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SORT_LORE)));
 
 
         giveEditorMenu();

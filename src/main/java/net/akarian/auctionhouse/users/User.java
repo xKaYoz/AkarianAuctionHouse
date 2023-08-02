@@ -36,7 +36,7 @@ public class User {
         return userSettings = new UserSettings(this).create();
     }
 
-    public void loadUserSettings() {
+    public void loadUserSettings(String username) {
 
         switch (AuctionHouse.getInstance().getDatabaseType()) {
             case FILE:
@@ -46,6 +46,14 @@ public class User {
                 } else {
                     userSettings = new UserSettings(this).load();
                 }
+
+                if (!username.equals(getUsername())) {
+                    final String oldUsername = getUsername();
+                    setUsername(username);
+                    getUserSettings().saveUsername();
+                    AuctionHouse.getInstance().getChat().log("Saved new username for " + uuid + " - New: " + getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
+                }
+
                 break;
             case MYSQL:
                 MySQL mySQL = AuctionHouse.getInstance().getMySQL();
@@ -59,6 +67,13 @@ public class User {
                             userSettings = new UserSettings(User.this).load();
                         } else {
                             userSettings = createUserSettings().load();
+                        }
+
+                        if (!username.equals(getUsername())) {
+                            final String oldUsername = getUsername();
+                            setUsername(username);
+                            getUserSettings().saveUsername();
+                            AuctionHouse.getInstance().getChat().log("Saved new username for " + uuid + " - New: " + getUsername() + " Old: " + oldUsername, AuctionHouse.getInstance().isDebug());
                         }
 
                     } catch (Exception e) {

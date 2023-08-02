@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.InventoryHandler;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -26,12 +27,12 @@ public class ListSubCommand extends AkarianCommand {
         Chat chat = AuctionHouse.getInstance().getChat();
 
         if (!(sender instanceof Player)) {
-            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PLAYER));
             return;
         }
 
         if (args.length != 2) {
-            chat.usage(sender, AuctionHouse.getInstance().getMessages().getList_syntax());
+            chat.usage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_LIST));
             return;
         }
 
@@ -41,13 +42,19 @@ public class ListSubCommand extends AkarianCommand {
 
         //Check if the player is holding an item
         if (itemStack.getType().isAir() || !itemStack.getType().isItem()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getList_item());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_NOITEM));
             return;
         }
 
         //Check create listing
         if (p.getGameMode() == GameMode.CREATIVE && !AuctionHouse.getInstance().getConfigFile().isCreativeListing()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getSt_creativeListing_message());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SETTINGS_CREATIVELISTING_MESSAGE));
+            return;
+        }
+
+        if (!AuctionHouse.getInstance().getListingManager().checkBlacklist(itemStack)) {
+            //TODO Lang message
+            chat.sendMessage(p, "This item is blacklisted from the auction house.");
             return;
         }
 
@@ -67,15 +74,15 @@ public class ListSubCommand extends AkarianCommand {
             } catch (NumberFormatException ignored) {
             }
         });
-        if (!p.isOp() && maxListings.get() > 0 && AuctionHouse.getInstance().getListingManager().getActive(p.getUniqueId()).size() >= maxListings.get()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaxListings().replace("%max%", String.valueOf(maxListings.get())));
+        if (!p.isOp() && maxListings.get() > 0 && maxListings.get() != -1 && AuctionHouse.getInstance().getListingManager().getActive(p.getUniqueId()).size() >= maxListings.get()) {
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGS, "%max%;" + maxListings.get()));
             return;
         }
 
         //Check Cooldowns
         if (AuctionHouse.getInstance().getConfigFile().getListingDelay() > 0 && !p.hasPermission("auctionhouse.delay.bypass")) {
             if (AuctionHouse.getInstance().getCooldownManager().isCooldown(p)) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCooldownTimer().replace("%time%", chat.formatTime(AuctionHouse.getInstance().getCooldownManager().getRemaining(p))));
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_COOLDOWN, "%time%;" + chat.formatTime(AuctionHouse.getInstance().getCooldownManager().getRemaining(p))));
                 return;
             }
         }
@@ -85,27 +92,27 @@ public class ListSubCommand extends AkarianCommand {
         try {
             price = Double.parseDouble(args[1]);
         } catch (NumberFormatException e) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PRICE));
             return;
         }
 
         if (args[1].equalsIgnoreCase("NaN")) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PRICE));
             return;
         }
 
         if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMaximumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
             return;
         }
 
         if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getMinimumListing().replace("%price%", AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
             return;
         }
 
         if (AuctionHouse.getInstance().getEcon().getBalance(p) < AuctionHouse.getInstance().getConfigFile().calculateListingFee(price)) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getListingFeePoor());
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_POORLISTINGFEE));
             return;
         }
 

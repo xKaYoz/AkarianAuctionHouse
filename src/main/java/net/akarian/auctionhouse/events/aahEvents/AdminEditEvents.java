@@ -32,7 +32,6 @@ public class AdminEditEvents implements Listener {
                 EditSubCommand.getEditing().remove(p);
                 newMessage.remove(p);
                 fm.saveFile(messages, "messages");
-                AuctionHouse.getInstance().getMessages().reloadMessages();
                 chat.sendMessage(p, "Your edit has been saved.");
                 return;
             }

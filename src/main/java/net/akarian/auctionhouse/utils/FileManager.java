@@ -4,7 +4,9 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class FileManager {
 
@@ -36,6 +38,20 @@ public class FileManager {
                 throw new IOException();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+    }
+
+    public void copyInputStreamToFile(InputStream inputStream, File file)
+            throws IOException {
+
+        // append = false
+        try (FileOutputStream outputStream = new FileOutputStream(file, false)) {
+            int read;
+            byte[] bytes = new byte[2048];
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
             }
         }
 

@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.scheduler.BukkitTask;
+import org.checkerframework.checker.units.qual.A;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -38,6 +39,12 @@ public class ListingManager {
     private final ArrayList<Listing> expired;
     @Getter
     private final ArrayList<Listing> completed;
+    @Getter
+    private final ArrayList<String> blacklistedNames;
+    @Getter
+    private final ArrayList<Material> blacklistedMaterials;
+    @Getter
+    private final ArrayList<ItemStack> blacklistedItemStacks;
     private final FileManager fm;
     private DatabaseType databaseType;
     private BukkitTask expireTimer;
@@ -55,10 +62,100 @@ public class ListingManager {
         this.unclaimed = new ArrayList<>();
         this.expired = new ArrayList<>();
         this.completed = new ArrayList<>();
+        this.blacklistedNames = new ArrayList<>();
+        this.blacklistedMaterials = new ArrayList<>();
+        this.blacklistedItemStacks = new ArrayList<>();
         this.transferring = false;
-        loadListings();
+    }
+
+    public void startup() {
         loadExpired();
+        loadListings();
         loadCompleted();
+        loadBlacklist();
+    }
+
+    public void addNameBlacklist(String name) {
+        if (blacklistedNames.contains(name)) return;
+        blacklistedNames.add(name);
+    }
+
+    public void addMaterialBlacklist(Material material) {
+        if (blacklistedMaterials.contains(material)) return;
+        blacklistedMaterials.add(material);
+    }
+
+    public void addItemStackBlacklist(ItemStack itemStack) {
+        itemStack.setAmount(1);
+        if (blacklistedItemStacks.contains(itemStack)) return;
+        blacklistedItemStacks.add(itemStack);
+    }
+
+    public boolean checkBlacklist(ItemStack itemStack) {
+        ItemStack clonedItemStack = itemStack.clone();
+        clonedItemStack.setAmount(1);
+        String itemName = chat.formatItem(itemStack);
+        String[] split = itemName.split("x ", 2);
+        itemName = split[1];
+
+        if (blacklistedNames.contains(itemName)) return false;
+        if (blacklistedMaterials.contains(itemStack.getType())) return false;
+        for (ItemStack item : blacklistedItemStacks) {
+            if (InventoryHandler.compareItemStacks(clonedItemStack, item, true)) return false;
+            String itemName2 = chat.formatItem(item);
+            String[] split2 = itemName2.split("x ", 2);
+            itemName2 = split2[1];
+            if (itemName2.equals(itemName)) return false;
+        }
+        return true;
+    }
+
+    public void saveBlacklist() {
+
+        if (!fm.getFile("blacklist").exists()) {
+            fm.createFile("blacklist");
+        }
+        YamlConfiguration blacklistConfig = fm.getConfig("blacklist");
+        List<String> materialList = new ArrayList<>();
+        for (Material material : blacklistedMaterials) {
+            materialList.add(material.name());
+        }
+        blacklistConfig.set("Materials", materialList);
+        blacklistConfig.set("Names", blacklistedNames);
+        List<String> encodedItemStacks = new ArrayList<>();
+        for (ItemStack itemStack : blacklistedItemStacks) {
+            encodedItemStacks.add(AuctionHouse.getInstance().encode(itemStack, true));
+        }
+        blacklistConfig.set("ItemStacks", encodedItemStacks);
+
+        fm.saveFile(blacklistConfig, "blacklist");
+
+    }
+
+    public void loadBlacklist() {
+
+        if (!fm.getFile("blacklist").exists()) {
+            fm.createFile("blacklist");
+            return;
+        }
+        YamlConfiguration blacklistConfig = fm.getConfig("blacklist");
+
+        List<String> materialList = blacklistConfig.getStringList("Materials");
+        List<String> namesList = blacklistConfig.getStringList("Names");
+        List<String> itemStackList = blacklistConfig.getStringList("ItemStacks");
+
+        for (String s : materialList) {
+            addMaterialBlacklist(Material.getMaterial(s));
+        }
+
+        for (String s : namesList) {
+            addNameBlacklist(s);
+        }
+
+        for (String s : itemStackList) {
+            blacklistedItemStacks.add(AuctionHouse.getInstance().decode(s));
+        }
+
     }
 
     /**
@@ -315,7 +412,7 @@ public class ListingManager {
         int expire = expire(listing, false, true, remover);
         if (expire == 1) {
             if (creator != null)
-                chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingRemoved().replace("%item%", chat.formatItem(listing.getItemStack())));
+                chat.sendMessage(creator, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_LISTINGREMOVED, "%item%;" + chat.formatItem(listing.getItemStack())));
             chat.log("Safe Removed " + chat.formatItem(listing.getItemStack()) + " by " + remover + ". ID: " + listing.getId().toString(), AuctionHouse.getInstance().isDebug());
             return 1;
         }
@@ -499,7 +596,7 @@ public class ListingManager {
 
         //Create our new listing
         Listing listing = new Listing(id, creator, AuctionHouse.getInstance().decode(encoded), price, start);
-        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getCreateListing().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())));
+        chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_LISTINGCREATED, "%item%;" + chat.formatItem(listing.getItemStack()), "%price%;" + chat.formatMoney(listing.getPrice())));
 
         switch (databaseType) {
             case MYSQL:
@@ -638,12 +735,12 @@ public class ListingManager {
             listing.setReclaimed(false);
         }
 
-        chat.sendMessage(buyer, AuctionHouse.getInstance().getMessages().getListingBoughtBuyer().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(price)));
+        chat.sendMessage(buyer, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_BOUGHTBUYER, "%item%;" + chat.formatItem(listing.getItemStack()), "%price%;" + chat.formatMoney(price)));
 
         Bukkit.getServer().getPluginManager().callEvent(new ListingBoughtEvent(listing));
         chat.log("Auction " + listing.getId().toString() + " has been bought by " + listing.getBuyer().toString() + " for " + listing.getPrice() + ".", AuctionHouse.getInstance().isDebug());
         if (creator != null) {
-            chat.sendMessage(creator, AuctionHouse.getInstance().getMessages().getListingBoughtCreator().replace("%item%", chat.formatItem(listing.getItemStack())).replace("%price%", chat.formatMoney(listing.getPrice())).replace("%buyer%", buyer.getName()));
+            chat.sendMessage(creator, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_BOUGHTCREATOR, "%item%;" + chat.formatItem(listing.getItemStack()), "%price%;" + chat.formatMoney(listing.getPrice()), "%buyer%;" + buyer.getName()));
             if (AuctionHouse.getInstance().getUserManager().getUser(creator) != null)
                 if (AuctionHouse.getInstance().getUserManager().getUser(creator).getUserSettings().isSounds())
                     creator.playSound(creator.getLocation(), AuctionHouse.getInstance().getConfigFile().getListingBoughtSound(), 1, 1);
@@ -913,7 +1010,7 @@ public class ListingManager {
      */
     public void loadListings() {
         active.clear();
-        chat.log("Loading listings...", AuctionHouse.getInstance().isDebug());
+        chat.log("Loading Active listings...", AuctionHouse.getInstance().isDebug());
         AtomicInteger num = new AtomicInteger();
         AtomicInteger errors = new AtomicInteger();
         switch (databaseType) {
@@ -1226,7 +1323,7 @@ public class ListingManager {
                                         returnVal.set(-1);
                                     } else {
                                         InventoryHandler.addItem(player, itemStack[0]);
-                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%;" + chat.formatItem(listing.getItemStack())));
                                     }
                                 }
                             }
@@ -1251,7 +1348,7 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
                     listing.setReclaimed(true);
                     break;
             }
@@ -1261,7 +1358,7 @@ public class ListingManager {
             case MYSQL:
                 Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
                     try {
-                        PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getCompletedTable() + " SET RECLAIMED=? WHERE ID=?");
+                        PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getCompletedTable() + " SET CLAIMED=? WHERE ID=?");
 
                         update.setBoolean(1, true);
                         update.setString(2, listing.getId().toString());
@@ -1322,7 +1419,7 @@ public class ListingManager {
                                         ret.set(-1);
                                     } else {
                                         InventoryHandler.addItem(player, itemStack[0]);
-                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%;" + chat.formatItem(listing.getItemStack())));
                                     }
                                 }
                             }
@@ -1346,7 +1443,7 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getExpiredReclaim().replace("%item%", chat.formatItem(listing.getItemStack())));
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
             }
         }
 
@@ -1419,7 +1516,7 @@ public class ListingManager {
                         if (!user.getUserSettings().isAlertNearExpire()) continue;
                         if (!user.getUserSettings().getNotified().contains(listing) && end - now < user.getUserSettings().getAlertNearExpireTime() && Bukkit.getPlayer(user.getUuid()) != null) {
                             user.getUserSettings().getNotified().add(listing);
-                            chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessages().getSt_expire_message().replace("%listing%", chat.formatItem(listing.getItemStack())).replace("%time%", chat.formatTime(end - now)).replace("%seller%", Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName())));
+                            chat.sendMessage(Objects.requireNonNull(Bukkit.getPlayer(user.getUuid())), AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SETTINGS_EXPIRATION_MESSAGE, "%listing%;" + chat.formatItem(listing.getItemStack()), "%time%;" + chat.formatTime(end - now), "%seller%;" + Objects.requireNonNull(Bukkit.getOfflinePlayer(listing.getCreator()).getName()), "%papi%;" + user.getUuid().toString()));
                         }
                     }
                     if (now > end) {

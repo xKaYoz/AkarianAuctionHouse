@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.guis.AuctionHouseGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -22,14 +23,14 @@ public class SearchSubCommand extends AkarianCommand {
         //  /ah search <searchStr>
 
         if (!(sender instanceof Player)) {
-            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PLAYER));
             return;
         }
 
         Player player = (Player) sender;
 
         if (args.length == 1) {
-            chat.usage(player, AuctionHouse.getInstance().getMessages().getSearch_syntax());
+            chat.usage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_SEARCH));
             return;
         }
 

@@ -8,6 +8,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -83,8 +84,8 @@ public class ExpireReclaimGUI implements AkarianInventory {
             case 47:
                 player.closeInventory();
                 searchMap.put(player.getUniqueId(), this);
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_LEFT));
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_RIGHT));
                 return;
             case 51:
                 player.openInventory(new SortGUI(this).getInventory());
@@ -121,7 +122,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getGui_er_title()));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_UNCLAIMED_TITLE)));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
@@ -129,17 +130,17 @@ public class ExpireReclaimGUI implements AkarianInventory {
         }
 
         //Return Button
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
 
         //Bottom Lining
         for (int i = 45; i <= 53; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(47, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+        inv.setItem(47, ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SEARCH_LORE)));
 
         //Sort Item
-        inv.setItem(51, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+        inv.setItem(51, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SORT_LORE)));
 
         //Expired Listings
         updateInventory();
@@ -245,7 +246,7 @@ public class ExpireReclaimGUI implements AkarianInventory {
         //Checking if player is searching
         if (this.search) {
             //Check if the search is searching by seller
-            if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
+            if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_SELLERTAG) + ":")) {
                 String playerName = searchStr.split(":")[1];
                 UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
                 return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
@@ -267,7 +268,8 @@ public class ExpireReclaimGUI implements AkarianInventory {
         //Previous Page
 
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME, "%previous%;" + (page - 1), "%max%;" + (listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
             inv.setItem(45, previous);
         } else {
             inv.setItem(45, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -275,7 +277,8 @@ public class ExpireReclaimGUI implements AkarianInventory {
 
 
         if (listings.size() > 36 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME, "%next%;" + (page + 1), "%max%;" + (listings.size() % 36 == 0 ? String.valueOf(listings.size() / 36) : String.valueOf((listings.size() / 36) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
             inv.setItem(53, next);
         } else {
             inv.setItem(53, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));

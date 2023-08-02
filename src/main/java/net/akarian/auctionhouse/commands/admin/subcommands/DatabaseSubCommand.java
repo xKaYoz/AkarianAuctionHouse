@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -21,7 +22,7 @@ public class DatabaseSubCommand extends AkarianCommand {
         Chat chat = AuctionHouse.getInstance().getChat();
 
         if (!(sender instanceof Player)) {
-            chat.sendMessage(sender, AuctionHouse.getInstance().getMessages().getError_player());
+            chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PLAYER));
             return;
         }
         Player p = (Player) sender;

@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -87,8 +88,8 @@ public class SoundSelectGUI implements AkarianInventory {
             case 46:
                 player.closeInventory();
                 searchMap.put(player.getUniqueId(), this);
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_LEFT));
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_RIGHT));
                 break;
             case 49:
                 if (selected == null) break;
@@ -154,7 +155,8 @@ public class SoundSelectGUI implements AkarianInventory {
 
         //Previous Page
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", sounds.size() % 45 == 0 ? String.valueOf(sounds.size() / 45) : String.valueOf((sounds.size() / 45) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME, "%previous%;" + (page - 1), "%max%;" + (sounds.size() % 45 == 0 ? String.valueOf(sounds.size() / 45) : String.valueOf((sounds.size() / 45) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
             inv.setItem(52, previous);
         } else {
             inv.setItem(52, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -162,7 +164,8 @@ public class SoundSelectGUI implements AkarianInventory {
 
         //Next Page
         if (sounds.size() > 45 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", sounds.size() % 45 == 0 ? String.valueOf(sounds.size() / 45) : String.valueOf((sounds.size() / 45) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME, "%next%;" + (page + 1), "%max%;" + (sounds.size() % 45 == 0 ? String.valueOf(sounds.size() / 45) : String.valueOf((sounds.size() / 45) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
             inv.setItem(53, next);
         } else {
             inv.setItem(53, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -183,7 +186,7 @@ public class SoundSelectGUI implements AkarianInventory {
 
         updateInventory();
 
-        inv.setItem(45, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(45, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
         inv.setItem(46, ItemBuilder.build(Material.HOPPER, 1, "&6Filter sounds", Collections.singletonList("&eClick to filter the name of the sounds.")));
         inv.setItem(47, ItemBuilder.build(Material.MAGENTA_DYE, 1, "&5Change Volume and Pitch", Collections.singletonList("&7Click to change volume and pitch")));
         return inv;

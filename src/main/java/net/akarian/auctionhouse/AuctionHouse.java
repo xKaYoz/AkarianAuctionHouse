@@ -63,8 +63,6 @@ public final class AuctionHouse extends JavaPlugin {
     @Setter
     private boolean update;
     @Getter
-    private Messages messages;
-    @Getter
     private Configuration configFile;
     @Getter
     private CooldownManager cooldownManager;
@@ -80,6 +78,8 @@ public final class AuctionHouse extends JavaPlugin {
     private boolean floodgate = false;
     @Getter
     private net.milkbowl.vault.chat.Chat vaultChat;
+    @Getter
+    private MessageManager messageManager;
 
     @Override
     public void onEnable() {
@@ -103,7 +103,7 @@ public final class AuctionHouse extends JavaPlugin {
         nameManager = new NameManager();
         chat.log("NameManager Successfully Loaded", debug);
         chat.log("Loading Messages...", debug);
-        this.messages = new Messages();
+        this.messageManager = new MessageManager(this);
         chat.log("Messages Successfully Loaded", debug);
         chat.log("Loading MySQL...", debug);
         mySQL = new MySQL();
@@ -154,6 +154,7 @@ public final class AuctionHouse extends JavaPlugin {
         }
         getLogger().log(Level.INFO, "Loading listings...");
         this.listingManager = new ListingManager();
+        listingManager.startup();
         getLogger().log(Level.INFO, "Listings loaded successfully.");
         getLogger().log(Level.INFO, "Loading users...");
         this.userManager = new UserManager();
@@ -222,6 +223,7 @@ public final class AuctionHouse extends JavaPlugin {
         }
         listingManager.cancelExpireTimer();
         listingManager.cancelRefreshTimer();
+        listingManager.saveBlacklist();
         layoutManager.saveAllLayouts();
         if (databaseType != DatabaseType.FILE) {
             mySQL.shutdown();

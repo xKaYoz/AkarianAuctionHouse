@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -51,12 +52,12 @@ public class ListingEditGUI implements AkarianInventory {
                 player.openInventory(auctionHouseGUI.getInventory());
                 break;
             case 11:
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_pc());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_PRICE_MESSAGE));
                 priceMap.put(player.getUniqueId(), this);
                 player.closeInventory();
                 break;
             case 15:
-                chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_le_ac());
+                chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_AMOUNT_MESSAGE));
                 amountMap.put(player.getUniqueId(), this);
                 player.closeInventory();
                 break;
@@ -65,16 +66,16 @@ public class ListingEditGUI implements AkarianInventory {
 
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_le_title()));
+        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_TITLE)));
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
 
-        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_le_pn(), AuctionHouse.getInstance().getMessages().getGui_le_pd()));
+        inv.setItem(11, ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_PRICE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_LISTINGEDIT_PRICE_LORE)));
         inv.setItem(13, listing.createActiveListing(player));
-        inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessages().getGui_le_an(), AuctionHouse.getInstance().getMessages().getGui_le_ad()));
+        inv.setItem(15, ItemBuilder.build(Material.ANVIL, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_LISTINGEDIT_AMOUNT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_LISTINGEDIT_AMOUNT_LORE)));
 
         for (int i = 18; i <= 26; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));

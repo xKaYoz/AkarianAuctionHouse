@@ -219,11 +219,11 @@ public class Chat {
      * @param str    - Message to send
      */
     public void sendMessage(CommandSender sender, String str) {
-        sender.sendMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7" + str));
+        sender.sendMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_PREFIX) + " &7" + str));
     }
 
     public void sendMessage(Player player, BaseComponent[] component) {
-        player.spigot().sendMessage(new ComponentBuilder(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7")).append(component).create());
+        player.spigot().sendMessage(new ComponentBuilder(format(prefix + " &8" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_PREFIX) + " &7")).append(component).create());
     }
 
     /**
@@ -240,7 +240,7 @@ public class Chat {
      * @param str - Message to send
      */
     public void broadcastMessage(String str) {
-        Bukkit.broadcastMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessages().getPrefixIcon() + " &7" + str));
+        Bukkit.broadcastMessage(format(prefix + " &8" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_PREFIX) + " &7" + str));
     }
 
     /** Get the String of the given Component

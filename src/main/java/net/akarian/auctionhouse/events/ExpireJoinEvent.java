@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.events;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -20,7 +21,7 @@ public class ExpireJoinEvent implements Listener {
         Chat chat = AuctionHouse.getInstance().getChat();
 
         if(expired.size() > 0) {
-            chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getExpiredJoinMessage().replace("%amount%", expired.size() + ""));
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDJOIN, "%amount%;" + expired.size()));
         }
     }
 }

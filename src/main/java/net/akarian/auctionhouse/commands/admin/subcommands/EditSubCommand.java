@@ -26,19 +26,7 @@ public class EditSubCommand extends AkarianCommand {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
-        Chat chat = AuctionHouse.getInstance().getChat();
-        Messages messages = AuctionHouse.getInstance().getMessages();
         Player player = (Player) sender;
-        if (args.length == 2) {
-            chat.sendMessage(player, "&eClick the below message to copy it to your text bar.");
-            if (args[1].equals("Messages.Listing.Create")) {
-                chat.sendMessage(player, new ComponentBuilder(messages.getCreateListing()).event(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, messages.getCreateListing())).event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder(chat.format("Click to copy")).create())).create());
-                chat.sendMessage(sender, "&fVariables: %price% %item%");
-                editing.put(player, "Messages.Listing.Create");
-            }
-            chat.sendMessage(sender, "&7Enter the new message...");
-        } else {
-            player.openInventory(new MainSoundGUI(player).getInventory());
-        }
+        player.openInventory(new MainSoundGUI(player).getInventory());
     }
 }

@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.ShulkerBox;
@@ -53,10 +54,10 @@ public class ShulkerViewGUI implements AkarianInventory {
 
                 switch (AuctionHouse.getInstance().getListingManager().buy(listing, player)) {
                     case -1:
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_deleted());
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_LISTINGNOTFOUND));
                         break;
                     case 0:
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getError_poor());
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_POOR));
                         break;
                     case 1:
                         chat.log("Listing " + chat.formatItem(listing.getItemStack()) + " has been bought by " + player.getName() + ". Creator online.", AuctionHouse.getInstance().isDebug());
@@ -76,7 +77,7 @@ public class ShulkerViewGUI implements AkarianInventory {
     @Override
     public Inventory getInventory() {
 
-        inv = Bukkit.createInventory(this, 45, chat.format(AuctionHouse.getInstance().getMessages().getGui_sv_title()));
+        inv = Bukkit.createInventory(this, 45, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SHULKER_TITLE)));
 
         if (listing.getItemStack().getItemMeta() instanceof BlockStateMeta) {
             BlockStateMeta im = (BlockStateMeta) listing.getItemStack().getItemMeta();
@@ -95,17 +96,17 @@ public class ShulkerViewGUI implements AkarianInventory {
         }
 
         //Bottom Row
-        inv.setItem(36, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(37, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(38, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
-        inv.setItem(39, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_cn(), AuctionHouse.getInstance().getMessages().getGui_buttons_cd()));
+        inv.setItem(36, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CONFIRM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CONFIRM_LORE)));
+        inv.setItem(37, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CONFIRM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CONFIRM_LORE)));
+        inv.setItem(38, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CONFIRM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CONFIRM_LORE)));
+        inv.setItem(39, ItemBuilder.build(Material.LIME_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CONFIRM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CONFIRM_LORE)));
 
         inv.setItem(40, listing.createActiveListing(player));
 
-        inv.setItem(41, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(42, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(43, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
-        inv.setItem(44, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_dn(), AuctionHouse.getInstance().getMessages().getGui_buttons_dd()));
+        inv.setItem(41, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));
+        inv.setItem(42, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));
+        inv.setItem(43, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));
+        inv.setItem(44, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));
 
         return inv;
     }

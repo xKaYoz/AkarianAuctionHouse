@@ -4,6 +4,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -92,32 +93,32 @@ public class SortGUI implements AkarianInventory {
     @Override
     public void updateInventory() {
         if (sortType == SortType.OVERALL_PRICE)
-            inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_op(), highestList()));
+            inv.setItem(10, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_OVERALLPRICE_NAME), highestList()));
         else
-            inv.setItem(10, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_op(), AuctionHouse.getInstance().getMessages().getGui_st_od()));
+            inv.setItem(10, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_OVERALLPRICE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SORT_OVERALLPRICE_LORE)));
         if (sortType == SortType.TIME_LEFT || sortType == SortType.EXPIRE_TIME) //TODO Create own message
-            inv.setItem(12, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), longestList()));
+            inv.setItem(12, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_TIMELEFT_NAME), longestList()));
         else
-            inv.setItem(12, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_tl(), AuctionHouse.getInstance().getMessages().getGui_st_td()));
+            inv.setItem(12, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_TIMELEFT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SORT_TIMELEFT_LORE)));
         if (sortType == SortType.COST_PER_ITEM)
-            inv.setItem(14, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_cp(), highestList()));
+            inv.setItem(14, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_COSTPERITEM_NAME), highestList()));
         else
-            inv.setItem(14, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_cp(), AuctionHouse.getInstance().getMessages().getGui_st_cd()));
+            inv.setItem(14, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_COSTPERITEM_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SORT_COSTPERITEM_LORE)));
 
         if (sortType == SortType.AMOUNT)
-            inv.setItem(16, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), highestList()));
+            inv.setItem(16, ItemBuilder.build(Material.LIME_DYE, 1, "&a&l" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_AMOUNTOFITEMS_NAME), highestList()));
         else
-            inv.setItem(16, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessages().getGui_st_ai(), AuctionHouse.getInstance().getMessages().getGui_st_ad()));
+            inv.setItem(16, ItemBuilder.build(Material.GRAY_DYE, 1, "&7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_AMOUNTOFITEMS_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_SORT_AMOUNTOFITEMS_LORE)));
     }
 
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessages().getGui_st_title()));
+        inv = Bukkit.createInventory(this, 27, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_TITLE)));
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
 
         updateInventory();
 
@@ -133,9 +134,9 @@ public class SortGUI implements AkarianInventory {
         lore.add("&8&m&l---------------------------");
         lore.add("");
         if (sortBool) {
-            lore.add("    &6→ " + AuctionHouse.getInstance().getMessages().getGui_st_lg() + " &8| &7" + AuctionHouse.getInstance().getMessages().getGui_st_st());
+            lore.add("    &6→ " + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_LONGEST) + " &8| &7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_SHORTEST));
         } else {
-            lore.add("      &7" + AuctionHouse.getInstance().getMessages().getGui_st_lg() + " &8| &6" + AuctionHouse.getInstance().getMessages().getGui_st_st() + " ←");
+            lore.add("      &7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_LONGEST) + " &8| &6" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_SHORTEST) + " ←");
         }
         lore.add("");
         lore.add("&8&m&l---------------------------");
@@ -148,9 +149,9 @@ public class SortGUI implements AkarianInventory {
         lore.add("&8&m&l---------------------------");
         lore.add("");
         if (sortBool) {
-            lore.add("      &6→ " + AuctionHouse.getInstance().getMessages().getGui_st_hg() + " &8| &7" + AuctionHouse.getInstance().getMessages().getGui_st_lw());
+            lore.add("      &6→ " + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_HIGHEST) + " &8| &7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_LOWEST));
         } else {
-            lore.add("        &7" + AuctionHouse.getInstance().getMessages().getGui_st_hg() + " &8| &6" + AuctionHouse.getInstance().getMessages().getGui_st_lw() + " ←");
+            lore.add("        &7" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_HIGHEST) + " &8| &6" + AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_SORT_LOWEST) + " ←");
         }
         lore.add("");
         lore.add("&8&m&l---------------------------");

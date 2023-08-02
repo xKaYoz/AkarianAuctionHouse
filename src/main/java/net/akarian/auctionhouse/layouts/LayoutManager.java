@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Material;
 
 import java.io.File;
@@ -104,7 +105,7 @@ public class LayoutManager {
         layout.setListingItems(listingSlots);
         layout.setSpacerItems(spacerSlots);
 
-        layout.setInventoryName(AuctionHouse.getInstance().getMessages().getAuctionHouseTitle());
+        layout.setInventoryName(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_TITLE));
         layout.setInventorySize(54);
 
         layout.setAdminButton(1);

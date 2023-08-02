@@ -12,6 +12,7 @@ import net.akarian.auctionhouse.guis.admin.sounds.MainSoundGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -62,11 +63,10 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 if(player.hasPermission("auctionhouse.admin.reload")) {
                     if (clickType.isRightClick() && clickType.isShiftClick()) {
                         player.closeInventory();
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getAhReload());
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADSTART));
                         AuctionHouse.getInstance().getConfigFile().reloadConfig();
-                        AuctionHouse.getInstance().getMessages().reloadMessages();
                         chat.setPrefix(AuctionHouse.getInstance().getConfigFile().getPrefix());
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getAhReloadComplete());
+                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADCOMPLETE));
                     }
                 }
                 break;
@@ -95,14 +95,14 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
 
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessages().getGui_aha_title()));
+        inv = Bukkit.createInventory(this, 54, chat.format(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAINADMIN_TITLE)));
 
         //Top Lining
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
         //Close Button
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
 
         //inv.setItem(19, ItemBuilder.build(Material.WRITABLE_BOOK, 1, "&6Messages", Collections.singletonList("&7Click to edit the plugin's messages file.")));
         inv.setItem(19, ItemBuilder.build(Material.PLAYER_HEAD, 1, "&6Manage NPCs", Collections.singletonList("&7Click to manage all AuctionHouse NPCs.")));

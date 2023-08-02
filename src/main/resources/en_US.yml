@@ -1,0 +1,264 @@
+Version: 1
+MESSAGE_SYNTAX_LIST: /ah list <price>
+MESSAGE_SYNTAX_SEARCH: /ah search <query>
+MESSAGE_SYNTAX_SELLERTAG: 'seller'
+MESSAGE_ERRORS_PLAYER: '&cYou must be a player to execute this command.'
+MESSAGE_ERRORS_NOITEM: '&cYou must be holding an item.'
+MESSAGE_ERRORS_PRICE: '&cThe price must be above $0.'
+MESSAGE_ERRORS_LISTINGNOTFOUND: '&cThat listing no longer exists.'
+MESSAGE_ERRORS_POOR: '&cYou do not have enough money to purchase that.'
+MESSAGE_ERRORS_NUMBER: '&cYou must provide a valid number.'
+MESSAGE_ERRORS_PERCENTAGE: '&cYou must provide a valid percentage.'
+MESSAGE_ERRORS_ZERO: '&cThe amount must be greater than 0.'
+MESSAGE_ERRORS_STACKSIZE: '&cThe amount must be less than the max stack size of the
+      item.'
+MESSAGE_GEN_PREFIX: »
+MESSAGE_GEN_BOUGHTBUYER: '&fYou have bought &e%item%&f for &2%price%&f.'
+MESSAGE_GEN_BOUGHTCREATOR: '&c%buyer%&f has bought &e%item%&f for &2%price%&f.'
+MESSAGE_GEN_LISTINGREMOVED: '&fYour listing for &e%item%&f has been removed.'
+MESSAGE_GEN_LISTINGCREATED: '&fYou have created an auction for &e%item%&f with the price of &2%price%&f.'
+MESSAGE_GEN_EXPIREDJOIN: '&fYou have &e%amount%x Expired Listings&f waiting for you
+    to reclaim. Use &7&o/ah expired&f to reclaim.'
+MESSAGE_GEN_MINLISTINGPRICE: '&cYour listing price is too low! It must be above %price%.'
+MESSAGE_GEN_MAXLISTINGPRICE: '&cYour listing price is too high! It must be below %price%.'
+MESSAGE_GEN_COOLDOWN: '&eYou have %time% remaining before you can make another listing.'
+MESSAGE_GEN_MAXLISTINGS: '&cError! You can only have a maximum of %max% listings.'
+MESSAGE_GEN_EXPIREDRECLAIMED: '&fYou have reclaimed your listing of &e%item%&f.'
+MESSAGE_GEN_SAFEREMOVE: '&fYou have successfully removed the listing of &e%item%&f.'
+MESSAGE_GEN_POORLISTINGFEE: '&cYou do not have enough money to cover the listing
+    fee.'
+MESSAGE_GEN_INCOMPATIBLEPRICE: '&cYou must provide a compatible price.'
+MESSAGE_GEN_RELOADSTART: '&7Reloading...'
+MESSAGE_GEN_RELOADCOMPLETE: '&aReload complete.'
+GUI_SETTINGS_ADMINMODE_NAME: '&eAdmin Mode'
+GUI_SETTINGS_ADMINMODE_LORE:
+  - '&7Open the auction house in admin mode automatically.'
+  - '%status%'
+GUI_SETTINGS_EXPIRATION_NAME: '&eNotify when near expiration'
+GUI_SETTINGS_EXPIRATION_LORE:
+  - '&7Notify you when an auction is about to expire.'
+  - '%status%'
+GUI_SETTINGS_EXPIRATION_MESSAGE: '&e%seller%&f''s listing of &e%listing% &fis about to expire in &e%time%&f.'
+GUI_SETTINGS_EXPIRATIONTIME_NAME: '&eWhen to notify'
+GUI_SETTINGS_EXPIRATIONTIME_LORE:
+  - '&7Select how long an auction should have'
+  - '&7left before you are notified.'
+  - '&7Currently: &e%time%'
+GUI_SETTINGS_EXPIRATIONTIME_MESSAGE: '&eEnter how many seconds should be left on an auction before you are
+      notified. '
+GUI_SETTINGS_LISTINGBOUGHT_NAME: '&eNotify when bought'
+GUI_SETTINGS_LISTINGBOUGHT_LORE:
+  - '&7Notify you when an auction is bought.'
+  - '%status%'
+GUI_SETTINGS_LISTINGBOUGHT_MESSAGE: '&e%buyer%&f has bought &e%seller%&f''s listing of &e%listing%&f for
+      &2$%price%&f.'
+GUI_SETTINGS_SOUNDS_NAME: '&eToggle sounds'
+GUI_SETTINGS_SOUNDS_LORE:
+  - '&7Toggle sounds when interacting with the Auction House.'
+  - '%status%'
+GUI_SETTINGS_LISTINGCREATED_NAME: '&eNotify when created'
+GUI_SETTINGS_LISTINGCREATED_LORE:
+  - '&7Notify you when an auction is created.'
+  - '%status%'
+GUI_SETTINGS_LISTINGCREATED_MESSAGE: '&e%seller%&f has created a listing for &e%listing%&f for &2%price%&f.'
+GUI_SETTINGS_AUTOCONFIRM_NAME: '&eAutomatically confirm listings'
+GUI_SETTINGS_AUTOCONFIRM_LORE:
+  - '&7Automatically confirm the creation of your listing.'
+  - '%status%'
+GUI_SETTINGS_LISTINGFEE_NAME: '&eListing Fee'
+GUI_SETTINGS_LISTINGFEE_MESSAGE: '&eEnter the new listing fee or left click to cancel.'
+GUI_SETTINGS_LISTINGFEE_LORE:
+  - '&7Change the listing fee amount or percentage.'
+  - '&fCurrent Fee: &e%fee%'
+GUI_SETTINGS_SALESTAX_NAME: '&eSales Tax'
+GUI_SETTINGS_SALESTAX_MESSAGE: '&eEnter the new sales tax or left click to cancel.'
+GUI_SETTINGS_SALESTAX_LORE:
+  - '&7Change the sales tax amount or percentage.'
+  - '&fCurrent tax: &e%tax%'
+GUI_SETTINGS_CREATIVELISTING_NAME: '&eCreative Listing'
+GUI_SETTINGS_CREATIVELISTING_MESSAGE: '&cYou cannot create a listing while in creative mode.'
+GUI_SETTINGS_CREATIVELISTING_LORE:
+  - '&7Allow players to list items while in creative.'
+  - '%status%'
+GUI_SETTINGS_LISTINGTIME_NAME: '&eListing Time'
+GUI_SETTINGS_LISTINGTIME_MESSAGE: '&eEnter the new listing time in seconds or left click to cancel.'
+GUI_SETTINGS_LISTINGTIME_LORE:
+  - '&7Change the amount of time a listing will be posted for.'
+  - '&fCurrent Time: &e%time%'
+BUTTONS_PPAGE_NAME: '&6Previous Page &7&o(%previous%/%max%)'
+BUTTONS_PPAGE_LORE:
+  - '&7Go to the previous page.'
+BUTTONS_NPAGE_NAME: '&6Next Page &7&o(%next%/%max%)'
+BUTTONS_NPAGE_LORE:
+  - '&7Go to the next page.'
+BUTTONS_CONFIRM_NAME: '&a&lConfirm'
+BUTTONS_CONFIRM_LORE:
+  - '&7Click to confirm.'
+BUTTONS_DENY_NAME: '&c&lCancel'
+BUTTONS_DENY_LORE:
+  - '&7Click to cancel.'
+BUTTONS_RETURN_NAME: '&c&lReturn'
+BUTTONS_RETURN_LORE:
+  - '&7&oGo back to the previous page.'
+BUTTONS_CLOSE_NAME: '&c&lClose'
+BUTTONS_CLOSE_LORE:
+  - '&7&oClose the menu.'
+GUI_MAIN_TITLE: '&6&lAuction&f&lHouse'
+GUI_MAIN_SEARCH_NAME: '&6Search'
+GUI_MAIN_SEARCH_LORE:
+  - '&7Search for specific listings.'
+GUI_MAIN_SEARCH_LEFT: '&eLeft click to clear'
+GUI_MAIN_SEARCH_RIGHT: '&eEnter your search query...'
+GUI_MAIN_INFO_NAME: '&6Information'
+GUI_MAIN_INFO_LORE:
+  - '&8&m&l-----------------------------------'
+  - ''
+  - '  &7Welcome to the Auction House!'
+  - '  &7There are &e%items% &7for sale.'
+  - '  &7You can list an item on the auction house with'
+  - '  &e/ah list <price>'
+  - ''
+  - '  &7Your Balance &8&m&l-&e %balance%'
+  - ''
+  - '&8&m&l-----------------------------------'
+GUI_MAIN_UNCLAIMED_NAME: '&6Claim Listings'
+GUI_MAIN_UNCLAIMED_LORE:
+  - '&7&oClaim your unclaimed listings.'
+GUI_MAIN_SORT_NAME: '&6Sort'
+GUI_MAIN_SORT_LORE:
+  - '&7&oSort the listings.'
+GUI_MAIN_LISTING_ACTIVE:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &fTime Left &8&m&l-&e %time%'
+  - '  &fCreator &8&m&l-&e %creator%'
+  - ''
+  - '  &fPrice &8&m&l-&2 %price%'
+  - '  &fTax &8&m&l-&2 %tax%'
+  - '  &fTotal &8&m&l-&2 %total%'
+  - ''
+  - '%shulker%'
+  - '%self_info%'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_MAIN_INFO_SELLER:
+  - '  &c&oLeft Click to edit'
+  - '  &c&oShift + Right Click to remove'
+GUI_MAIN_INFO_BUYER:
+  - '  &7&oClick to purchase'
+GUI_MAIN_LISTING_EXPIRED:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &fStarted &8&m&l-&e %start%'
+  - '  &fExpired &8&m&l-&e %end%'
+  - '  &fPrice &8&m&l-&2 %price%'
+  - ''
+  - '  &7Click to reclaim item.'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_MAIN_LISTING_EXPIRED_ADMIN:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &fStarted &8&m&l-&e %start%'
+  - '  &fExpired &8&m&l-&e %end%'
+  - '  &fPrice &8&m&l-&2 %price%'
+  - '  &fReclaimed &8&m&l-&e %reclaimed%'
+  - '%shulker%'
+  - ''
+  - '  &7Shift + Right Click to remove listing.'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_MAIN_LISTING_COMPLETED_ADMIN:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &fStarted &8&m&l-&e %start%'
+  - '  &fBought &8&m&l-&e %end%'
+  - '  &fPrice &8&m&l-&2 %price%'
+  - '  &fBuyer &8&m&l-&e %buyer%'
+  - ''
+  - '%shulker%'
+  - '  &7Shift + Right Click to remove and refund listing.'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_MAIN_LISTING_COMPLETED:
+  - '&8&m&l---------------------------------'
+  - ''
+  - '  &fStarted &8&m&l-&e %start%'
+  - '  &fBought &8&m&l-&e %end%'
+  - '  &fPrice &8&m&l-&2 %price%'
+  - '  &fSeller &8&m&l-&e %seller%'
+  - ''
+  - '%shulker%'
+  - '  &7Left click to claim listing.'
+  - ''
+  - '&8&m&l---------------------------------'
+GUI_CONFIRMBUY_TITLE: '&eAre you sure???'
+GUI_UNCLAIMED_TITLE: '&6&lListing Reclaim'
+GUI_LISTINGEDIT_TITLE: '&eEdit your listing'
+GUI_LISTINGEDIT_PRICE_MESSAGE: '&eEnter the new price of your auction or left click to cancel.'
+GUI_LISTINGEDIT_PRICE_NAME: '&6Price'
+GUI_LISTINGEDIT_PRICE_LORE:
+  - '&7&oClick to edit the price.'
+GUI_LISTINGEDIT_AMOUNT_NAME: '&6Amount'
+GUI_LISTINGEDIT_AMOUNT_LORE:
+  - '&eIf you enter a higher amount than the current listing,'
+  - '&eyou must have the items in your inventory.'
+  - '&eIf you enter a lower amount than the current listing,'
+  - '&eyou will be given the items you removed.'
+  - ' '
+  - '&7&oClick to remove or add items to this listing.'
+GUI_LISTINGEDIT_AMOUNT_MESSAGE: '&eEnter the new amount of your auction or left click to cancel.'
+GUI_SHULKER_TITLE: '&eAre you sure???'
+GUI_SHULKER_LORE:
+  - ' &fThere are &e%amount%&f items in this box.'
+  - ''
+GUI_SORT_TITLE: '&eSort Menu'
+GUI_SORT_OVERALLPRICE_NAME: Overall Price
+GUI_SORT_OVERALLPRICE_LORE:
+  - Click to enable sorting by the overall price
+GUI_SORT_TIMELEFT_NAME: Time Left
+GUI_SORT_TIMELEFT_LORE:
+  - Click to enable sorting by the time remaining.
+GUI_SORT_COSTPERITEM_NAME: Cost per Item
+GUI_SORT_COSTPERITEM_LORE:
+  - Click to enable sorting by the cost of each item.
+GUI_SORT_AMOUNTOFITEMS_NAME: Amount of Items
+GUI_SORT_AMOUNTOFITEMS_LORE:
+  - Click to enable sorting by the amount of items in the listing.
+GUI_SORT_LONGEST: Longest
+GUI_SORT_SHORTEST: Shortest
+GUI_SORT_HIGHEST: Highest
+GUI_SORT_LOWEST: Lowest
+GUI_MAINADMIN_TITLE: '&6&lAuctionHouse Admin Menu'
+GUI_MAINADMIN_LISTING:
+  - '&8&m&l---------------------------'
+  - ''
+  - '  &fTime Left &8&m&l-&e %time%'
+  - '  &fCreator &8&m&l-&e %creator%'
+  - '  &fPrice &8&m&l-&2 %price%'
+  - ''
+  - '%shulker%'
+  - '  &cLeft click to edit listing'
+  - '  &cShift + Right Click to Safely Remove'
+  - ''
+  - '&8&m&l---------------------------'
+GUI_NPC_LORE:
+  - '&fLocation:'
+  - '&fX: &e%x%'
+  - '&fY: &e%y%'
+  - '&fZ: &e%z%'
+  - ' '
+  - '&7Left click to teleport'
+  - '&7Shift + Left Click to remove auctioneer trait'
+  - '&7Shift + Right Click to delete NPC'
+GUI_CONFIRMLIST_LORE:
+  - '&8&m&l-------------------------------'
+  - ' '
+  - ' &fListing Amount: &e%amount%'
+  - ' &fListing Fee: &e%fee%'
+  - ' '
+  - '&7&oListing fee will be removed when listing is posted'
+  - ' '
+  - '&8&m&l-------------------------------'
+GUI_CONFIRMLIST_TITLE: '&6Confirm Listing'
+GUI_SOUND_TITLE: '&6Select Sound to Change...'

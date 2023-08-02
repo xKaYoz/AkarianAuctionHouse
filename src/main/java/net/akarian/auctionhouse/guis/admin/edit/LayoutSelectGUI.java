@@ -3,10 +3,7 @@ package net.akarian.auctionhouse.guis.admin.edit;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.layouts.Layout;
-import net.akarian.auctionhouse.utils.AkarianInventory;
-import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.ItemBuilder;
-import net.akarian.auctionhouse.utils.UUIDDataType;
+import net.akarian.auctionhouse.utils.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -104,14 +101,16 @@ public class LayoutSelectGUI implements AkarianInventory {
         }
 
         if (page != 1) {
-            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(cloned.size() / 18)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+            ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME, "%previous%;" + (page - 1), "%max%;" + (cloned.size() % 18 == 0 ? String.valueOf(cloned.size() / 18) : String.valueOf((cloned.size() / 18) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
             inv.setItem(28, previous);
         } else {
             inv.setItem(28, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
         if (cloned.size() > 18 * page) {
-            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(cloned.size() / 18)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+            ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME, "%next%;" + (page + 1), "%max%;" + (cloned.size() % 18 == 0 ? String.valueOf(cloned.size() / 18) : String.valueOf((cloned.size() / 18) + 1))),
+                    AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
             inv.setItem(34, next);
         } else {
             inv.setItem(34, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -127,7 +126,7 @@ public class LayoutSelectGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_rt(), AuctionHouse.getInstance().getMessages().getGui_buttons_rd()));
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
 
         for (int i = 27; i <= 35; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));

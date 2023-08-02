@@ -12,6 +12,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -118,8 +119,8 @@ public class AuctionHouseGUI implements AkarianInventory {
         } else if (slot == layout.getSearchButton()) {
             player.closeInventory();
             searchMap.put(player.getUniqueId(), this);
-            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sl());
-            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getGui_ah_sr());
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_LEFT));
+            chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_RIGHT));
             return;
         } else if (slot == layout.getExpiredItemsButton()) {
             update = true;
@@ -165,7 +166,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                             chat.log("Tried to safe remove listing " + listing.getId().toString() + " but it is not active.", AuctionHouse.getInstance().isDebug());
                             break;
                         case 1:
-                            chat.sendMessage(player, AuctionHouse.getInstance().getMessages().getSafeRemove());
+                            chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_SAFEREMOVE, "%item%;" + AuctionHouse.getInstance().getChat().formatItem(listing.getItemStack())));
                     }
                 }
                 return;
@@ -221,22 +222,22 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         //Close Button
         if (layout.getExitButton() != -1)
-            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_cn(), AuctionHouse.getInstance().getMessages().getGui_ah_cd()));
+            inv.setItem(layout.getExitButton(), ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_CLOSE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_CLOSE_LORE)));
 
         //Listings
         Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), this::updateInventory);
 
         //Search Item
         if (layout.getSearchButton() != -1)
-            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_sn(), AuctionHouse.getInstance().getMessages().getGui_ah_sd()));
+            inv.setItem(layout.getSearchButton(), ItemBuilder.build(Material.HOPPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SEARCH_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SEARCH_LORE)));
 
         //Reclaim Listings Item
         if (layout.getExpiredItemsButton() != -1)
-            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessages().getGui_ah_en(), AuctionHouse.getInstance().getMessages().getGui_ah_ed()));
+            inv.setItem(layout.getExpiredItemsButton(), ItemBuilder.build(Material.CHEST, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_UNCLAIMED_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_UNCLAIMED_LORE)));
 
         //Sort Item
         if (layout.getSortButton() != -1)
-            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessages().getGui_ah_stn(), AuctionHouse.getInstance().getMessages().getGui_ah_std()));
+            inv.setItem(layout.getSortButton(), ItemBuilder.build(Material.PAPER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_SORT_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_SORT_LORE)));
 
         return inv;
     }
@@ -245,7 +246,7 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Checking if player is searching
         if (this.search) {
             //Check if the search is searching by seller
-            if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessages().getGui_ah_st() + ":")) {
+            if (this.searchStr.startsWith(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_SELLERTAG) + ":")) {
                 String playerName = searchStr.split(":")[1];
                 UUID playerUUID = Bukkit.getOfflinePlayer(playerName).getUniqueId();
                 return listing.getCreator().toString().equalsIgnoreCase(playerUUID.toString());
@@ -304,7 +305,8 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Previous Page
         if (!layout.getPreviousPageButtons().contains(-1)) {
             if (page != 1) {
-                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
+                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_PPAGE_NAME, "%previous%;" + (page - 1), "%max%;" + (listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1))),
+                        AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_PPAGE_LORE));
                 for (Integer i : layout.getPreviousPageButtons()) {
                     inv.setItem(i, previous);
                 }
@@ -320,7 +322,8 @@ public class AuctionHouseGUI implements AkarianInventory {
         //Next Page
         if (!layout.getNextPageButtons().contains(-1)) {
             if (listings.size() > layout.getListingItems().size() * page) {
-                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1)), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
+                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME, "%next%;" + (page + 1), "%max%;" + (listings.size() % layout.getListingItems().size() == 0 ? String.valueOf(listings.size() / layout.getListingItems().size()) : String.valueOf((listings.size() / layout.getListingItems().size()) + 1))),
+                        AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE));
                 for (Integer i : layout.getNextPageButtons()) {
                     inv.setItem(i, next);
                 }
@@ -332,17 +335,8 @@ public class AuctionHouseGUI implements AkarianInventory {
                 }
             }
         }
-
-        //Info Item
-        List<String> infoDesc = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size()))));
-            else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size())));
-        }
         if (layout.getInfoButton() != -1)
-            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessages().getGui_ah_in(), infoDesc));
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + player.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
 
     }
 
@@ -402,104 +396,5 @@ public class AuctionHouseGUI implements AkarianInventory {
 
         return displays;
     }
-
-     /*public void updateInventory() {
-
-        List<Listing> searchedListings = new ArrayList<>();
-        boolean needsNewListings;
-
-        if (listings.isEmpty()) {
-            if (AuctionHouse.getInstance().getListingManager().getActive().isEmpty()) {
-                return;
-            } else {
-                needsNewListings = true;
-            }
-        } else {
-            needsNewListings = false;
-            for (Listing listing : listings) {
-                if (!listing.isActive()) {
-                    needsNewListings = true;
-                }
-            }
-        }
-
-        if (needsNewListings) {
-            for (Listing listing : sortedList()) {
-                if (!search) {
-                    searchedListings.add(listing);
-                } else {
-                    if (search(listing)) {
-                        searchedListings.add(listing);
-                    }
-                }
-            }
-            //Settings the stored listings to the listings we want to display
-            listings = searchedListings;
-        }
-
-        //Set the end of our displayed listings to the page multiplied by the amount of displayed items we have
-        int end = page * layout.getListingItems().size();
-        //Set the beginning of our displayed listings to the end minus the amount of displayed items we have
-        int display = end - layout.getListingItems().size();
-
-        //Loop through the predefined display items from the layout and setting them to listings
-        for (Integer i : layout.getListingItems()) {
-            //Break from loop if the amount of listings is empty or if we are at the end of our allocated display items
-            if (listings.size() == 0 || display >= end || listings.size() == display) {
-                break;
-            }
-            //Get the listing in our desired location
-            Listing listing = listings.get(display);
-            if (listing.getItemStack() == null) {
-                return;
-            }
-            //Display the active listing
-            if (adminMode) inv.setItem(i, listing.createAdminActiveListing(player));
-            else inv.setItem(i, listing.createActiveListing(player));
-            //Increment our display position
-            display++;
-        }
-
-        //Previous Page
-        if (!layout.getPreviousPageButtons().contains(-1)) {
-            if (page != 1) {
-                ItemStack previous = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_ppn().replace("%previous%", String.valueOf(page - 1)).replace("%max%", String.valueOf(listings.size() / layout.getListingItems().size())), AuctionHouse.getInstance().getMessages().getGui_buttons_ppd());
-                for (Integer i : layout.getPreviousPageButtons()) {
-                    inv.setItem(i, previous);
-                }
-            } else {
-                if (layout.isSpacerPageItems()) {
-                    for (Integer i : layout.getPreviousPageButtons()) {
-                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
-                    }
-                }
-            }
-        }
-
-        //Next Page
-        if (!layout.getNextPageButtons().contains(-1)) {
-            if (listings.size() > layout.getListingItems().size() * page) {
-                ItemStack next = ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessages().getGui_buttons_npn().replace("%next%", String.valueOf(page + 1)).replace("%max%", String.valueOf(listings.size() / layout.getListingItems().size())), AuctionHouse.getInstance().getMessages().getGui_buttons_npd());
-                for (Integer i : layout.getNextPageButtons()) {
-                    inv.setItem(i, next);
-                }
-            } else {
-                if (layout.isSpacerPageItems()) {
-                    for (Integer i : layout.getNextPageButtons()) {
-                        inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.emptyList()));
-                    }
-                }
-            }
-        }
-
-        //Info Item
-        List<String> infoDesc = new ArrayList<>();
-        for (String s : AuctionHouse.getInstance().getMessages().getGui_ah_id()) {
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                infoDesc.add(PlaceholderAPI.setPlaceholders(player, s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size()))));
-            else
-                infoDesc.add(s.replace("%balance%", chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player))).replace("%items%", String.valueOf(AuctionHouse.getInstance().getListingManager().getActive().size())));
-        }
-    } */
 }
 

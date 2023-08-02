@@ -7,6 +7,7 @@ import net.akarian.auctionhouse.guis.admin.settings.ServerSettingsGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -41,7 +42,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_NUMBER));
                 return;
             }
             long sec = Long.parseLong(input);
@@ -62,7 +63,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Long.parseLong(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_NUMBER));
                 return;
             }
             long sec = Long.parseLong(input);
@@ -99,7 +100,7 @@ public class SettingsGUIEvents implements Listener {
             try {
                 Integer.parseInt(input);
             } catch (NumberFormatException ex) {
-                chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validNumber());
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_NUMBER));
                 return;
             }
             int sec = Integer.parseInt(input);
@@ -139,11 +140,11 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PERCENTAGE));
                         return;
                     }
                 } else {
-                    chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
+                    chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PERCENTAGE));
                     return;
                 }
             }
@@ -170,7 +171,7 @@ public class SettingsGUIEvents implements Listener {
                     try {
                         Integer.parseInt(dupe.replace("%", ""));
                     } catch (NumberFormatException ex2) {
-                        chat.sendMessage(p, AuctionHouse.getInstance().getMessages().getError_validPercentage());
+                        chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PERCENTAGE));
                         return;
                     }
                 } else {
