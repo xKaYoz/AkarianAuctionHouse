@@ -53,8 +53,7 @@ public class ListSubCommand extends AkarianCommand {
         }
 
         if (!AuctionHouse.getInstance().getListingManager().checkBlacklist(itemStack)) {
-            //TODO Lang message
-            chat.sendMessage(p, "This item is blacklisted from the auction house.");
+            chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_BLACKLIST_BLOCKED));
             return;
         }
 

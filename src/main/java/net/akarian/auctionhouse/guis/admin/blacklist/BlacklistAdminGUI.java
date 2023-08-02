@@ -5,6 +5,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Objects;
 
 public class BlacklistAdminGUI implements AkarianInventory {
@@ -25,7 +25,7 @@ public class BlacklistAdminGUI implements AkarianInventory {
     private final Chat chat = AuctionHouse.getInstance().getChat();
     @Getter
     private Inventory inv;
-    private ItemStack itemStack;
+    private final ItemStack itemStack;
 
     public BlacklistAdminGUI(ItemStack itemStack) {
         this.itemStack = itemStack;
@@ -39,7 +39,7 @@ public class BlacklistAdminGUI implements AkarianInventory {
         switch (slot) {
             case 29:
                 AuctionHouse.getInstance().getListingManager().addNameBlacklist(itemName);
-                chat.sendMessage(p, "You have blacklisted the name " + itemName + "&7.");
+                chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_BLACKLIST_ADD, "%item%;" + itemName));
                 p.closeInventory();
                 break;
             case 31:

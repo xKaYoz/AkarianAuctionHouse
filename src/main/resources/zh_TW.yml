@@ -255,3 +255,6 @@ GUI_CONFIRMLIST_LORE:
   - '&8&m&l-------------------------------'
 GUI_CONFIRMLIST_TITLE: '&6確認上架'
 GUI_SOUND_TITLE: '&6選擇要更改的音效...'
+MESSAGE_BLACKLIST_BLOCKED: '&cThis item is blacklisted from the auction house.'
+MESSAGE_BLACKLIST_ADD: 'You have added %item% to the blacklist.'
+MESSAGE_BLACKLIST_REMOVE: 'You have removed %item% from the blacklist.'

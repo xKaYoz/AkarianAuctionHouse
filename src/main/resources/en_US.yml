@@ -30,6 +30,9 @@ MESSAGE_GEN_POORLISTINGFEE: '&cYou do not have enough money to cover the listing
 MESSAGE_GEN_INCOMPATIBLEPRICE: '&cYou must provide a compatible price.'
 MESSAGE_GEN_RELOADSTART: '&7Reloading...'
 MESSAGE_GEN_RELOADCOMPLETE: '&aReload complete.'
+MESSAGE_GEN_LISTINGBLACKLISTED: '&cThis item is blacklisted from the auction house.'
+MESSAGE_BLACKLIST_ADD: 'You have added %item% to the blacklist.'
+MESSAGE_BLACKLIST_REMOVE: 'You have removed %item% from the blacklist.'
 GUI_SETTINGS_ADMINMODE_NAME: '&eAdmin Mode'
 GUI_SETTINGS_ADMINMODE_LORE:
   - '&7Open the auction house in admin mode automatically.'
@@ -262,3 +265,5 @@ GUI_CONFIRMLIST_LORE:
   - '&8&m&l-------------------------------'
 GUI_CONFIRMLIST_TITLE: '&6Confirm Listing'
 GUI_SOUND_TITLE: '&6Select Sound to Change...'
+GUI_BLACKLIST_BLACKLISTEDMATERIAL: ''
+GUI_BLACKLIST_BLACKLISTEDITEM: ''

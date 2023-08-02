@@ -17,7 +17,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.scheduler.BukkitTask;
-import org.checkerframework.checker.units.qual.A;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -1327,13 +1326,27 @@ public class ListingManager {
                                     }
                                 }
                             }
+
+                            if (returnVal.get() == 0) {
+                                PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getCompletedTable() + " SET CLAIMED=? WHERE ID=?");
+
+                                update.setBoolean(1, true);
+                                update.setString(2, listing.getId().toString());
+
+                                update.executeUpdate();
+                                update.closeOnCompletion();
+                                unclaimed.remove(listing);
+                                listing.setReclaimed(true);
+                                returnVal.set(1);
+                            }
+
                             statement.close();
 
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
-
                     });
+                    if (returnVal.get() == -1 || returnVal.get() == -2) return returnVal.get();
                     break;
                 case FILE:
                     YamlConfiguration completedFile = fm.getConfig("/database/completed");
@@ -1349,40 +1362,13 @@ public class ListingManager {
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
                     chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
+                    completedFile.set(listing.getId().toString() + ".Reclaimed", true);
+                    fm.saveFile(completedFile, "/database/completed");
                     listing.setReclaimed(true);
-                    break;
+                    return 1;
             }
         }
-        //Update the database
-        switch (databaseType) {
-            case MYSQL:
-                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
-                    try {
-                        PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getCompletedTable() + " SET CLAIMED=? WHERE ID=?");
-
-                        update.setBoolean(1, true);
-                        update.setString(2, listing.getId().toString());
-
-                        update.executeUpdate();
-                        update.closeOnCompletion();
-                        unclaimed.remove(listing);
-                        listing.setReclaimed(true);
-                        returnVal.set(1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        returnVal.set(-3);
-                    }
-                });
-                return returnVal.get();
-            case FILE:
-                YamlConfiguration expiredFile = fm.getConfig("/database/completed");
-                expiredFile.set(listing.getId().toString() + ".Reclaimed", true);
-                fm.saveFile(expiredFile, "/database/completed");
-                listing.setReclaimed(true);
-                return 1;
-        }
-
-        return 0;
+        return returnVal.get();
     }
 
     /**
@@ -1423,11 +1409,27 @@ public class ListingManager {
                                     }
                                 }
                             }
+
+                            if (ret.get() == 0) {
+                                PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getExpiredTable() + " SET RECLAIMED=? WHERE ID=?");
+
+                                update.setBoolean(1, true);
+                                update.setString(2, listing.getId().toString());
+
+                                update.executeUpdate();
+                                update.closeOnCompletion();
+                                unclaimed.remove(listing);
+                                listing.setReclaimed(true);
+                                ret.set(1);
+                            }
+
+                            statement.closeOnCompletion();
                         } catch (Exception e) {
                             e.printStackTrace();
+                            ret.set(3);
                         }
                     });
-                    if (ret.get() != 0) return ret.get();
+                    if (ret.get() == -1 || ret.get() == -2) return ret.get();
                     break;
                 case FILE:
                     YamlConfiguration expiredFile = fm.getConfig("/database/expired");
@@ -1444,38 +1446,16 @@ public class ListingManager {
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
                     chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
+
+                    expiredFile.set(listing.getId().toString() + ".Reclaimed", true);
+                    fm.saveFile(expiredFile, "/database/expired");
+                    unclaimed.remove(listing);
+                    listing.setReclaimed(true);
+                    return 1;
+
             }
         }
-
-        switch (databaseType) {
-            case MYSQL:
-                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
-                    try {
-                        PreparedStatement update = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getExpiredTable() + " SET RECLAIMED=? WHERE ID=?");
-
-                        update.setBoolean(1, true);
-                        update.setString(2, listing.getId().toString());
-
-                        update.executeUpdate();
-                        update.closeOnCompletion();
-                        unclaimed.remove(listing);
-                        listing.setReclaimed(true);
-                        ret.set(1);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        ret.set(-3);
-                    }
-                });
-                return ret.get();
-            case FILE:
-                YamlConfiguration expiredFile = fm.getConfig("/database/expired");
-                expiredFile.set(listing.getId().toString() + ".Reclaimed", true);
-                fm.saveFile(expiredFile, "/database/expired");
-                unclaimed.remove(listing);
-                listing.setReclaimed(true);
-                return 1;
-        }
-        return 0;
+        return ret.get();
     }
 
     /**

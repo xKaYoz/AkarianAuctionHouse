@@ -59,6 +59,7 @@ public enum MessageType {
     MESSAGE_GEN_INCOMPATIBLEPRICE("Message sent when the Player inputs an incompatible price."),
     MESSAGE_GEN_RELOADSTART("Message sent when AH Reload starts"),
     MESSAGE_GEN_RELOADCOMPLETE("Message sent when the AH Reload is complete"),
+    MESSAGE_BLACKLIST_BLOCKED("Message sent when the Player tries to list a blacklisted item"),
     BUTTONS_PPAGE_NAME("Previous Page Button Name"),
     BUTTONS_PPAGE_LORE("Previous Page Lore"),
     BUTTONS_NPAGE_NAME("Next Page Button Name"),
@@ -119,7 +120,9 @@ public enum MessageType {
     GUI_NPC_LORE("NPC GUI NPC Lore"),
     GUI_CONFIRMLIST_LORE("Confirm List GUI Lore"),
     GUI_CONFIRMLIST_TITLE("Confirm List GUI Title"),
-    GUI_SOUND_TITLE("Sound Select GUI Title");
+    GUI_SOUND_TITLE("Sound Select GUI Title"),
+    MESSAGE_BLACKLIST_ADD("Message sent to player when adding an item to the blacklist"),
+    MESSAGE_BLACKLIST_REMOVE("Message sent to player when removing an item from the blacklist");
     private final String value;
 
     MessageType(String value) {
