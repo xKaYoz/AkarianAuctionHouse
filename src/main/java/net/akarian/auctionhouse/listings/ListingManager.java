@@ -1537,6 +1537,10 @@ public class ListingManager {
                 Bukkit.getScheduler().cancelTask(mysqlSyncTask.getTaskId());
 
             try {
+                if (mySQL.getConnection().isClosed()) {
+                    Bukkit.getScheduler().cancelTask(mysqlSyncTask.getTaskId());
+                    return;
+                }
                 PreparedStatement statement = mySQL.getConnection().prepareStatement("SELECT * FROM " + mySQL.getListingsTable() + " WHERE UPDATED>=?");
                 statement.setLong(1, mysqlSyncTime);
                 ResultSet rs = statement.executeQuery();

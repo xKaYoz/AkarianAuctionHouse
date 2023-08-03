@@ -63,10 +63,7 @@ public class AuctionHouseAdminGUI implements AkarianInventory {
                 if(player.hasPermission("auctionhouse.admin.reload")) {
                     if (clickType.isRightClick() && clickType.isShiftClick()) {
                         player.closeInventory();
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADSTART));
-                        AuctionHouse.getInstance().getConfigFile().reloadConfig();
-                        chat.setPrefix(AuctionHouse.getInstance().getConfigFile().getPrefix());
-                        chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADCOMPLETE));
+                        player.performCommand("aha reload");
                     }
                 }
                 break;

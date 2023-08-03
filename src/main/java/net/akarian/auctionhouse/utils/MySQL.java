@@ -6,6 +6,7 @@ import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.sql.*;
@@ -77,7 +78,10 @@ public class MySQL {
                 startConnectionTimer();
                 chat.log("---------------------------------------------", AuctionHouse.getInstance().isDebug());
                 if (transferring != null) {
-                    Bukkit.getPlayer(transferring).openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).getInventory());
+                    Player p = Bukkit.getPlayer(transferring);
+                    if (p == null) return connected = true;
+                    p.openInventory(new DatabaseTransferStatusGUI(p).getInventory());
+                    transferring = null;
                 }
                 return connected = true;
             } catch (Exception e) {

@@ -32,10 +32,12 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
     private int timer;
     private int timeLeft;
     private boolean wait;
+    private boolean testing;
 
     public ConfirmDatabaseTransfer(Player player) {
         startTimer();
         this.player = player;
+        this.testing = false;
     }
 
     @Override
@@ -48,6 +50,8 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
             }
             return;
         }
+
+        if (testing) return;
 
         if (slot >= 10 && slot <= 12) {
             p.closeInventory();
@@ -78,6 +82,10 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
         if (wait) {
             for (int i = 10; i <= 16; i++) {
                 inv.setItem(i, ItemBuilder.build(Material.STONE, 1, "&7&lWait...", Arrays.asList("&7You must wait &e" + timeLeft + "&7 more seconds.", "&eClick to cancel!")));
+            }
+        } else if (testing) {
+            for (int i = 10; i <= 16; i++) {
+                inv.setItem(i, ItemBuilder.build(Material.LIGHT_GRAY_WOOL, 1, "&6Loading...", Collections.singletonList("&eYou can close this menu. It will reopen when updated.")));
             }
         } else {
             inv.setItem(10, ItemBuilder.build(Material.EMERALD_BLOCK, 1, "&a&lConfirm", Collections.singletonList("&7Click to confirm...")));
@@ -125,13 +133,10 @@ public class ConfirmDatabaseTransfer implements AkarianInventory {
     }
 
     public void testConnection() {
-        inv = Bukkit.createInventory(this, 27, chat.format("&6&lAttempting to connect..."));
 
-        for (int i = 10; i <= 16; i++) {
-            inv.setItem(i, ItemBuilder.build(Material.LIGHT_GRAY_WOOL, 1, "&6Loading...", Collections.singletonList("&eYou can close this menu. It will reopen when updated.")));
-        }
+        testing = true;
 
-        Bukkit.getScheduler().runTask(AuctionHouse.getInstance(), () -> player.openInventory(inv));
+        chat.sendMessage(player, "&eTesting Connection...");
 
         AuctionHouse.getInstance().getMySQL().setTransferring(player.getUniqueId());
         transferringMap.put(player.getUniqueId(), this);
