@@ -165,7 +165,13 @@ public final class AuctionHouse extends JavaPlugin {
         registerEvents();
 
         if (getServer().getPluginManager().getPlugin("Citizens") != null && getServer().getPluginManager().getPlugin("Citizens").isEnabled()) {
-            net.citizensnpcs.api.CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(AuctionHouseTrait.class));
+            try {
+                net.citizensnpcs.api.CitizensAPI.getTraitFactory().registerTrait(net.citizensnpcs.api.trait.TraitInfo.create(AuctionHouseTrait.class));
+            } catch (IllegalArgumentException ex) {
+                ex.printStackTrace();
+                chat.alert("You may have just reloaded the plugin without restarting the server. Please restart the server if so.");
+            }
+
         }
 
         int pluginId = 15488;

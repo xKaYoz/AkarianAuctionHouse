@@ -1,18 +1,21 @@
 package net.akarian.auctionhouse.utils;
 
+import lombok.Getter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.FileUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
 public class MessageManager {
 
-    private String fileName;
-    private int currentVersion;
+    @Getter
+    private final String fileName;
+    private final int currentVersion;
 
     public MessageManager(AuctionHouse plugin) {
 
@@ -31,6 +34,26 @@ public class MessageManager {
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load en_US.yml lang file.", true);
             }
+        } else {
+            plugin.getChat().log("Comparing en_US file...", true);
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("en_US.yml"), fm.getFile("/lang/en_US_temp"));
+                File serverFile = fm.getFile("/lang/en_US");
+                File tempFile = fm.getFile("/lang/en_US_temp");
+
+                if (fm.compareFiles(serverFile, tempFile)) {
+                    if (tempFile.delete()) {
+                        plugin.getChat().log("en_US File is up to date.", true);
+                    }
+
+                } else {
+                    if (serverFile.delete() && tempFile.renameTo(serverFile)) {
+                        plugin.getChat().log("**  en_US File has been updated!", true);
+                    }
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load en_US.yml lang file.", true);
+            }
         }
         if (!fm.getFile("/lang/zh_TW").exists()) {
             try {
@@ -38,6 +61,26 @@ public class MessageManager {
                 plugin.getChat().log("Loaded zh_TW.yml", false);
                 if (fm.getConfig("/lang/zh_TW").getInt("Version") < currentVersion) {
                     plugin.getChat().log("A language file that is out of date has been loaded. Please contact the developer.", true);
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load zh_TW.yml lang file.", true);
+            }
+        } else {
+            plugin.getChat().log("Comparing zh_TW file...", false);
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("zh_TW.yml"), fm.getFile("/lang/zh_TW_temp"));
+                File serverFile = fm.getFile("/lang/zh_TW");
+                File tempFile = fm.getFile("/lang/zh_TW_temp");
+
+                if (fm.compareFiles(serverFile, tempFile)) {
+                    if (tempFile.delete()) {
+                        plugin.getChat().log("zh_TW File is up to date.", false);
+                    }
+
+                } else {
+                    if (serverFile.delete() && tempFile.renameTo(serverFile)) {
+                        plugin.getChat().log("**  zh_TW File has been updated!", true);
+                    }
                 }
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load zh_TW.yml lang file.", true);
@@ -55,7 +98,7 @@ public class MessageManager {
         }
         fileName = configFile.getString("Language");
         if (first) {
-            plugin.getChat().log("This is your first time loading the plugin and the language file \"" + fileName + "\". You can change this in the config.yml file.", true);
+            plugin.getChat().log("This is your first time loading the plugin and the language file \"" + fileName + "\". You can change this in-game with the command \"/aha messages\".", true);
 
             Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> plugin.getChat().alert("This is your first time loading the plugin and the language file \"" + fileName + "\". You can change this in the config.yml file."), 20 * 5);
         }
@@ -67,6 +110,37 @@ public class MessageManager {
             transferMessagesFile();
         }
 
+        ArrayList<String> result = compareMessageFileToLangFile();
+
+        if (result.size() != 0) {
+            plugin.getChat().log("There was a detection that " + result.size() + " message(s) from the lang file are not in your message.yml file. Fixing...", plugin.isDebug());
+            YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+            YamlConfiguration messagesFile = fm.getConfig("messages");
+            for (String s : result) {
+                messagesFile.set(s, langFile.get(s));
+            }
+            fm.saveFile(messagesFile, "messages");
+        }
+
+    }
+
+    public ArrayList<String> compareMessageFileToLangFile() {
+        FileManager fm = AuctionHouse.getInstance().getFileManager();
+        YamlConfiguration lang = fm.getConfig("/lang/" + fileName);
+        YamlConfiguration messages = fm.getConfig("messages");
+        Set<String> langKeys = lang.getKeys(false);
+        Set<String> messagesKeys = messages.getKeys(false);
+
+        ArrayList<String> notInMessages = new ArrayList<>();
+
+        for (String s : langKeys) {
+            if (messagesKeys.contains(s)) messagesKeys.remove(s);
+            else {
+                notInMessages.add(s);
+            }
+        }
+        if (messagesKeys.size() != 0) notInMessages.addAll(messagesKeys);
+        return notInMessages;
     }
 
     /**
@@ -111,6 +185,11 @@ public class MessageManager {
         return langMessage;
     }
 
+    /**
+     * @param message      Which message to display
+     * @param placeholders Placeholders to replace in the message separating variable and value with ';'
+     * @return Formatted lore
+     */
     public List<String> getLore(MessageType message, String... placeholders) {
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         YamlConfiguration messagesFile = fm.getConfig("messages");
@@ -577,7 +656,6 @@ public class MessageManager {
                 lore = new ArrayList<>();
                 lore.add("&7&oClaim your unclaimed listings.");
                 messagesFile.set("GUIs.AuctionHouse.Expired Listings.Description", lore);
-                version = 3;
                 break;
 
         }

@@ -1,5 +1,6 @@
 package net.akarian.auctionhouse.utils;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
@@ -10,10 +11,6 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-
-import static org.bukkit.Bukkit.getLogger;
 
 public class Configuration {
 
@@ -397,7 +394,7 @@ public class Configuration {
     }
 
     public double calculateListingTax(Player player, double price) {
-        AtomicInteger tax = new AtomicInteger(Integer.parseInt(listingTax.replace("%", "")));
+        AtomicDouble tax = new AtomicDouble(Double.parseDouble(listingTax.replace("%", "")));
 
         player.getEffectivePermissions().stream().map(PermissionAttachmentInfo::getPermission).map(String::toLowerCase).filter(value -> value.startsWith("auctionhouse.salestax.")).map(value -> value.replace("auctionhouse.salestax.", "")).forEach(value -> {
             //Get sales tax amount

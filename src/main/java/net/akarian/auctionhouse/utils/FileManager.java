@@ -7,6 +7,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.util.Arrays;
 
 public class FileManager {
 
@@ -41,6 +43,19 @@ public class FileManager {
             }
         }
 
+    }
+
+    public boolean compareFiles(File file1, File file2) {
+        try {
+            byte[] file1Bytes = Files.readAllBytes(file1.toPath());
+            byte[] file2Bytes = Files.readAllBytes(file2.toPath());
+
+            return Arrays.equals(file1Bytes, file2Bytes);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public void copyInputStreamToFile(InputStream inputStream, File file)

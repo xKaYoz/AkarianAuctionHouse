@@ -1361,10 +1361,10 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
                     completedFile.set(listing.getId().toString() + ".Reclaimed", true);
                     fm.saveFile(completedFile, "/database/completed");
                     listing.setReclaimed(true);
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%;" + chat.formatItem(listing.getItemStack())));
                     return 1;
             }
         }
@@ -1445,12 +1445,12 @@ public class ListingManager {
                         return -1;
                     }
                     InventoryHandler.addItem(player, itemStack[0]);
-                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%" + chat.formatItem(listing.getItemStack())));
 
                     expiredFile.set(listing.getId().toString() + ".Reclaimed", true);
                     fm.saveFile(expiredFile, "/database/expired");
                     unclaimed.remove(listing);
                     listing.setReclaimed(true);
+                    chat.sendMessage(player, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_EXPIREDRECLAIMED, "%item%;" + chat.formatItem(listing.getItemStack())));
                     return 1;
 
             }

@@ -27,7 +27,7 @@ public class AdminCommandManager {
         commands.put("npc", new NPCSubCommand("npc", "auctionhouse.admin.npc", "/aha npc", "Manage and edit the Auction House NPCs."));
         commands.put("edit", new EditSubCommand("edit", "auctionhouse.admin.edit", "/aha edit", "Edit the Auction House"));
         commands.put("blacklist", new BlacklistSubCommand("blacklist", "auctionhouse.admin.blacklist", "/aha blacklist", "Manage the Auction House Blacklist."));
-
+        commands.put("messages", new MessagesSubCommand("messages", "auctionhouse.admin.messages", "/aha messages", "Edit the Auction House Messages.", "message"));
 
     }
 
