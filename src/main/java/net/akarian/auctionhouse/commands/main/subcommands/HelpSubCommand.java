@@ -46,21 +46,21 @@ public class HelpSubCommand extends AkarianCommand {
         }
 
         chat.sendRawMessage(sender, "&8&m----------------------------------------");
-        chat.sendRawMessage(sender, "&c&l  AuctionHouse Help Menu &7(" + (page) + "/" + (commands.size() % 10 == 0 ? commands.size() / 10 : (commands.size() / 10) + 1) + ")");
+        chat.sendRawMessage(sender, "&c&l  AuctionHouse Help Menu &7(" + (page) + "/" + (commands.size() % 5 == 0 ? commands.size() / 5 : (commands.size() / 5) + 1) + ")");
         chat.sendRawMessage(sender, "");
         chat.sendRawMessage(sender, "&f  <> &8- &fRequired Commands");
         chat.sendRawMessage(sender, "&7  [] &8- &fOptional Commands.");
         chat.sendRawMessage(sender, "");
 
-        int to = page * 10;
-        int from = to - 10;
+        int to = page * 5;
+        int from = to - 5;
 
-        if(commands.size() >= 10) {
+        if (commands.size() >= 10) {
             for (int i = from; i < to; i++) {
-                if(commands.size() == i) break;
+                if (commands.size() == i) break;
                 AkarianCommand command = (AkarianCommand) commands.toArray()[i];
 
-                if(command == null) break;
+                if (command == null) break;
 
                 chat.sendRawMessage(sender, "  &c" + command.getUsage() + " &8- &7" + command.getDescription());
 

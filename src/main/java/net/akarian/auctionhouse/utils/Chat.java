@@ -11,6 +11,7 @@ import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -262,13 +263,18 @@ public class Chat {
                 String name = itemStack.getItemMeta().getDisplayName();
                 return format("&e" + itemStack.getAmount() + "x " + name);
             }
+        } else {
+            ItemStack clone = new ItemStack(itemStack);
+            ItemMeta cloneMeta = clone.getItemMeta();
+            if (cloneMeta.hasLocalizedName() && cloneMeta.getLocalizedName().toCharArray().length != 0)
+                return format("&e" + itemStack.getAmount() + "x " + cloneMeta.getLocalizedName());
         }
 
         StringBuilder builder = new StringBuilder();
         for (String word : material.toString().split("_"))
             builder.append(word.substring(0, 1).toUpperCase()).append(word.substring(1).toLowerCase()).append(" ");
 
-        return format(itemStack.getAmount() + "x " + builder.toString().trim());
+        return format("&e" + itemStack.getAmount() + "x " + builder.toString().trim());
     }
 
     /** Send a message to all ops and the console

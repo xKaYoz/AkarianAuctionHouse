@@ -14,10 +14,10 @@ import java.util.*;
 
 public class MessageManager {
 
+    private final int currentVersion;
     @Getter
     @Setter
     private String fileName;
-    private final int currentVersion;
 
     public MessageManager(AuctionHouse plugin) {
 
@@ -117,6 +117,37 @@ public class MessageManager {
                 }
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load pl_PL.yml lang file.", true);
+            }
+        }
+        if (!fm.getFile("/lang/de_DE").exists()) {
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("de_DE.yml"), fm.getFile("/lang/de_DE"));
+                plugin.getChat().log("Loaded de_DE.yml", plugin.isDebug());
+                if (fm.getConfig("/lang/de_DE").getInt("Version") < currentVersion) {
+                    plugin.getChat().log("de_DE is out of date and has been loaded. Please contact the developer.", true);
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load de_DE.yml lang file.", true);
+            }
+        } else {
+            plugin.getChat().log("Comparing de_DE file...", plugin.isDebug());
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("de_DE.yml"), fm.getFile("/lang/de_DE_temp"));
+                File serverFile = fm.getFile("/lang/de_DE");
+                File tempFile = fm.getFile("/lang/de_DE_temp");
+
+                if (fm.compareFiles(serverFile, tempFile)) {
+                    if (tempFile.delete()) {
+                        plugin.getChat().log("de_DE File is up to date.", plugin.isDebug());
+                    }
+
+                } else {
+                    if (serverFile.delete() && tempFile.renameTo(serverFile)) {
+                        plugin.getChat().log("**  de_DE File has been updated!", plugin.isDebug());
+                    }
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load de_DE.yml lang file.", true);
             }
         }
 
