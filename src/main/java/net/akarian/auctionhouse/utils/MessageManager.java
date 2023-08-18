@@ -1,6 +1,7 @@
 package net.akarian.auctionhouse.utils;
 
 import lombok.Getter;
+import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import org.bukkit.Bukkit;
@@ -14,7 +15,8 @@ import java.util.*;
 public class MessageManager {
 
     @Getter
-    private final String fileName;
+    @Setter
+    private String fileName;
     private final int currentVersion;
 
     public MessageManager(AuctionHouse plugin) {
@@ -27,15 +29,15 @@ public class MessageManager {
             fm.createFile("/lang/en_US");
             try {
                 fm.copyInputStreamToFile(plugin.getResource("en_US.yml"), fm.getFile("/lang/en_US"));
-                plugin.getChat().log("Loaded en_US.yml", false);
+                plugin.getChat().log("Loaded en_US.yml", plugin.isDebug());
                 if (fm.getConfig("/lang/en_US").getInt("Version") < currentVersion) {
-                    plugin.getChat().log("A language file that is out of date has been loaded. Please contact the developer.", true);
+                    plugin.getChat().log("en_US is out of date and has been loaded. Please contact the developer.", true);
                 }
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load en_US.yml lang file.", true);
             }
         } else {
-            plugin.getChat().log("Comparing en_US file...", true);
+            plugin.getChat().log("Comparing en_US file...", plugin.isDebug());
             try {
                 fm.copyInputStreamToFile(plugin.getResource("en_US.yml"), fm.getFile("/lang/en_US_temp"));
                 File serverFile = fm.getFile("/lang/en_US");
@@ -43,12 +45,12 @@ public class MessageManager {
 
                 if (fm.compareFiles(serverFile, tempFile)) {
                     if (tempFile.delete()) {
-                        plugin.getChat().log("en_US File is up to date.", true);
+                        plugin.getChat().log("en_US File is up to date.", plugin.isDebug());
                     }
 
                 } else {
                     if (serverFile.delete() && tempFile.renameTo(serverFile)) {
-                        plugin.getChat().log("**  en_US File has been updated!", true);
+                        plugin.getChat().log("**  en_US File has been updated!", plugin.isDebug());
                     }
                 }
             } catch (IOException ex) {
@@ -58,15 +60,15 @@ public class MessageManager {
         if (!fm.getFile("/lang/zh_TW").exists()) {
             try {
                 fm.copyInputStreamToFile(plugin.getResource("zh_TW.yml"), fm.getFile("/lang/zh_TW"));
-                plugin.getChat().log("Loaded zh_TW.yml", false);
+                plugin.getChat().log("Loaded zh_TW.yml", plugin.isDebug());
                 if (fm.getConfig("/lang/zh_TW").getInt("Version") < currentVersion) {
-                    plugin.getChat().log("A language file that is out of date has been loaded. Please contact the developer.", true);
+                    plugin.getChat().log("zh_TW is out of date and has been loaded. Please contact the developer.", true);
                 }
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load zh_TW.yml lang file.", true);
             }
         } else {
-            plugin.getChat().log("Comparing zh_TW file...", false);
+            plugin.getChat().log("Comparing zh_TW file...", plugin.isDebug());
             try {
                 fm.copyInputStreamToFile(plugin.getResource("zh_TW.yml"), fm.getFile("/lang/zh_TW_temp"));
                 File serverFile = fm.getFile("/lang/zh_TW");
@@ -74,16 +76,47 @@ public class MessageManager {
 
                 if (fm.compareFiles(serverFile, tempFile)) {
                     if (tempFile.delete()) {
-                        plugin.getChat().log("zh_TW File is up to date.", false);
+                        plugin.getChat().log("zh_TW File is up to date.", plugin.isDebug());
                     }
 
                 } else {
                     if (serverFile.delete() && tempFile.renameTo(serverFile)) {
-                        plugin.getChat().log("**  zh_TW File has been updated!", true);
+                        plugin.getChat().log("**  zh_TW File has been updated!", plugin.isDebug());
                     }
                 }
             } catch (IOException ex) {
                 plugin.getChat().log("Failed to load zh_TW.yml lang file.", true);
+            }
+        }
+        if (!fm.getFile("/lang/pl_PL").exists()) {
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("pl_PL.yml"), fm.getFile("/lang/pl_PL"));
+                plugin.getChat().log("Loaded pl_PL.yml", plugin.isDebug());
+                if (fm.getConfig("/lang/pl_PL").getInt("Version") < currentVersion) {
+                    plugin.getChat().log("pl_PL is out of date and has been loaded. Please contact the developer.", true);
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load pl_PL.yml lang file.", true);
+            }
+        } else {
+            plugin.getChat().log("Comparing pl_PL file...", plugin.isDebug());
+            try {
+                fm.copyInputStreamToFile(plugin.getResource("pl_PL.yml"), fm.getFile("/lang/pl_PL_temp"));
+                File serverFile = fm.getFile("/lang/pl_PL");
+                File tempFile = fm.getFile("/lang/pl_PL_temp");
+
+                if (fm.compareFiles(serverFile, tempFile)) {
+                    if (tempFile.delete()) {
+                        plugin.getChat().log("pl_PL File is up to date.", plugin.isDebug());
+                    }
+
+                } else {
+                    if (serverFile.delete() && tempFile.renameTo(serverFile)) {
+                        plugin.getChat().log("**  pl_PL File has been updated!", plugin.isDebug());
+                    }
+                }
+            } catch (IOException ex) {
+                plugin.getChat().log("Failed to load pl_PL.yml lang file.", true);
             }
         }
 
@@ -92,7 +125,11 @@ public class MessageManager {
         YamlConfiguration configFile = fm.getConfig("config");
         boolean first = false;
         if (!configFile.contains("Language")) {
-            configFile.set("Language", Locale.getDefault().toLanguageTag().replace("-", "_"));
+            String locale = Locale.getDefault().toLanguageTag().replace("-", "_");
+
+            if (!fm.getFile("/lang/" + locale).exists()) locale = "en_US";
+
+            configFile.set("Language", locale);
             fm.saveFile(configFile, "config");
             first = true;
         }
@@ -100,7 +137,7 @@ public class MessageManager {
         if (first) {
             plugin.getChat().log("This is your first time loading the plugin and the language file \"" + fileName + "\". You can change this in-game with the command \"/aha messages\".", true);
 
-            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> plugin.getChat().alert("This is your first time loading the plugin and the language file \"" + fileName + "\". You can change this in the config.yml file."), 20 * 5);
+            Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, () -> plugin.getChat().alert("This is your first time loading the plugin with language files. \"&e" + fileName + "&7\" has been selected automatically. You can change this in-game with the command \"/aha messages\"."), 20 * 5);
         }
 
         if (!fm.getFile("messages").exists()) {
@@ -152,6 +189,7 @@ public class MessageManager {
         fm.getConfig("/lang/" + fileName);
         YamlConfiguration messagesFile = fm.getConfig("messages");
         YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
         String langMessage;
 
         if (!messagesFile.contains(message.toString())) {
@@ -161,8 +199,11 @@ public class MessageManager {
         }
 
         if (langMessage == null) {
-            AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-            return "Message Not Found";
+            langMessage = enFile.getString(message.toString());
+            if (langMessage == null) {
+                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                return "Message Not Found";
+            }
         }
 
         for (String str : placeholders) {
@@ -194,6 +235,7 @@ public class MessageManager {
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         YamlConfiguration messagesFile = fm.getConfig("messages");
         YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
         List<String> langMessage;
 
         if (!messagesFile.contains(message.toString())) {
@@ -203,8 +245,11 @@ public class MessageManager {
         }
 
         if (langMessage.isEmpty()) {
-            AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-            return Collections.singletonList("Message Not Found");
+            langMessage = enFile.getStringList(message.toString());
+            if (langMessage.isEmpty()) {
+                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                return Collections.singletonList("Message Not Found");
+            }
         }
 
         List<String> formatted = new ArrayList<>();
