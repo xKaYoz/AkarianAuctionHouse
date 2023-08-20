@@ -1,0 +1,30 @@
+name: Build & Upload Release jar with Maven
+
+on:
+  release:
+    types: [ published ]
+
+jobs:
+  publish_build_files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '8'
+          cache: 'maven'
+
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
+
+      - name: Upload Release Assets
+        uses: AButler/upload-release-assets@v2.0
+        with:
+          files: 'target/AuctionHouse-*.jar'
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          release-tag: ${{ github.event.release.tag_name }}
