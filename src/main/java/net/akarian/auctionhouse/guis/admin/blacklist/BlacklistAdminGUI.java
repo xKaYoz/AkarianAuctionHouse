@@ -16,6 +16,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Objects;
 
 public class BlacklistAdminGUI implements AkarianInventory {
@@ -37,6 +38,9 @@ public class BlacklistAdminGUI implements AkarianInventory {
         String[] split = itemName.split("x ", 2);
         itemName = split[1];
         switch (slot) {
+            case 8:
+                p.openInventory(new BlacklistMainGUI(p).getInventory());
+                break;
             case 29:
                 AuctionHouse.getInstance().getListingManager().addNameBlacklist(itemName);
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_BLACKLIST_ADD, "%item%;" + itemName));
@@ -86,6 +90,14 @@ public class BlacklistAdminGUI implements AkarianInventory {
     @Override
     public Inventory getInventory() {
         inv = Bukkit.createInventory(this, 45, chat.format("&cAuction House Blacklist"));
+
+        for (int i = 0; i <= 7; i++) {
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        }
+        inv.setItem(8, ItemBuilder.build(Material.BARRIER, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_RETURN_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_RETURN_LORE)));
+        for (int i = 36; i <= 44; i++) {
+            inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
+        }
 
         updateInventory();
 

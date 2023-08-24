@@ -2,6 +2,7 @@ package net.akarian.auctionhouse.guis.admin.blacklist;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -16,30 +17,37 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 
-public class BlacklistViewSelectGUI implements AkarianInventory {
-
-    //TODO lang message entire file
+public class BlacklistMainGUI implements AkarianInventory {
 
     private final Chat chat = AuctionHouse.getInstance().getChat();
     @Getter
     private Inventory inv;
+    private final Player player;
+
+    public BlacklistMainGUI(Player player) {
+        this.player = player;
+    }
 
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
         switch (slot) {
             case 8:
-                p.openInventory(new BlacklistMainGUI(p).getInventory());
+                p.openInventory(new AuctionHouseAdminGUI().getInventory());
                 break;
             case 11:
-                p.openInventory(new BlacklistViewNameGUI(1).getInventory());
-                break;
-            case 13:
-                p.openInventory(new BlacklistViewMaterialGUI(1).getInventory());
+                ItemStack hand = p.getInventory().getItemInMainHand();
+                if (hand != null)
+                    p.openInventory(new BlacklistAdminGUI(hand).getInventory());
+                else {
+                    chat.sendMessage(p, "&cYou must be holding an item in your hand to add to the blacklist.");
+                    return;
+                }
                 break;
             case 15:
-                p.openInventory(new BlacklistViewItemsGUI(1).getInventory());
+                p.openInventory(new BlacklistViewSelectGUI().getInventory());
                 break;
+
         }
 
     }
@@ -47,16 +55,15 @@ public class BlacklistViewSelectGUI implements AkarianInventory {
     @Override
     public void updateInventory() {
 
-        inv.setItem(11, ItemBuilder.build(Material.WRITABLE_BOOK, 1, "&6View Blacklisted Names", Collections.singletonList("&7Click to view blacklisted names.")));
-        inv.setItem(13, ItemBuilder.build(Material.STONE, 1, "&6View Blacklisted Materials", Collections.singletonList("&7Click to view blacklisted materials.")));
-        inv.setItem(15, ItemBuilder.build(Material.CHEST, 1, "&6View Blacklisted Items", Collections.singletonList("&7Click to view blacklisted items.")));
+        inv.setItem(11, ItemBuilder.build(player.getInventory().getItemInMainHand() == null ? Material.STONE : player.getInventory().getItemInMainHand().getType(), 1, "&6Add to the Blacklist", Collections.singletonList("&7Click to add an item to the blacklist.")));
+        inv.setItem(15, ItemBuilder.build(Material.BOOKSHELF, 1, "&6View and Edit the Blacklist", Collections.singletonList("&7Click to view or remove an item from the blacklist.")));
 
     }
 
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format("&cAuction House Blacklist"));
+        inv = Bukkit.createInventory(this, 27, chat.format("&6Blacklist Main Menu"));
 
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -67,7 +74,6 @@ public class BlacklistViewSelectGUI implements AkarianInventory {
         }
 
         updateInventory();
-
         return inv;
     }
 }

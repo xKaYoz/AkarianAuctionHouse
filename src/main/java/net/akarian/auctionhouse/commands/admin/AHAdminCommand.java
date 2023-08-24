@@ -117,6 +117,7 @@ public class AHAdminCommand implements CommandExecutor, TabCompleter {
                     break;
                 case "blacklist":
                     result.add("view");
+                    result.add("add");
                     break;
             }
         }
