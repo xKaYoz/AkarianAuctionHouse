@@ -11,7 +11,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class ServerSettingsGUI implements AkarianInventory {
 
@@ -66,7 +68,7 @@ public class ServerSettingsGUI implements AkarianInventory {
         String creativeLore = (AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? "&a&lEnabled" : "&c&lDisabled");
 
         inv.setItem(10, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGFEE_NAME), mm.getLore(MessageType.GUI_SETTINGS_LISTINGFEE_LORE, "%fee%;" + AuctionHouse.getInstance().getConfigFile().getListingFee())));
-        inv.setItem(12, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_SALESTAX_NAME), mm.getLore(MessageType.GUI_SETTINGS_SALESTAX_LORE, "%tax%;", AuctionHouse.getInstance().getConfigFile().getListingTax())));
+        inv.setItem(12, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_SALESTAX_NAME), mm.getLore(MessageType.GUI_SETTINGS_SALESTAX_LORE, "%tax%;" + AuctionHouse.getInstance().getConfigFile().getListingTax())));
         inv.setItem(14, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().isCreativeListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_CREATIVELISTING_NAME), mm.getLore(MessageType.GUI_SETTINGS_CREATIVELISTING_LORE, "%status%;" + creativeLore)));
         inv.setItem(16, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGTIME_NAME), mm.getLore(MessageType.GUI_SETTINGS_LISTINGTIME_LORE, "%time%;" + chat.formatTime(AuctionHouse.getInstance().getConfigFile().getListingTime()))));
 

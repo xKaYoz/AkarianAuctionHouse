@@ -27,7 +27,6 @@ MESSAGE_GEN_POORLISTINGFEE: '&cNie masz wystarczającej ilości pieniędzy, aby 
 MESSAGE_GEN_INCOMPATIBLEPRICE: '&cNależy podać zgodną cenę.'
 MESSAGE_GEN_RELOADSTART: '&7Przeładowywanie...'
 MESSAGE_GEN_RELOADCOMPLETE: '&aPrzeładowanie zakończone.'
-MESSAGE_GEN_LISTINGBLACKLISTED: '&cNie można dodać tego przedmiotu, ponieważ znajduje się czarnej liście.'
 MESSAGE_BLACKLIST_ADD: 'Dodano %item% do czarnej listy.'
 MESSAGE_BLACKLIST_REMOVE: 'Usunięto %item% z czarnej listy..'
 MESSAGE_BLACKLIST_BLOCKED: '&cNie można dodać tego przedmiotu, ponieważ znajduje się czarnej liście.'

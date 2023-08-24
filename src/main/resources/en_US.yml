@@ -30,7 +30,6 @@ MESSAGE_GEN_POORLISTINGFEE: '&cYou do not have enough money to cover the listing
 MESSAGE_GEN_INCOMPATIBLEPRICE: '&cYou must provide a compatible price.'
 MESSAGE_GEN_RELOADSTART: '&7Reloading...'
 MESSAGE_GEN_RELOADCOMPLETE: '&aReload complete.'
-MESSAGE_GEN_LISTINGBLACKLISTED: '&cThis item is blacklisted from the auction house.'
 MESSAGE_BLACKLIST_ADD: 'You have added %item% to the blacklist.'
 MESSAGE_BLACKLIST_REMOVE: 'You have removed %item% from the blacklist.'
 MESSAGE_BLACKLIST_BLOCKED: '&cThat item is blacklisted from the auction house.'
