@@ -901,8 +901,12 @@ public class ListingManager {
     /**
      * Expire a listing
      *
-     * @param listing - Listing set to expire.
+     * @param listing    Listing set to expire.
+     * @param notify     Notify the creator that the listing expired.
+     * @param ignoreTime Ignore when the listing is supposed to expire.
+     * @param reason     Player UUID String, CONSOLE, or other reason.
      * @return -3: Already expired -2: MySQL Error -1: Not ready to expire 0: Through no change 1: Stored in Database
+     * @apiNote Used to remove a listing from the AuctionHouse.
      */
     public int expire(Listing listing, boolean notify, boolean ignoreTime, String reason) {
 
