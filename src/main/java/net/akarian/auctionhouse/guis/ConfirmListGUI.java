@@ -1,7 +1,11 @@
 package net.akarian.auctionhouse.guis;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.AkarianInventory;
+import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.InventoryHandler;
+import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -21,7 +25,7 @@ public class ConfirmListGUI implements AkarianInventory {
     private final double price;
     private Inventory inv;
 
-    public ConfirmListGUI(Player player, ItemStack itemStack, double price) {
+    public ConfirmListGUI(Player player, ItemStack itemStack, double price, double startingBid, double minIncrement) {
         this.player = player;
         this.itemStack = itemStack;
         this.price = price;
@@ -43,7 +47,7 @@ public class ConfirmListGUI implements AkarianInventory {
                 }
                 //Remove item from Inventory
                 InventoryHandler.removeItemFromPlayer(p, itemStack, itemStack.getAmount(), true);
-                AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), encoded, price);
+                AuctionHouse.getInstance().getListingManager().create(p.getUniqueId(), encoded, price, 0, 0); //TODO edit bid and min increment.
                 player.playSound(player.getLocation(), AuctionHouse.getInstance().getConfigFile().getCreateListingSound(), 5, 1);
 
                 break;

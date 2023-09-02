@@ -1,8 +1,8 @@
-package net.akarian.auctionhouse.guis.admin.blacklist;
+package net.akarian.auctionhouse.guis;
 
 import lombok.Getter;
+import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.guis.admin.AuctionHouseAdminGUI;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
@@ -15,17 +15,30 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
 
-public class BlacklistMainGUI implements AkarianInventory {
+public class ListingBiddingGUI implements AkarianInventory {
 
+    @Getter
+    private static final HashMap<UUID, ListingBiddingGUI> startingBidMap = new HashMap<>();
+    @Getter
+    private static final HashMap<UUID, ListingBiddingGUI> minIncMap = new HashMap<>();
     private final Chat chat = AuctionHouse.getInstance().getChat();
+    private final ListingMainGUI mainGUI;
     @Getter
     private Inventory inv;
-    private final Player player;
+    @Getter
+    @Setter
+    private double startingBid;
+    @Getter
+    @Setter
+    private double minimumIncrement;
 
-    public BlacklistMainGUI(Player player) {
-        this.player = player;
+    public ListingBiddingGUI(ListingMainGUI mainGUI) {
+        this.mainGUI = mainGUI;
     }
 
     @Override
@@ -33,37 +46,34 @@ public class BlacklistMainGUI implements AkarianInventory {
 
         switch (slot) {
             case 8:
-                p.openInventory(new AuctionHouseAdminGUI().getInventory());
+                p.openInventory(mainGUI.getInventory());
                 break;
             case 11:
-                ItemStack hand = p.getInventory().getItemInMainHand();
-                if (hand != null)
-                    p.openInventory(new BlacklistAdminGUI(hand).getInventory());
-                else {
-                    chat.sendMessage(p, "&cYou must be holding an item in your hand to add to the blacklist.");
-                    return;
-                }
+                startingBidMap.put(p.getUniqueId(), this);
+                p.closeInventory();
+                chat.sendMessage(p, "&eEnter the amount for the starting bid...");
+                chat.sendMessage(p, "&eType \"cancel\" or left click to exit.");
                 break;
             case 15:
-                p.openInventory(new BlacklistViewSelectGUI().getInventory());
+                minIncMap.put(p.getUniqueId(), this);
+                p.closeInventory();
+                chat.sendMessage(p, "&eEnter the amount for the minimum increment...");
+                chat.sendMessage(p, "&eType \"cancel\" or left click to exit.");
                 break;
-
         }
 
     }
 
     @Override
     public void updateInventory() {
-
-        inv.setItem(11, ItemBuilder.build(player.getInventory().getItemInMainHand() == null ? Material.STONE : player.getInventory().getItemInMainHand().getType(), 1, "&6Add to the Blacklist", Collections.singletonList("&7Click to add an item to the blacklist.")));
-        inv.setItem(15, ItemBuilder.build(Material.BOOKSHELF, 1, "&6View and Edit the Blacklist", Collections.singletonList("&7Click to view or remove an item from the blacklist.")));
-
+        inv.setItem(11, ItemBuilder.build(Material.GOLD_INGOT, 1, "&eStarting Bid", Arrays.asList("&fCurrent: &2" + chat.formatMoney(startingBid), "", "&7Click to set a starting bid.")));
+        inv.setItem(15, ItemBuilder.build(Material.PAPER, 1, "&eMinimum Increment", Arrays.asList("&fCurrent: &2" + chat.formatMoney(minimumIncrement), "", "&7Click to set a minimum increment for bids.")));
     }
 
     @NotNull
     @Override
     public Inventory getInventory() {
-        inv = Bukkit.createInventory(this, 27, chat.format("&6Blacklist Main Menu"));
+        inv = Bukkit.createInventory(this, 27, chat.format("&6&lBidding Options"));
 
         for (int i = 0; i <= 7; i++) {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
@@ -74,6 +84,7 @@ public class BlacklistMainGUI implements AkarianInventory {
         }
 
         updateInventory();
+
         return inv;
     }
 }

@@ -1,4 +1,4 @@
-package net.akarian.auctionhouse.utils;
+package net.akarian.auctionhouse.utils.messages;
 
 public enum MessageType {
 
@@ -84,6 +84,9 @@ public enum MessageType {
     GUI_MAIN_SORT_NAME("Auction House Sort Button Name"),
     GUI_MAIN_SORT_LORE("Auction House Sort Button Lore"),
     GUI_MAIN_LISTING_ACTIVE("Main Active Listing Template"),
+    GUI_MAIN_BUYNOW("Buy Now Price placeholder"),
+    GUI_MAIN_CURRENTBID("Current Bid Price placeholder"),
+    GUI_MAIN_MININCREMENT("Min Increment Price placeholder"),
     GUI_MAIN_INFO_SELLER("Information put at the bottom of the listing if the creator is viewing."),
     GUI_MAIN_INFO_BUYER("Information put at the bottom of the listing if a buyer is viewing."), //TODO Correct Spelling in the Main Template
     GUI_MAIN_LISTING_EXPIRED("Main Expired Listing Template"),

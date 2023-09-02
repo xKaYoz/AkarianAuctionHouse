@@ -6,7 +6,7 @@ import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -110,12 +110,24 @@ public class AuctionHouseCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2) {
             if (args[0].equalsIgnoreCase("list")) {
                 if (sender instanceof Player)
-                    result.add(String.valueOf(AuctionHouse.getInstance().getConfigFile().getMinListing()));
+                    result.add("[buyNow] [startingBid] [minimumBidIncrement]");
             }
             if (args[0].equalsIgnoreCase("search")) {
                 for (Player p : Bukkit.getOnlinePlayers()) {
                     result.add(AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_SYNTAX_SELLERTAG) + ":" + p.getName());
                 }
+            }
+        }
+        if (args.length == 3) {
+            if (args[0].equalsIgnoreCase("list")) {
+                if (sender instanceof Player)
+                    result.add("[startingBid] [minimumBidIncrement]");
+            }
+        }
+        if (args.length == 4) {
+            if (args[0].equalsIgnoreCase("list")) {
+                if (sender instanceof Player)
+                    result.add("[minimumBidIncrement]");
             }
         }
         return result;

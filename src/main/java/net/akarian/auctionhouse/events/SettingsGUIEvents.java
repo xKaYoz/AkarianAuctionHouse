@@ -7,7 +7,7 @@ import net.akarian.auctionhouse.guis.admin.settings.ServerSettingsGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

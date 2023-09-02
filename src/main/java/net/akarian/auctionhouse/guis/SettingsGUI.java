@@ -1,10 +1,13 @@
 package net.akarian.auctionhouse.guis;
 
 import lombok.Getter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.users.User;
-import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.AkarianInventory;
+import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.messages.MessageManager;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -13,7 +16,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class SettingsGUI implements AkarianInventory {
 
@@ -132,32 +137,32 @@ public class SettingsGUI implements AkarianInventory {
 
         if (isAdmin) {
             inv.setItem(10, ItemBuilder.build(user.getUserSettings().isOpenAdminMode() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_ADMINMODE_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_ADMINMODE_LORE, "%status%;" + adminStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_ADMINMODE_LORE, "%status%;" + adminStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(13, ItemBuilder.build(user.getUserSettings().isAlertNearExpire() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_EXPIRATION_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATION_LORE, "%status%;" + expireStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATION_LORE, "%status%;" + expireStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(22, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_EXPIRATIONTIME_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATIONTIME_LORE, "%time%;" + expireTime, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATIONTIME_LORE, "%time%;" + expireTime, "%papi%;" + player.getUniqueId())));
             inv.setItem(16, ItemBuilder.build(user.getUserSettings().isAlertListingBought() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGBOUGHT_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGBOUGHT_LORE, "%status%;" + boughtStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGBOUGHT_LORE, "%status%;" + boughtStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(28, ItemBuilder.build(user.getUserSettings().isAlertCreateListings() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGCREATED_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGCREATED_LORE, "%status%;" + createdStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGCREATED_LORE, "%status%;" + createdStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(31, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_SOUNDS_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_SOUNDS_LORE, "%status%;" + soundsStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_SOUNDS_LORE, "%status%;" + soundsStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(34, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_AUTOCONFIRM_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_AUTOCONFIRM_LORE, "%status%;" + autoConfirmStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_AUTOCONFIRM_LORE, "%status%;" + autoConfirmStatus, "%papi%;" + player.getUniqueId())));
         } else {
             inv.setItem(10, ItemBuilder.build(user.getUserSettings().isAlertCreateListings() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_ADMINMODE_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_ADMINMODE_LORE, "%status%;" + adminStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_ADMINMODE_LORE, "%status%;" + adminStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(12, ItemBuilder.build(user.getUserSettings().isAlertNearExpire() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_EXPIRATION_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATION_LORE, "%status%;" + expireStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATION_LORE, "%status%;" + expireStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(14, ItemBuilder.build(user.getUserSettings().isAlertListingBought() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_LISTINGBOUGHT_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGBOUGHT_LORE, "%status%;" + boughtStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_LISTINGBOUGHT_LORE, "%status%;" + boughtStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(16, ItemBuilder.build(user.getUserSettings().isAutoConfirmListing() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_AUTOCONFIRM_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_AUTOCONFIRM_LORE, "%status%;" + autoConfirmStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_AUTOCONFIRM_LORE, "%status%;" + autoConfirmStatus, "%papi%;" + player.getUniqueId())));
             inv.setItem(21, ItemBuilder.build(Material.PAPER, 1, mm.getMessage(MessageType.GUI_SETTINGS_EXPIRATIONTIME_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATIONTIME_LORE, "%time%;" + expireTime, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_EXPIRATIONTIME_LORE, "%time%;" + expireTime, "%papi%;" + player.getUniqueId())));
             inv.setItem(23, ItemBuilder.build(user.getUserSettings().isSounds() ? Material.LIME_DYE : Material.GRAY_DYE, 1, mm.getMessage(MessageType.GUI_SETTINGS_SOUNDS_NAME),
-                    mm.getLore(MessageType.GUI_SETTINGS_SOUNDS_LORE, "%status%;" + soundsStatus, "%papi%;" + player.getUniqueId().toString())));
+                    mm.getLore(MessageType.GUI_SETTINGS_SOUNDS_LORE, "%status%;" + soundsStatus, "%papi%;" + player.getUniqueId())));
         }
 
     }

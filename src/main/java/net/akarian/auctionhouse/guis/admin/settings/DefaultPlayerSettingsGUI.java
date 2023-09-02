@@ -2,7 +2,11 @@ package net.akarian.auctionhouse.guis.admin.settings;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.AkarianInventory;
+import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.messages.MessageManager;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,7 +15,9 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.UUID;
 
 public class DefaultPlayerSettingsGUI implements AkarianInventory {
 

@@ -1,10 +1,10 @@
-package net.akarian.auctionhouse.utils;
+package net.akarian.auctionhouse.utils.messages;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.utils.FileManager;
 import org.bukkit.configuration.file.YamlConfiguration;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class Messages {

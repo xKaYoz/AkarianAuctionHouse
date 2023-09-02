@@ -3,7 +3,7 @@ package net.akarian.auctionhouse.commands.admin.subcommands;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.command.CommandSender;
 
 public class ReloadSubCommand extends AkarianCommand {
@@ -29,6 +29,7 @@ public class ReloadSubCommand extends AkarianCommand {
         } else if (args.length == 2) {
             if (args[1].equalsIgnoreCase("messages")) {
                 chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADSTART));
+                AuctionHouse.getInstance().getMessageManager().clearCache();
                 chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADCOMPLETE));
             } else if (args[1].equalsIgnoreCase("config")) {
                 chat.sendMessage(sender, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_RELOADSTART));

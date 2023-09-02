@@ -17,15 +17,15 @@ import java.util.logging.Level;
 
 public class MySQL {
 
+    private final Plugin plugin = AuctionHouse.getInstance();
+    private final Chat chat = AuctionHouse.getInstance().getChat();
     @Getter
     @Setter
     private Connection connection;
-    private final Plugin plugin = AuctionHouse.getInstance();
     @Getter
     private String host, database, username, password, listingsTable, expiredTable, completedTable, usersTable;
     @Getter
     private int port;
-    private final Chat chat = AuctionHouse.getInstance().getChat();
     @Getter
     @Setter
     private boolean connected;
@@ -57,22 +57,18 @@ public class MySQL {
                 chat.log("", AuctionHouse.getInstance().isDebug());
                 chat.log("Checking Tables...", AuctionHouse.getInstance().isDebug());
                 chat.log("", AuctionHouse.getInstance().isDebug());
-                if (checkTable(listingsTable, "ID VARCHAR(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) DEFAULT '0', BUYER varchar(255) DEFAULT NULL, UPDATED bigint(20) NOT NULL"))
+                if (checkTable(listingsTable, "ID VARCHAR(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, STARTING_BID DOUBLE NOT NULL, MINIMUM_INCREMENT DOUBLE NOT NULL, BIDDERS TEXT(65535) DEFAULT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) DEFAULT '0', BUYER varchar(255) DEFAULT NULL, UPDATED bigint(20) NOT NULL"))
                     chat.log("Listings table checked.", AuctionHouse.getInstance().isDebug());
-                else
-                    chat.log("!! Listings Table Failed Check !!", true);
-                if (checkTable(expiredTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, REASON varchar(255) NOT NULL, RECLAIMED BOOLEAN DEFAULT '0'"))
+                else chat.log("!! Listings Table Failed Check !!", true);
+                if (checkTable(expiredTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, STARTING_BID DOUBLE NOT NULL, MINIMUM_INCREMENT DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, REASON varchar(255) NOT NULL, RECLAIMED BOOLEAN DEFAULT '0'"))
                     chat.log("Expired table checked.", AuctionHouse.getInstance().isDebug());
-                else
-                    chat.log("!! Expired Table Failed Check !!", true);
-                if (checkTable(completedTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, BUYER varchar(255) NOT NULL, CLAIMED BOOLEAN DEFAULT '1'"))
+                else chat.log("!! Expired Table Failed Check !!", true);
+                if (checkTable(completedTable, "ID varchar(50) NOT NULL PRIMARY KEY, ITEM_STACK TEXT(65535) NOT NULL, PRICE DOUBLE NOT NULL, STARTING_BID DOUBLE NOT NULL, MINIMUM_INCREMENT DOUBLE NOT NULL, CREATOR varchar(255) NOT NULL, START bigint(20) NOT NULL, END bigint(20) NOT NULL, BUYER varchar(255) NOT NULL, CLAIMED BOOLEAN DEFAULT '1'"))
                     chat.log("Completed table checked.", AuctionHouse.getInstance().isDebug());
-                else
-                    chat.log("!! Completed Table Failed Check !!", true);
+                else chat.log("!! Completed Table Failed Check !!", true);
                 if (checkTable(usersTable, "ID varchar(50) NOT NULL PRIMARY KEY, USERNAME TEXT(65535) NOT NULL, ALERT_CREATE BOOLEAN DEFAULT '0', OPEN_ADMIN BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE BOOLEAN DEFAULT '0', ALERT_NEAR_EXPIRE_TIME bigint(20) NOT NULL, LISTING_BOUGHT BOOLEAN DEFAULT '0', AUTO_CONFIRM BOOLEAN DEFAULT '0', SOUNDS BOOLEAN DEFAULT '0'"))
                     chat.log("Users table checked.", AuctionHouse.getInstance().isDebug());
-                else
-                    chat.log("!! Users Table Failed Check !!", true);
+                else chat.log("!! Users Table Failed Check !!", true);
                 chat.log("", AuctionHouse.getInstance().isDebug());
                 chat.log("Starting connection timer.", AuctionHouse.getInstance().isDebug());
                 startConnectionTimer();
@@ -80,7 +76,8 @@ public class MySQL {
                 if (transferring != null) {
                     Player p = Bukkit.getPlayer(transferring);
                     if (p == null) return connected = true;
-                    p.openInventory(new DatabaseTransferStatusGUI(p).getInventory());
+                    Bukkit.getScheduler().runTask(plugin, () -> p.openInventory(new DatabaseTransferStatusGUI(p).getInventory()));
+
                     transferring = null;
                 }
                 return connected = true;
@@ -89,59 +86,157 @@ public class MySQL {
                 plugin.getLogger().log(Level.SEVERE, "An error has occurred while connecting to the database. Please see stacktrace above.");
                 chat.log("", AuctionHouse.getInstance().isDebug());
                 chat.log("---------------------------------------------", AuctionHouse.getInstance().isDebug());
-                if (transferring != null) {
-                    Bukkit.getPlayer(transferring).openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).connectionDisapproved());
+                if (e.getCause() == null) {
+                    if (transferring != null) {
+                        Player p = Bukkit.getPlayer(transferring);
+                        if (p == null) return connected = false;
+                        Bukkit.getScheduler().runTask(plugin, () -> p.openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).connectionDisapproved()));
+                    }
+                    return connected = false;
                 }
-                if (e.getCause() == null) return false;
                 chat.alert("&c&l" + plugin.getName() + " has encountered an error connecting to the MySQL database. Please check console. E" + e.getCause().getLocalizedMessage());
+                if (transferring != null) {
+                    Player p = Bukkit.getPlayer(transferring);
+                    if (p == null) return connected = false;
+                    Bukkit.getScheduler().runTask(plugin, () -> p.openInventory(new DatabaseTransferStatusGUI(Bukkit.getPlayer(transferring)).connectionDisapproved()));
+                }
                 return connected = false;
             }
         }
         return true;
     }
 
-    public boolean checkTable(String tableName, String query){
+    public boolean checkTable(String tableName, String query) {
         try {
             Statement s = connection.createStatement();
+            PreparedStatement check = connection.prepareStatement("SELECT * FROM information_schema.COLUMNS WHERE TABLE_SCHEMA=? AND TABLE_NAME=? AND COLUMN_NAME=?");
             s.executeUpdate("CREATE TABLE IF NOT EXISTS " + tableName + " (" + query + ")");
+            check.setString(1, database);
 
             if (tableName.equalsIgnoreCase(expiredTable)) {
 
+                boolean priceCheck = false;
+                boolean bidCheck = false;
+                check.setString(2, expiredTable);
+
                 try {
-                    s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN PRICE DOUBLE NOT NULL AFTER ITEM_STACK");
-                    s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN START bigint(20) NOT NULL AFTER CREATOR");
-                    s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN END bigint(20) NOT NULL AFTER START");
-                    s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN REASON varchar(255) NOT NULL AFTER END");
-                    s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN RECLAIMED BOOLEAN DEFAULT 0 AFTER REASON");
-                    return true;
+                    check.setString(3, "PRICE");
+
+                    ResultSet rs = check.executeQuery();
+                    while (rs.next()) {
+                        priceCheck = true;
+                    }
+                    if (!priceCheck) {
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN PRICE DOUBLE NOT NULL AFTER ITEM_STACK");
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN START bigint(20) NOT NULL AFTER CREATOR");
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN END bigint(20) NOT NULL AFTER START");
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN REASON varchar(255) NOT NULL AFTER END");
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN RECLAIMED BOOLEAN DEFAULT 0 AFTER REASON");
+                    }
+
+                    check.setString(3, "STARTING_BID");
+                    rs = check.executeQuery();
+                    while (rs.next()) {
+                        bidCheck = true;
+                    }
+                    if (!bidCheck) {
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN STARTING_BID DOUBLE NOT NULL AFTER PRICE");
+                        s.executeUpdate("ALTER TABLE " + expiredTable + " ADD COLUMN MINIMUM_INCREMENT DOUBLE NOT NULL AFTER STARTING_BID");
+                        chat.log("Created bidding columns for expired table (v1.4.0)", AuctionHouse.getInstance().isDebug());
+                    }
                 } catch (SQLException e) {
-                    return true;
+                    e.printStackTrace();
+                    return false;
                 }
             }
 
             if (tableName.equalsIgnoreCase(usersTable)) {
 
+                boolean soundsCheck = false;
+                check.setString(2, usersTable);
+
                 try {
-                    s.executeUpdate("ALTER TABLE " + usersTable + " ADD COLUMN SOUNDS BOOLEAN DEFAULT 0 AFTER AUTO_CONFIRM");
-                    chat.log("Created sounds column for users table (v1.2.4)", AuctionHouse.getInstance().isDebug());
+                    check.setString(3, "SOUNDS");
+                    ResultSet rs = check.executeQuery();
+
+                    while (rs.next()) {
+                        soundsCheck = true;
+                    }
+                    if (!soundsCheck) {
+                        s.executeUpdate("ALTER TABLE " + usersTable + " ADD COLUMN SOUNDS BOOLEAN DEFAULT 0 AFTER AUTO_CONFIRM");
+                        chat.log("Created sounds column for users table (v1.2.4)", AuctionHouse.getInstance().isDebug());
+                    }
                 } catch (SQLException e) {
-                    return true;
+                    return false;
                 }
 
             }
             if (tableName.equalsIgnoreCase(listingsTable)) {
+
+                boolean syncCheck = false;
+                boolean biddingCheck = false;
+                check.setString(2, listingsTable);
                 try {
-                    s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN UPDATED bigint(20) NOT NULL AFTER BUYER");
+                    check.setString(3, "UPDATED");
+                    ResultSet rs = check.executeQuery();
+
+                    while (rs.next()) {
+                        syncCheck = true;
+                    }
+                    if (!syncCheck) {
+                        s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN UPDATED bigint(20) NOT NULL AFTER BUYER");
+                        chat.log("Created sync column for listings table.", AuctionHouse.getInstance().isDebug());
+                    }
+                    check.setString(3, "STARTING_BID");
+                    rs = check.executeQuery();
+
+                    while (rs.next()) {
+                        biddingCheck = true;
+                    }
+                    if (!biddingCheck) {
+                        s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN STARTING_BID DOUBLE NOT NULL AFTER PRICE");
+                        s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN MINIMUM_INCREMENT DOUBLE NOT NULL AFTER STARTING_BID");
+                        s.executeUpdate("ALTER TABLE " + listingsTable + " ADD COLUMN BIDDER TEXT(65535) DEFAULT NULL AFTER MINIMUM_INCREMENT");
+                        chat.log("Created bidding columns for listings table (v1.4.0)", AuctionHouse.getInstance().isDebug());
+                    }
                 } catch (SQLException e) {
-                    return true;
+                    e.printStackTrace();
+                    return false;
                 }
             }
 
             if (tableName.equalsIgnoreCase(completedTable)) {
+                boolean reclaimedCheck = false;
+                boolean biddingCheck = false;
+                check.setString(2, completedTable);
                 try {
-                    s.executeUpdate("ALTER TABLE " + completedTable + " ADD COLUMN CLAIMED BOOLEAN DEFAULT 1 AFTER BUYER");
+                    check.setString(3, "CLAIMED");
+                    ResultSet rs = check.executeQuery();
+
+                    while (rs.next()) {
+                        reclaimedCheck = true;
+                    }
+
+                    if (!reclaimedCheck) {
+                        s.executeUpdate("ALTER TABLE " + completedTable + " ADD COLUMN CLAIMED BOOLEAN DEFAULT 1 AFTER BUYER");
+                        chat.log("Created claimed column for completed table", AuctionHouse.getInstance().isDebug());
+                    }
+
+                    check.setString(3, "STARTING_BID");
+                    rs = check.executeQuery();
+
+                    while (rs.next()) {
+                        biddingCheck = true;
+                    }
+
+                    if (!biddingCheck) {
+                        s.executeUpdate("ALTER TABLE " + completedTable + " ADD COLUMN STARTING_BID DOUBLE NOT NULL AFTER PRICE");
+                        s.executeUpdate("ALTER TABLE " + completedTable + " ADD COLUMN MINIMUM_INCREMENT DOUBLE NOT NULL AFTER STARTING_BID");
+                        chat.log("Created bidding columns for completed table (v1.4.0)", AuctionHouse.getInstance().isDebug());
+                    }
                 } catch (SQLException e) {
-                    return true;
+                    e.printStackTrace();
+                    return false;
                 }
             }
 
@@ -158,8 +253,7 @@ public class MySQL {
         Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, () -> {
             if (reconnect())
                 chat.log("Successfully established reconnection timer to the database.", AuctionHouse.getInstance().isDebug());
-            else
-                chat.log("Failed to establish reconnection timer.", AuctionHouse.getInstance().isDebug());
+            else chat.log("Failed to establish reconnection timer.", AuctionHouse.getInstance().isDebug());
         }, 0, 20 * 60 * 60);
     }
 
@@ -199,6 +293,8 @@ public class MySQL {
 
             String itemstack = completedFile.getString(s + ".ItemStack");
             double price = completedFile.getDouble(s + ".Price");
+            double startingBid = completedFile.getDouble(s + ".Starting Bid");
+            double minimumIncrement = completedFile.getDouble(s + ".Minimum Increment");
             String creator = completedFile.getString(s + ".Creator");
             long start = completedFile.getLong(s + ".Start");
             long end = completedFile.getLong(s + ".End");
@@ -206,16 +302,18 @@ public class MySQL {
             boolean claimed = completedFile.getBoolean(s + ".Reclaimed");
 
             try {
-                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER,CLAIMED) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getCompletedTable() + " (ID,ITEM_STACK,PRICE,STARTING_BID,MINIMUM_INCREMENT,CREATOR,START,END,BUYER,CLAIMED) VALUES (?,?,?,?,?,?,?,?,?,?)");
 
                 statement.setString(1, s);
                 statement.setString(2, itemstack);
                 statement.setDouble(3, price);
-                statement.setString(4, creator);
-                statement.setLong(5, start);
-                statement.setLong(6, end);
-                statement.setString(7, buyer);
-                statement.setBoolean(8, claimed);
+                statement.setDouble(4, startingBid);
+                statement.setDouble(5, minimumIncrement);
+                statement.setString(6, creator);
+                statement.setLong(7, start);
+                statement.setLong(8, end);
+                statement.setString(9, buyer);
+                statement.setBoolean(10, claimed);
 
                 statement.executeUpdate();
                 statement.closeOnCompletion();
@@ -241,7 +339,9 @@ public class MySQL {
         Set<String> expireKeySet = expiredFile.getValues(false).keySet();
         for (String s : expireKeySet) {
             String creator = expiredFile.getString(s + ".Creator");
-            Double price = expiredFile.getDouble(s + ".Price");
+            double price = expiredFile.getDouble(s + ".Price");
+            double startingBid = expiredFile.getDouble(s + ".Starting Bid");
+            double minimumIncrement = expiredFile.getDouble(s + ".Minimum Increment");
             String itemStack = expiredFile.getString(s + ".ItemStack");
             long start = expiredFile.getLong(s + ".Start");
             long end = expiredFile.getLong(s + ".End");
@@ -249,16 +349,18 @@ public class MySQL {
             boolean reclaimed = expiredFile.getBoolean(s + ".Reclaimed");
 
             try {
-                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getExpiredTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,REASON,RECLAIMED) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getExpiredTable() + " (ID,ITEM_STACK,PRICE,STARTING_BID,MINIMUM_INCREMENT,CREATOR,START,END,REASON,RECLAIMED) VALUES (?,?,?,?,?,?,?,?,?,?)");
 
                 statement.setString(1, s);
                 statement.setString(2, itemStack);
                 statement.setDouble(3, price);
-                statement.setString(4, creator);
-                statement.setLong(5, start);
-                statement.setLong(6, end);
-                statement.setString(7, reason);
-                statement.setBoolean(8, reclaimed);
+                statement.setDouble(4, startingBid);
+                statement.setDouble(5, minimumIncrement);
+                statement.setString(6, creator);
+                statement.setLong(7, start);
+                statement.setLong(8, end);
+                statement.setString(9, reason);
+                statement.setBoolean(10, reclaimed);
 
                 statement.executeUpdate();
                 statement.close();
@@ -286,18 +388,24 @@ public class MySQL {
         for (String s : listingsKeySet) {
             String itemstack = listingsFile.getString(s + ".ItemStack");
             double price = listingsFile.getDouble(s + ".Price");
+            double startingBid = listingsFile.getDouble(s + ".Starting Bid");
+            double minimumIncrement = listingsFile.getDouble(s + ".Minimum Increment");
+            String bidder = listingsFile.getString(s + ".Bidder");
             String creator = listingsFile.getString(s + ".Creator");
             long start = listingsFile.getLong(s + ".Start");
             try {
-                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getListingsTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER) VALUES (?,?,?,?,?,?,?)");
+                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getListingsTable() + " (ID,ITEM_STACK,PRICE,STARTING_BID,MINIMUM_INCREMENT,BIDDER,CREATOR,START,END,BUYER,UPDATED) VALUES (?,?,?,?,?,?,?,?,?,?,?)");
 
                 statement.setString(1, s);
                 statement.setString(2, itemstack);
                 statement.setDouble(3, price);
-                statement.setString(4, creator);
-                statement.setLong(5, start);
-                statement.setLong(6, 0);
-                statement.setString(7, null);
+                statement.setDouble(4, startingBid);
+                statement.setDouble(5, minimumIncrement);
+                statement.setString(6, bidder);
+                statement.setString(7, creator);
+                statement.setLong(8, start);
+                statement.setLong(9, 0);
+                statement.setString(10, null);
 
                 statement.executeUpdate();
                 statement.close();
@@ -330,10 +438,11 @@ public class MySQL {
             long alert_expire_time = usersFile.getLong(s + ".Alert Near Expire.Time");
             boolean alert_bought = usersFile.getBoolean(s + ".Alert Listing Bought");
             boolean auto_confirm = usersFile.getBoolean(s + ".Auto Confirm Listing");
+            boolean sounds = usersFile.getBoolean(s + ".Sounds");
 
 
             try {
-                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getUsersTable() + " (ID,USERNAME,ALERT_CREATE,OPEN_ADMIN,ALERT_NEAR_EXPIRE,ALERT_NEAR_EXPIRE_TIME,LISTING_BOUGHT,AUTO_CONFIRM) VALUES (?,?,?,?,?,?,?,?)");
+                PreparedStatement statement = getConnection().prepareStatement("INSERT INTO " + getUsersTable() + " (ID,USERNAME,ALERT_CREATE,OPEN_ADMIN,ALERT_NEAR_EXPIRE,ALERT_NEAR_EXPIRE_TIME,LISTING_BOUGHT,AUTO_CONFIRM,SOUNDS) VALUES (?,?,?,?,?,?,?,?,?)");
 
                 statement.setString(1, s);
                 statement.setString(2, username);
@@ -343,6 +452,7 @@ public class MySQL {
                 statement.setLong(6, alert_expire_time);
                 statement.setBoolean(7, alert_bought);
                 statement.setBoolean(8, auto_confirm);
+                statement.setBoolean(9, sounds);
 
                 statement.executeUpdate();
                 statement.closeOnCompletion();

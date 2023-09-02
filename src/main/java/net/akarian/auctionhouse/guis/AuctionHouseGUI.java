@@ -2,7 +2,6 @@ package net.akarian.auctionhouse.guis;
 
 import lombok.Getter;
 import lombok.Setter;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.comparators.*;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
@@ -12,7 +11,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -336,7 +335,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             }
         }
         if (layout.getInfoButton() != -1)
-            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + player.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
+            inv.setItem(layout.getInfoButton(), ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + player.getUniqueId(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(player)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
 
     }
 

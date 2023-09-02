@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.utils;
 import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import org.bukkit.Bukkit;

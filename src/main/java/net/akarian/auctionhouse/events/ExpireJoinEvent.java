@@ -3,7 +3,7 @@ package net.akarian.auctionhouse.events;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

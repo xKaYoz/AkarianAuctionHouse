@@ -76,6 +76,7 @@ public class HelpSubCommand extends AkarianCommand {
         }
         chat.sendRawMessage(sender, "");
         chat.sendRawMessage(sender, "&7For more help or to get support, join our discord https://discord.gg/KmakDJgCd8");
+        chat.sendRawMessage(sender, "&7You are running &eAkarian Auction House v." + AuctionHouse.getInstance().getDescription().getVersion());
         chat.sendRawMessage(sender, "");
         chat.sendRawMessage(sender, "&8&m----------------------------------------");
     }

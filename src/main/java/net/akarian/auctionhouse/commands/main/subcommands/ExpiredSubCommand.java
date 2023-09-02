@@ -6,7 +6,7 @@ import net.akarian.auctionhouse.guis.ExpireReclaimGUI;
 import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

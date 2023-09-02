@@ -5,8 +5,8 @@ import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
 import net.akarian.auctionhouse.utils.UUIDDataType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,8 +35,7 @@ public class Listing {
     @Setter
     private ItemStack itemStack;
     @Getter
-    @Setter
-    private double price;
+    private final boolean isBiddable;
     @Getter
     @Setter
     private long end;
@@ -51,18 +51,76 @@ public class Listing {
     @Getter
     @Setter
     private boolean expired, completed;
+    @Getter
+    public ArrayList<String> bids;
+    @Getter
+    public UUID currentBidder;
+    @Getter
+    public double currentBid;
+    @Getter
+    @Setter
+    private double buyNowPrice;
+    @Getter
+    @Setter
+    private double startingBid;
+    @Getter
+    @Setter
+    private double minimumIncrement;
 
-    public Listing(UUID id, UUID creator, ItemStack itemStack, Double price, Long start) {
+    //Buy Now Listing
+    public Listing(UUID id, UUID creator, ItemStack itemStack, Double buyNowPrice, Long start) {
         plugin = AuctionHouse.getInstance();
         chat = plugin.getChat();
         this.id = id;
         this.creator = creator;
         this.itemStack = itemStack;
-        this.price = price;
+        this.buyNowPrice = buyNowPrice;
         this.start = start;
         this.reclaimed = false;
         this.expired = false;
         this.completed = false;
+        this.isBiddable = false;
+    }
+
+    public Listing(UUID id, UUID creator, ItemStack itemStack, Double buyNowPrice, double startingBid, double minimumIncrement, Long start) {
+        plugin = AuctionHouse.getInstance();
+        chat = plugin.getChat();
+        this.id = id;
+        this.creator = creator;
+        this.itemStack = itemStack;
+        this.buyNowPrice = buyNowPrice;
+        this.start = start;
+        this.reclaimed = false;
+        this.expired = false;
+        this.completed = false;
+        this.startingBid = startingBid;
+        this.minimumIncrement = minimumIncrement;
+        this.isBiddable = true;
+        this.bids = new ArrayList<>();
+    }
+
+    public String formatBidders() {
+        StringBuilder builder = new StringBuilder();
+        for (String s : bids) {
+            builder.append(s).append(":");
+        }
+        return builder.toString();
+    }
+
+    public void setBidders(String bidders) {
+        String[] split = bidders.split(":");
+        bids.addAll(Arrays.asList(split));
+    }
+
+    public void newCurrentBid(UUID bidder, Double newBid) {
+        bids.add(bidder + ";" + newBid);
+        Player currentBidderPlayer = Bukkit.getPlayer(currentBidder);
+        if (currentBidderPlayer != null) {
+            //TODO notify of outbid
+            chat.sendMessage(currentBidderPlayer, "&cYou have been outbid for &e" + chat.formatItem(itemStack) + "&c for &2" + chat.formatMoney(newBid) + "&c.");
+        }
+        currentBidder = bidder;
+        currentBid = newBid;
     }
 
     public ItemStack createAdminActiveListing(Player player) {
@@ -108,7 +166,12 @@ public class Listing {
                     }
                 }
             } else {
-                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%price%", chat.formatMoney(price)));
+
+                String buyNowPriceStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_BUYNOW, "%price%;" + chat.formatMoney(getBuyNowPrice()));
+                String bidStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_CURRENTBID, "%price%;" + chat.formatMoney(currentBid));
+                String minIncrementStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_MININCREMENT, "%price%;" + chat.formatMoney(currentBid + minimumIncrement));
+
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%buyNow%", buyNowPriceStr).replace("%currentBid%", bidStr).replace("%minIncrement%", minIncrementStr));
             }
         }
         itemMeta.setLore(chat.formatList(tlore));
@@ -160,9 +223,9 @@ public class Listing {
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator()))));
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator()))));
                 else
-                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator())));
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)).replace("%seller%", AuctionHouse.getInstance().getNameManager().getName(getCreator())));
             }
         }
 
@@ -217,9 +280,9 @@ public class Listing {
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price))).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
+                    tlore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice))).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
                 else
-                    tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
+                    tlore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)).replace("%buyer%", AuctionHouse.getInstance().getNameManager().getName(buyer)));
             }
         }
         itemMeta.setLore(chat.formatList(tlore));
@@ -271,9 +334,9 @@ public class Listing {
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
-                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price))));
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice))));
                 else
-                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)));
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)));
             }
         }
 
@@ -327,9 +390,9 @@ public class Listing {
                 }
             } else {
                 if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
+                    lore.add(PlaceholderAPI.setPlaceholders(player, s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse")));
                 } else
-                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(price)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
+                    lore.add(s.replace("%start%", chat.formatDate(getStart())).replace("%end%", chat.formatDate(getEnd())).replace("%price%", chat.formatMoney(buyNowPrice)).replace("%reclaimed%", isReclaimed() ? "&aTrue" : "&cFalse"));
             }
         }
 
@@ -378,7 +441,7 @@ public class Listing {
         assert tlore != null;
 
         long seconds = ((start + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) - System.currentTimeMillis()) / 1000;
-        double tax = AuctionHouse.getInstance().getConfigFile().calculateListingTax(player, getPrice());
+        double tax = AuctionHouse.getInstance().getConfigFile().calculateListingTax(player, getBuyNowPrice());
 
         NamespacedKey key = new NamespacedKey(AuctionHouse.getInstance(), "listing-id");
         ItemMeta itemMeta = itemStack.hasItemMeta() ? itemStack.getItemMeta() : new ItemStack(getItemStack().getType()).getItemMeta();
@@ -408,7 +471,12 @@ public class Listing {
                 } else
                     tlore.addAll(AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_BUYER));
             } else {
-                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%price%", chat.formatMoney(price)).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((price + tax))));
+
+                String buyNowPriceStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_BUYNOW, "%price%;" + chat.formatMoney(buyNowPrice));
+                String bidStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_CURRENTBID, "%price%;" + chat.formatMoney(currentBid));
+                String minIncrementStr = AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_MININCREMENT, "%price%;" + chat.formatMoney(currentBid + minimumIncrement));
+
+                tlore.add(s.replace("%time%", chat.formatTime(seconds)).replace("%creator%", plugin.getNameManager().getName(creator)).replace("%buyNow%", buyNowPriceStr).replace("%currentBid%", bidStr).replace("%minIncrement%", minIncrementStr).replace("%tax%", chat.formatMoney(tax)).replace("%total%", chat.formatMoney((buyNowPrice + tax))));
             }
         }
 

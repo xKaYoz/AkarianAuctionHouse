@@ -1,9 +1,10 @@
-package net.akarian.auctionhouse.utils;
+package net.akarian.auctionhouse.utils.messages;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.utils.FileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.FileUtil;
@@ -18,10 +19,14 @@ public class MessageManager {
     @Getter
     @Setter
     private String fileName;
+    private final HashMap<MessageType, String> messageCache;
+    private final HashMap<MessageType, List<String>> loreCache;
 
     public MessageManager(AuctionHouse plugin) {
 
         currentVersion = 1;
+        messageCache = new HashMap<>();
+        loreCache = new HashMap<>();
 
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         //Load all the language files
@@ -192,6 +197,11 @@ public class MessageManager {
 
     }
 
+    public void clearCache() {
+        messageCache.clear();
+        loreCache.clear();
+    }
+
     public ArrayList<String> compareMessageFileToLangFile() {
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         YamlConfiguration lang = fm.getConfig("/lang/" + fileName);
@@ -216,6 +226,9 @@ public class MessageManager {
      * @param placeholders Message Placeholders. %item%;value
      */
     public String getMessage(MessageType message, String... placeholders) {
+
+        if (messageCache.containsKey(message)) return messageCache.get(message);
+
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         fm.getConfig("/lang/" + fileName);
         YamlConfiguration messagesFile = fm.getConfig("messages");
@@ -254,6 +267,7 @@ public class MessageManager {
 
 
         }
+        messageCache.put(message, langMessage);
         return langMessage;
     }
 
@@ -263,6 +277,8 @@ public class MessageManager {
      * @return Formatted lore
      */
     public List<String> getLore(MessageType message, String... placeholders) {
+        if (loreCache.containsKey(message)) return loreCache.get(message);
+
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         YamlConfiguration messagesFile = fm.getConfig("messages");
         YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
@@ -303,6 +319,7 @@ public class MessageManager {
             }
             formatted.add(main);
         }
+        loreCache.put(message, formatted);
         return formatted;
     }
 

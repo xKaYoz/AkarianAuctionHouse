@@ -6,7 +6,7 @@
 
     <groupId>net.akarian</groupId>
     <artifactId>AuctionHouse</artifactId>
-    <version>1.3.1-b1</version>
+    <version>1.4.0-b5</version>
     <packaging>jar</packaging>
 
     <name>AkarianAuctionHouse</name>

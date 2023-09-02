@@ -5,7 +5,7 @@ import net.akarian.auctionhouse.guis.admin.database.MainDatabaseGUI;
 import net.akarian.auctionhouse.guis.admin.database.transfer.DatabaseTransferStatusGUI;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
