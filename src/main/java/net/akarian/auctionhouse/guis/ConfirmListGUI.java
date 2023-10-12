@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -69,12 +70,19 @@ public class ConfirmListGUI implements AkarianInventory {
 
 
         List<String> lore = new ArrayList<>();
+        if (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasLore()) {
+            lore.addAll(itemStack.getItemMeta().getLore());
+        }
         for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_CONFIRMLIST_LORE)) {
             lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%",
                     chat.formatMoney(AuctionHouse.getInstance().getConfigFile().calculateListingFee(price))));
         }
+        ItemMeta meta = itemStack.getItemMeta();
+        meta.setLore(lore);
+        meta.setDisplayName(chat.formatItem(itemStack));
+        itemStack.setItemMeta(meta);
 
-        inv.setItem(4, ItemBuilder.build(itemStack.getType(), 1, chat.formatItem(itemStack), lore));
+        inv.setItem(4, itemStack);
 
         for (int i = 5; i < 9; i++) {
             inv.setItem(i, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));

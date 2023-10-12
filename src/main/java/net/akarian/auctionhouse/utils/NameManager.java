@@ -63,7 +63,10 @@ public class NameManager {
             return checkDatabase(uuid);
         }
         //Check if we can use the BukkitAPI to get the UUID
-        if (Bukkit.getPlayer(UUID.fromString(uuid)) != null) return Bukkit.getPlayer(UUID.fromString(uuid)).getName();
+        try {
+            return Bukkit.getPlayer(UUID.fromString(uuid)).getName();
+        } catch (NullPointerException ignore) {
+        }
         //Check if we already have this UUID cached from a previous check
         if (cache.containsKey(uuid)) {
             HashMap<String, Object> nc = cache.get(uuid);

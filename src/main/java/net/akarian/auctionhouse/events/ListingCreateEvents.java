@@ -12,6 +12,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
+import java.awt.*;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -33,24 +34,30 @@ public class ListingCreateEvents implements Listener {
         }
     }
 
-    private void sendWebhook(String username, Listing listing) {
-        username = ChatColor.stripColor(username);
-        String itemName = chat.formatItem(listing.getItemStack());
-        String price = chat.formatMoney(listing.getPrice());
-        chat.log("Listing Discord Webhook: Username:" + username + " Item:" + itemName + " Price:" + price, AuctionHouse.getInstance().isDebug());
-        String webhookUrl = AuctionHouse.getInstance().getConfigFile().getDiscordWebhookURL();
-        if (webhookUrl.trim().isEmpty() || webhookUrl == null || webhookUrl.equals("")) {
-            return;
-        }
-        DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
-        webhook.setContent("**" + username + "** has created a listing of **" + itemName + "** in the AuctionHouse for **"
-                + price + "**");
-        webhook.setUsername(username + "@AuctionHouse");
-        try {
-            webhook.execute(); // Handle exception
-        } catch (Exception e) {
-            getLogger().log(Level.WARNING, e.toString());
-        }
+    private void sendWebhook(String playerName, Listing listing) {
+        Bukkit.getServer().getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+            String webhookUrl = AuctionHouse.getInstance().getConfigFile().getDiscordWebhookURL();
+            if (webhookUrl.trim().isEmpty() || webhookUrl == null || webhookUrl.equals("")) {
+                return;
+            }
+            String username = ChatColor.stripColor(playerName);
+            String itemName = ChatColor.stripColor(chat.formatItem(listing.getItemStack()));
+            String price = chat.formatMoney(listing.getPrice());
+            chat.log("Listing Discord Webhook: Username:" + username + " Item:" + itemName + " Price:" + price, AuctionHouse.getInstance().isDebug());
+            DiscordWebhook webhook = new DiscordWebhook(webhookUrl);
+            webhook.setUsername("Auction House Notifications");
+            DiscordWebhook.EmbedObject object = new DiscordWebhook.EmbedObject();
+            object.setColor(Color.CYAN);
+            object.setDescription("**" + username + "** has created a listing of **" + itemName + "** in the AuctionHouse for **"
+                    + price + "**");
+            object.setTitle(username + " has created an Auction!");
+            webhook.addEmbed(object);
+            try {
+                webhook.execute(); // Handle exception
+            } catch (Exception e) {
+                getLogger().log(Level.WARNING, e.toString());
+            }
+        });
     }
 
 }
