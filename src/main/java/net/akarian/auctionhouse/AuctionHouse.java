@@ -268,16 +268,15 @@ public final class AuctionHouse extends JavaPlugin {
     }
 
     public String encode(ItemStack itemStack, boolean asOne) {
-        ItemStack local = itemStack;
         if (asOne) {
-            local.setAmount(1);
+            itemStack.setAmount(1);
         }
         String encodedObj;
 
         try {
             ByteArrayOutputStream io = new ByteArrayOutputStream();
             BukkitObjectOutputStream os = new BukkitObjectOutputStream(io);
-            os.writeObject(local);
+            os.writeObject(itemStack);
             os.flush();
 
             byte[] serializedObj = io.toByteArray();

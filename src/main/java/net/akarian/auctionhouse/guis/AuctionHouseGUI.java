@@ -194,7 +194,7 @@ public class AuctionHouseGUI implements AkarianInventory {
             //View shulker or confirm buy
             if (itemStack.getType() == Material.SHULKER_BOX)
                 player.openInventory(new ShulkerViewGUI(player, listing, this).getInventory());
-            else player.openInventory(new ConfirmBuyGUI(player, listing, this).getInventory());
+            else player.openInventory(new ListingBuyGUI(player, listing, this).getInventory());
         }
 
     }

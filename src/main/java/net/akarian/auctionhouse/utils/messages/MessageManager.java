@@ -227,27 +227,33 @@ public class MessageManager {
      */
     public String getMessage(MessageType message, String... placeholders) {
 
-        if (messageCache.containsKey(message)) return messageCache.get(message);
-
-        FileManager fm = AuctionHouse.getInstance().getFileManager();
-        fm.getConfig("/lang/" + fileName);
-        YamlConfiguration messagesFile = fm.getConfig("messages");
-        YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
-        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
         String langMessage;
 
-        if (!messagesFile.contains(message.toString())) {
-            langMessage = langFile.getString(message.toString());
-        } else {
-            langMessage = messagesFile.getString(message.toString());
-        }
+        if (!messageCache.containsKey(message)) {
 
-        if (langMessage == null) {
-            langMessage = enFile.getString(message.toString());
-            if (langMessage == null) {
-                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-                return "Message Not Found";
+            FileManager fm = AuctionHouse.getInstance().getFileManager();
+            fm.getConfig("/lang/" + fileName);
+            YamlConfiguration messagesFile = fm.getConfig("messages");
+            YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+            YamlConfiguration enFile = fm.getConfig("/lang/en_US");
+
+            if (!messagesFile.contains(message.toString())) {
+                langMessage = langFile.getString(message.toString());
+            } else {
+                langMessage = messagesFile.getString(message.toString());
             }
+
+            if (langMessage == null) {
+                langMessage = enFile.getString(message.toString());
+                if (langMessage == null) {
+                    AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                    return "Message Not Found";
+                }
+            }
+            //Making the cache save with the placeholders
+            messageCache.put(message, langMessage);
+        } else {
+            langMessage = messageCache.get(message);
         }
 
         for (String str : placeholders) {
@@ -267,7 +273,6 @@ public class MessageManager {
 
 
         }
-        messageCache.put(message, langMessage);
         return langMessage;
     }
 
@@ -277,26 +282,30 @@ public class MessageManager {
      * @return Formatted lore
      */
     public List<String> getLore(MessageType message, String... placeholders) {
-        if (loreCache.containsKey(message)) return loreCache.get(message);
-
-        FileManager fm = AuctionHouse.getInstance().getFileManager();
-        YamlConfiguration messagesFile = fm.getConfig("messages");
-        YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
-        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
         List<String> langMessage;
+        if (!loreCache.containsKey(message)) {
 
-        if (!messagesFile.contains(message.toString())) {
-            langMessage = langFile.getStringList(message.toString());
-        } else {
-            langMessage = messagesFile.getStringList(message.toString());
-        }
+            FileManager fm = AuctionHouse.getInstance().getFileManager();
+            YamlConfiguration messagesFile = fm.getConfig("messages");
+            YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+            YamlConfiguration enFile = fm.getConfig("/lang/en_US");
 
-        if (langMessage.isEmpty()) {
-            langMessage = enFile.getStringList(message.toString());
-            if (langMessage.isEmpty()) {
-                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-                return Collections.singletonList("Message Not Found");
+            if (!messagesFile.contains(message.toString())) {
+                langMessage = langFile.getStringList(message.toString());
+            } else {
+                langMessage = messagesFile.getStringList(message.toString());
             }
+
+            if (langMessage.isEmpty()) {
+                langMessage = enFile.getStringList(message.toString());
+                if (langMessage.isEmpty()) {
+                    AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                    return Collections.singletonList("Message Not Found");
+                }
+            }
+            loreCache.put(message, langMessage);
+        } else {
+            langMessage = loreCache.get(message);
         }
 
         List<String> formatted = new ArrayList<>();
@@ -319,7 +328,6 @@ public class MessageManager {
             }
             formatted.add(main);
         }
-        loreCache.put(message, formatted);
         return formatted;
     }
 
