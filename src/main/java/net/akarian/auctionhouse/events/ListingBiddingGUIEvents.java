@@ -41,12 +41,14 @@ public class ListingBiddingGUIEvents implements Listener {
                 return;
             }
 
-            if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
+            if (price < AuctionHouse.getInstance().getConfigFile().getMinStartingBid()) {
+                //TODO Config Chat Message
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
                 return;
             }
 
-            if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
+            if (price > AuctionHouse.getInstance().getConfigFile().getMaxStartingBid()) {
+                //TODO Config chat message
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
                 return;
             }
@@ -78,12 +80,14 @@ public class ListingBiddingGUIEvents implements Listener {
                 return;
             }
 
-            if (price < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
+            if (price < AuctionHouse.getInstance().getConfigFile().getMinIncrement()) {
+                //TODO Config Chat Message
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
                 return;
             }
 
-            if (price > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
+            if (price > AuctionHouse.getInstance().getConfigFile().getMaxIncrement()) {
+                //TODO Config chat message
                 chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
                 return;
             }

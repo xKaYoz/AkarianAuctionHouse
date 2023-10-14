@@ -6,6 +6,10 @@ updates: true
 UUID Bypass: false
 Minimum Listing: 10.0
 Maximum Listing: 1.0E9
+Minimum Increment: 10.0
+Maximum Increment: 1.0E8
+Minimum Starting Bid: 10.0
+Maximum Starting Bid: 1.0E8
 Listing Delay: 10
 Listing Time: 86400
 Listing Fee: 0%

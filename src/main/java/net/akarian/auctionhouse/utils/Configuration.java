@@ -28,7 +28,7 @@ public class Configuration {
     private boolean updates, uuidBypass, dps_adminMode, dps_bought, dps_create, dps_expire, dps_autoConfirm, dps_sounds, creativeListing;
     @Getter
     @Setter
-    private double minListing, maxListing;
+    private double minListing, maxListing, minIncrement, maxIncrement, minStartingBid, maxStartingBid;
     @Getter
     @Setter
     private long dps_expireTime;
@@ -113,6 +113,26 @@ public class Configuration {
                 configFile.set("Maximum Listing", 1000000000.00D);
             }
             maxListing = configFile.getDouble("Maximum Listing");
+
+            if (!configFile.contains("Minimum Increment")) {
+                configFile.set("Minimum Increment", 10.00D);
+            }
+            minIncrement = configFile.getDouble("Minimum Increment");
+
+            if (!configFile.contains("Maximum Increment")) {
+                configFile.set("Maximum Increment", 100000000.00D);
+            }
+            maxIncrement = configFile.getDouble("Maximum Increment");
+
+            if (!configFile.contains("Minimum Starting Bid")) {
+                configFile.set("Minimum Starting Bid", 10.00D);
+            }
+            minStartingBid = configFile.getDouble("Minimum Starting Bid");
+
+            if (!configFile.contains("Maximum Starting Bid")) {
+                configFile.set("Maximum Starting Bid", 100000000.00D);
+            }
+            maxStartingBid = configFile.getDouble("Maximum Starting Bid");
 
             if (!configFile.contains("Listing Delay")) {
                 configFile.set("Listing Delay", 10);
@@ -339,6 +359,10 @@ public class Configuration {
             configFile.set("updates", updates);
             configFile.set("Minimum Listing", minListing);
             configFile.set("Maximum Listing", maxListing);
+            configFile.set("Minimum Increment", minIncrement);
+            configFile.set("Maximum Increment", maxIncrement);
+            configFile.set("Minimum Starting Bid", minStartingBid);
+            configFile.set("Maximum Starting Bid", maxStartingBid);
             configFile.set("Listing Delay", listingDelay);
             configFile.set("Listing Time", listingTime);
             configFile.set("Listing Fee", listingFee);

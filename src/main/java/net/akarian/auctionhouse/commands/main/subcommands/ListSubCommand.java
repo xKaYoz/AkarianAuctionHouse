@@ -91,7 +91,7 @@ public class ListSubCommand extends AkarianCommand {
 
         //Open GUI since no price is given
         if (args.length == 1) {
-            p.openInventory(new ListingMainGUI(itemStack, 0, 0, 0).getInventory());
+            p.openInventory(new ListingMainGUI(itemStack, -1, -1, -1).getInventory());
             return;
         }
 
@@ -128,6 +128,7 @@ public class ListSubCommand extends AkarianCommand {
             return;
         }
 
+        //Check no ints
         if (args[1].equalsIgnoreCase("NaN")) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_ERRORS_PRICE));
             return;
@@ -145,16 +146,41 @@ public class ListSubCommand extends AkarianCommand {
             }
         }
 
+        //Check if given prices are high enough
         if (buyNowPrice > AuctionHouse.getInstance().getConfigFile().getMaxListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MAXLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMaxListing())));
             return;
         }
-
         if (buyNowPrice < AuctionHouse.getInstance().getConfigFile().getMinListing()) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_MINLISTINGPRICE, "%price%;" + AuctionHouse.getInstance().getChat().formatMoney(AuctionHouse.getInstance().getConfigFile().getMinListing())));
             return;
         }
+        if (startingBid != -1) {
+            if (startingBid > AuctionHouse.getInstance().getConfigFile().getMaxStartingBid()) {
+                //TODO Config chat message
+                chat.sendMessage(p, "Starting bid too high.");
+                return;
+            }
+            if (startingBid < AuctionHouse.getInstance().getConfigFile().getMinStartingBid()) {
+                //TODO Config Chat message
+                chat.sendMessage(p, "Starting bid too low.");
+                return;
+            }
+        }
+        if (minIncrement != -1) {
+            if (minIncrement > AuctionHouse.getInstance().getConfigFile().getMaxIncrement()) {
+                //TODO Config chat message
+                chat.sendMessage(p, "Increment too high.");
+                return;
+            }
+            if (minIncrement < AuctionHouse.getInstance().getConfigFile().getMinIncrement()) {
+                //TODO Config Chat Message
+                chat.sendMessage(p, "Increment too low.");
+                return;
+            }
+        }
 
+        //Check if player has enough moneys to pay for the listing fee
         if (AuctionHouse.getInstance().getEcon().getBalance(p) < AuctionHouse.getInstance().getConfigFile().calculateListingFee(buyNowPrice)) {
             chat.sendMessage(p, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.MESSAGE_GEN_POORLISTINGFEE));
             return;

@@ -40,10 +40,10 @@ public class ListingMainGUI implements AkarianInventory {
     public ListingMainGUI(ItemStack listingItem, double buyNowPrice, double startingBid, double minimumIncrement) {
         this.listingItem = listingItem;
         this.listingBiddingGUI = new ListingBiddingGUI(this);
-        this.buyNowPrice = buyNowPrice;
+        this.buyNowPrice = buyNowPrice != -1 ? buyNowPrice : AuctionHouse.getInstance().getConfigFile().getMinListing();
         buyNow = this.buyNowPrice != -1;
-        listingBiddingGUI.setStartingBid(startingBid != -1 ? startingBid : AuctionHouse.getInstance().getConfigFile().getMinListing());
-        listingBiddingGUI.setMinimumIncrement(minimumIncrement != -1 ? minimumIncrement : 5);
+        listingBiddingGUI.setStartingBid(startingBid != -1 ? startingBid : AuctionHouse.getInstance().getConfigFile().getMinStartingBid());
+        listingBiddingGUI.setMinimumIncrement(minimumIncrement != -1 ? minimumIncrement : AuctionHouse.getInstance().getConfigFile().getMinIncrement());
         bidding = startingBid != -1;
     }
 

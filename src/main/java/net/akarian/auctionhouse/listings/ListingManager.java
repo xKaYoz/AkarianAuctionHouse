@@ -660,7 +660,7 @@ public class ListingManager {
         Player p = Bukkit.getPlayer(creator);
 
         //Take out the listing fee if there is no starting bid
-        if (startingBid == 0)
+        if (startingBid == -1)
             AuctionHouse.getInstance().getEcon().withdrawPlayer(Bukkit.getOfflinePlayer(creator), AuctionHouse.getInstance().getConfigFile().calculateListingFee(buyNowPrice));
 
         UUID id = UUID.randomUUID();
@@ -668,7 +668,7 @@ public class ListingManager {
 
         //Create our new listing
         Listing listing;
-        if (startingBid == 0)
+        if (startingBid == -1)
             listing = new Listing(id, creator, AuctionHouse.getInstance().decode(encoded), buyNowPrice, start);
         else
             listing = new Listing(id, creator, AuctionHouse.getInstance().decode(encoded), buyNowPrice, startingBid, minimumIncrement, start);
