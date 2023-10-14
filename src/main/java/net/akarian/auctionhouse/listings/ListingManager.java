@@ -1651,6 +1651,10 @@ public class ListingManager {
         Set<String> keySet = map.keySet();
         for (String str : keySet) {
             AkarianInventory inv = map.get(str);
+            if (inv == null) {
+                map.remove(str);
+                continue;
+            }
             Player p = Bukkit.getPlayer(UUID.fromString(str));
             inv.updateInventory();
             assert p != null;
