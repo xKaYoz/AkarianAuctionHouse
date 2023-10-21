@@ -1053,7 +1053,13 @@ public class ListingManager {
                 YamlConfiguration listingsFile = fm.getConfig("/database/listings");
                 Map<String, Object> map = listingsFile.getValues(false);
                 for (String str : map.keySet()) {
-                    UUID id = UUID.fromString(str);
+                    UUID id;
+                    try {
+                        id = UUID.fromString(str);
+                    } catch (IllegalArgumentException e) {
+                        chat.log("Tried to load listing with UUID " + str, true);
+                        continue;
+                    }
                     if (listingsFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
@@ -1168,7 +1174,13 @@ public class ListingManager {
 
                 for (String str : map.keySet()) {
 
-                    UUID id = UUID.fromString(str);
+                    UUID id;
+                    try {
+                        id = UUID.fromString(str);
+                    } catch (IllegalArgumentException e) {
+                        chat.log("Tried to load expired listing with UUID " + str, true);
+                        continue;
+                    }
                     if (listingsFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", true);
                         errors.incrementAndGet();
@@ -1256,7 +1268,13 @@ public class ListingManager {
 
                 for (String str : map.keySet()) {
 
-                    UUID id = UUID.fromString(str);
+                    UUID id;
+                    try {
+                        id = UUID.fromString(str);
+                    } catch (IllegalArgumentException e) {
+                        chat.log("Tried to load completed listing with UUID " + str, true);
+                        continue;
+                    }
                     if (completedFile.getString(str + ".ItemStack") == null) {
                         chat.log("Error while loading auction with ID " + id + ". Skipping...", AuctionHouse.getInstance().isDebug());
                         errors.incrementAndGet();
