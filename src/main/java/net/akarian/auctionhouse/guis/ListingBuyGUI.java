@@ -36,22 +36,61 @@ public class ListingBuyGUI implements AkarianInventory {
     @Override
     public void onGUIClick(Inventory inv, Player p, int slot, ItemStack item, ClickType type) {
 
+        switch (slot) {
+            case 8:
+                player.openInventory(auctionHouseGUI.getInventory());
+                break;
+            case 28:
+                if (!getListing().isBiddable()) {
+                    //Custom Buy Now Offer
+                }
+                break;
+            case 30:
+                if (getListing().isBiddable()) {
+                    //Buy Now
+                } else {
+                    //Custom Buy Now Offer
+                }
+                break;
+            case 32:
+                if (getListing().isBiddable()) {
+                    //Bid Now
+                } else {
+                    //Buy Now
+                }
+                break;
+            case 34:
+                if (!getListing().isBiddable()) {
+                    //Custom Bid
+                }
+                break;
+        }
+
     }
 
     @Override
     public void updateInventory() {
 
         if (!listing.isActive()) {
+            chat.broadcastMessage("not active");
             player.openInventory(auctionHouseGUI.getInventory());
             //TODO Config Chat Message
             chat.sendMessage(player, "&eThe auction you were viewing was bought or has expired.");
             return;
+        } else {
+            chat.broadcastMessage("active");
         }
 
         inv.setItem(13, listing.createActiveListing(player));
 
-        inv.setItem(30, ItemBuilder.build(Material.GOLD_INGOT, 1, "&6Buy Now", Collections.singletonList("&7Buy now for &2" + chat.formatMoney(listing.getBuyNowPrice()) + "&7.")));
-        inv.setItem(32, ItemBuilder.build(Material.IRON_NUGGET, 1, "&6Bid Now", Collections.singletonList("&7Make a bid of &2" + chat.formatMoney(listing.getCurrentBid() + listing.getMinimumIncrement()) + "&7.")));
+        if (getListing().isBiddable()) {
+
+            inv.setItem(30, ItemBuilder.build(Material.GOLD_INGOT, 1, "&6Buy Now", Collections.singletonList("&7Buy now for &2" + chat.formatMoney(listing.getBuyNowPrice()) + "&7.")));
+            inv.setItem(32, ItemBuilder.build(Material.IRON_NUGGET, 1, "&6Bid Now", Collections.singletonList("&7Make a bid of &2" + chat.formatMoney(listing.getCurrentBid() + listing.getMinimumIncrement()) + "&7.")));
+
+        } else {
+            inv.setItem(32, ItemBuilder.build(Material.GOLD_INGOT, 1, "&6Buy Now", Collections.singletonList("&7Buy now for &2" + chat.formatMoney(listing.getBuyNowPrice()) + "&7.")));
+        }
     }
 
     @NotNull
@@ -68,8 +107,14 @@ public class ListingBuyGUI implements AkarianInventory {
             inv.setItem(i, ItemBuilder.build(AuctionHouse.getInstance().getConfigFile().getSpacerItem(), 1, " ", Collections.EMPTY_LIST));
         }
 
-        inv.setItem(28, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Make a Custom Buy Now Offer", Collections.singletonList("&7Make a custom offer to the owner to buy this at a lower price.")));
-        inv.setItem(34, ItemBuilder.build(Material.IRON_INGOT, 1, "&6Make a Custom Bid", Collections.singletonList("&7Make a custom bid for this auction.")));
+        if (listing.isBiddable()) {
+
+            inv.setItem(28, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Make a Custom Buy Now Offer", Collections.singletonList("&7Make a custom offer to the owner to buy this at a lower price.")));
+            inv.setItem(34, ItemBuilder.build(Material.IRON_INGOT, 1, "&6Make a Custom Bid", Collections.singletonList("&7Make a custom bid for this auction.")));
+
+        } else {
+            inv.setItem(30, ItemBuilder.build(Material.GOLD_NUGGET, 1, "&6Make a Custom Buy Now Offer", Collections.singletonList("&7Make a custom offer to the owner to buy this at a lower price.")));
+        }
 
         updateInventory();
 

@@ -55,7 +55,7 @@ public class BlacklistMainGUI implements AkarianInventory {
     @Override
     public void updateInventory() {
 
-        inv.setItem(11, ItemBuilder.build(player.getInventory().getItemInMainHand() == null ? Material.STONE : player.getInventory().getItemInMainHand().getType(), 1, "&6Add to the Blacklist", Collections.singletonList("&7Click to add an item to the blacklist.")));
+        inv.setItem(11, ItemBuilder.build(player.getInventory().getItemInMainHand().getType() == Material.AIR ? Material.STONE : player.getInventory().getItemInMainHand().getType(), 1, "&6Add to the Blacklist", Collections.singletonList("&7Click to add an item to the blacklist.")));
         inv.setItem(15, ItemBuilder.build(Material.BOOKSHELF, 1, "&6View and Edit the Blacklist", Collections.singletonList("&7Click to view or remove an item from the blacklist.")));
 
     }
