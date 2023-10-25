@@ -32,10 +32,18 @@ public class Listing {
     private final AuctionHouse plugin;
     private final Chat chat;
     @Getter
+    private final boolean isBiddable;
+    @Getter
+    public ArrayList<String> bids;
+    @Getter
+    @Setter
+    public UUID currentBidder;
+    @Getter
+    @Setter
+    public double currentBid;
+    @Getter
     @Setter
     private ItemStack itemStack;
-    @Getter
-    private final boolean isBiddable;
     @Getter
     @Setter
     private long end;
@@ -51,12 +59,6 @@ public class Listing {
     @Getter
     @Setter
     private boolean expired, completed;
-    @Getter
-    public ArrayList<String> bids;
-    @Getter
-    public UUID currentBidder;
-    @Getter
-    public double currentBid;
     @Getter
     @Setter
     private double buyNowPrice;
@@ -114,10 +116,12 @@ public class Listing {
 
     public void newCurrentBid(UUID bidder, Double newBid) {
         bids.add(bidder + ";" + newBid);
-        Player currentBidderPlayer = Bukkit.getPlayer(currentBidder);
-        if (currentBidderPlayer != null) {
-            //TODO notify of outbid
-            chat.sendMessage(currentBidderPlayer, "&cYou have been outbid for &e" + chat.formatItem(itemStack) + "&c for &2" + chat.formatMoney(newBid) + "&c.");
+        if (currentBidder != null) {
+            Player currentBidderPlayer = Bukkit.getPlayer(currentBidder);
+            if (currentBidderPlayer != null) {
+                //TODO notify of outbid
+                chat.sendMessage(currentBidderPlayer, "&cYou have been outbid for &e" + chat.formatItem(itemStack) + "&c for &2" + chat.formatMoney(newBid) + "&c.");
+            }
         }
         currentBidder = bidder;
         currentBid = newBid;

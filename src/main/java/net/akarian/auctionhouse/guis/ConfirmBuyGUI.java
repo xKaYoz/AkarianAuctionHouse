@@ -22,19 +22,19 @@ public class ConfirmBuyGUI implements AkarianInventory {
     @Getter
     private Inventory inv;
     private final Player player;
-    private final AuctionHouseGUI auctionHouseGUI;
+    private final ListingBuyGUI listingBuyGUI;
 
     /**
      * Confirm you want to buy the listing
      *
      * @param player          Player buying the listing
      * @param listing         Listing item
-     * @param auctionHouseGUI Instance of AuctionHouseGUI
+     * @param listingBuyGUI Instance of AuctionHouseGUI
      */
-    public ConfirmBuyGUI(Player player, Listing listing, AuctionHouseGUI auctionHouseGUI) {
+    public ConfirmBuyGUI(Player player, Listing listing, ListingBuyGUI listingBuyGUI) {
         this.player = player;
         this.listing = listing;
-        this.auctionHouseGUI = auctionHouseGUI;
+        this.listingBuyGUI = listingBuyGUI;
     }
 
     @Override
@@ -61,7 +61,7 @@ public class ConfirmBuyGUI implements AkarianInventory {
                 }
                 break;
             case RED_STAINED_GLASS_PANE:
-                player.openInventory(auctionHouseGUI.getInventory());
+                player.openInventory(listingBuyGUI.getInventory());
                 break;
         }
 

@@ -590,7 +590,7 @@ public class ListingManager {
      * @param listing   Listing to update
      * @param newBidder UUID of new bidder
      * @param newBid    Double of new bid
-     * @return -2: MySQL Error, -1: Listing not active,
+     * @return -2: MySQL Error, -1: Listing not active, 0: No Return, 1: To Poor, 2: Goods
      */
     public int bid(Listing listing, UUID newBidder, Double newBid) {
 
@@ -598,15 +598,13 @@ public class ListingManager {
 
         Player creator = Bukkit.getPlayer(listing.getCreator());
 
-        //TODO notify creator of bid
+        if (AuctionHouse.getInstance().getEcon().getBalance(Bukkit.getPlayer(newBidder)) < newBid) return 1;
 
-        if (AuctionHouse.getInstance().getEcon().getBalance(Bukkit.getPlayer(newBidder)) < newBid) return 0;
+        //TODO notify creator of bid
+        if (creator != null)
+            chat.sendMessage(creator, "&fA new bid of &2" + chat.formatMoney(newBid) + "&f has been placed on your auction of &e" + chat.formatItem(listing.getItemStack()) + "&f.");
 
         //TODO Create option for enabling/disabling anti-snipe
-        if ((listing.getEnd() - System.currentTimeMillis()) <= 10000) {
-            chat.alert("Anti-snipe, added 10 seconds");
-            listing.setEnd(listing.getEnd() + 10000);
-        }
 
         listing.newCurrentBid(newBidder, newBid);
 
@@ -617,16 +615,17 @@ public class ListingManager {
                     @Override
                     public void run() {
                         try {
-                            PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET BIDDER=?,UPDATED=? WHERE ID=?");
+                            PreparedStatement statement = mySQL.getConnection().prepareStatement("UPDATE " + mySQL.getListingsTable() + " SET BIDDER=?,UPDATED=?,END=? WHERE ID=?");
 
                             statement.setString(1, listing.formatBidders());
                             statement.setLong(2, System.currentTimeMillis());
-                            statement.setString(3, listing.getId().toString());
+                            statement.setLong(3, listing.getEnd());
+                            statement.setString(4, listing.getId().toString());
 
                             statement.executeUpdate();
                             statement.closeOnCompletion();
 
-                            ret.set(0);
+                            ret.set(2);
 
                         } catch (SQLException e) {
                             e.printStackTrace();
@@ -641,7 +640,7 @@ public class ListingManager {
                 fm.saveFile(listingsFile, "/database/listings");
 
                 chat.log("New bid from " + newBidder + " for $" + newBid + " on listing " + listing.getId(), AuctionHouse.getInstance().isDebug());
-                break;
+                return 2;
         }
         return 0;
     }
@@ -1591,6 +1590,108 @@ public class ListingManager {
     }
 
     /**
+     * @param listing Listing to charge bids
+     * @return -1: Everyone too poor, 0: Charged
+     */
+    public int chargeBid(Listing listing) {
+        if (!listing.isActive()) return -2;
+        chat.alert("Charging bid");
+        double price;
+        UUID player = null;
+        double balance;
+        ArrayList<String> bids = listing.getBids();
+
+        do {
+            if (bids.isEmpty()) {
+                price = 0;
+                break;
+            }
+            if (player != null)
+                chat.alert(player + " is too poor... Moving on");
+            String base = bids.get(bids.size() - 1);
+            String[] split = base.split(";");
+            player = UUID.fromString(split[0]);
+            price = Double.parseDouble(split[1]);
+            balance = AuctionHouse.getInstance().getEcon().getBalance(Bukkit.getOfflinePlayer(player));
+        } while (balance < price);
+
+        if (player == null) {
+            chat.alert("expiring");
+            int expired = expire(listing, true, true, "BIDDERS POOR");
+            chat.alert(expired + " result");
+            return -1;
+        }
+
+        chat.alert(player + " has won!");
+        AuctionHouse.getInstance().getEcon().withdrawPlayer(Bukkit.getOfflinePlayer(player), price);
+
+        long end = System.currentTimeMillis();
+        Player buyer = Bukkit.getPlayer(player);
+        boolean claimed = buyer != null && InventoryHandler.canCarryItem(buyer, listing.getItemStack(), true);
+        AtomicBoolean ret = new AtomicBoolean(false);
+
+        listing.setComplete(player, end);
+
+        //Save as completed
+        switch (databaseType) {
+            case MYSQL:
+                UUID finalPlayer = player;
+                double finalPrice = price;
+                Bukkit.getScheduler().runTaskAsynchronously(AuctionHouse.getInstance(), () -> {
+                    try {
+                        remove(listing);
+
+                        PreparedStatement statement = mySQL.getConnection().prepareStatement("INSERT INTO " + mySQL.getCompletedTable() + " (ID,ITEM_STACK,PRICE,CREATOR,START,END,BUYER,CLAIMED) VALUES (?,?,?,?,?,?,?,?)");
+
+                        statement.setString(1, listing.getId().toString());
+                        statement.setString(2, AuctionHouse.getInstance().encode(listing.getItemStack(), false));
+                        statement.setDouble(3, finalPrice);
+                        statement.setString(4, listing.getCreator().toString());
+                        statement.setLong(5, listing.getStart());
+                        statement.setLong(6, end);
+                        statement.setString(7, finalPlayer.toString());
+                        statement.setBoolean(8, claimed);
+
+                        statement.executeUpdate();
+                        statement.closeOnCompletion();
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        ret.set(true);
+                    }
+                });
+                if (ret.get()) {
+                    return -2;
+                }
+                break;
+            case FILE:
+                remove(listing);
+                YamlConfiguration completedFile = fm.getConfig("/database/completed");
+
+                completedFile.set(listing.getId().toString() + ".ItemStack", AuctionHouse.getInstance().encode(listing.getItemStack(), false));
+                completedFile.set(listing.getId().toString() + ".Price", price);
+                completedFile.set(listing.getId().toString() + ".Creator", listing.getCreator().toString());
+                completedFile.set(listing.getId().toString() + ".Start", listing.getStart());
+                completedFile.set(listing.getId().toString() + ".End", end);
+                completedFile.set(listing.getId().toString() + ".Buyer", player.toString());
+                completedFile.set(listing.getId().toString() + ".Reclaimed", claimed);
+
+                fm.saveFile(completedFile, "/database/completed");
+                break;
+        }
+
+        //Give item to player
+        if (claimed) InventoryHandler.addItem(buyer, listing.getItemStack());
+        else {
+            if (buyer != null)
+                chat.sendMessage(buyer, "&cYou do not have enough space in your inventory. Open the Reclaim GUI to receive it.");
+            listing.setReclaimed(false);
+        }
+
+        return 0;
+    }
+
+    /**
      * Start the Expire Check timer
      */
     public void startExpireCheck() {
@@ -1600,6 +1701,7 @@ public class ListingManager {
             if (!active.isEmpty()) {
                 List<Listing> copy = new ArrayList<>(active);
                 for (Listing listing : copy) {
+                    if (!listing.isActive()) continue;
                     long now = System.currentTimeMillis() / 1000;
                     long end = (listing.getStart() + (AuctionHouse.getInstance().getConfigFile().getListingTime() * 1000L)) / 1000;
 
@@ -1614,6 +1716,12 @@ public class ListingManager {
                         }
                     }
                     if (now > end) {
+
+                        if (listing.getCurrentBidder() != null) {
+                            chargeBid(listing);
+                            return;
+                        }
+
                         switch (expire(listing, true, false, "TIME")) {
                             case -1:
                                 chat.log("!! Error while saving " + chat.formatItem(item) + ".", AuctionHouse.getInstance().isDebug());

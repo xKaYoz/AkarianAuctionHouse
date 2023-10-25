@@ -170,7 +170,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                 }
                 return;
             }
-
+            /*
             //Is the creator of the listing
             if (listing.getCreator().toString().equals(player.getUniqueId().toString())) {
                 if (clickType.isLeftClick()) {
@@ -189,7 +189,7 @@ public class AuctionHouseGUI implements AkarianInventory {
                     }
                 }
                 return;
-            }
+            } */
 
             //View shulker or confirm buy
             if (itemStack.getType() == Material.SHULKER_BOX)
