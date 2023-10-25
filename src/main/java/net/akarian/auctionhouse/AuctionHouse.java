@@ -16,6 +16,7 @@ import net.akarian.auctionhouse.listings.ListingManager;
 import net.akarian.auctionhouse.updater.UpdateManager;
 import net.akarian.auctionhouse.users.UserManager;
 import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.messages.MessageManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;

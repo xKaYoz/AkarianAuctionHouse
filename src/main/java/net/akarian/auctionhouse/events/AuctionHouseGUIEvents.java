@@ -8,7 +8,7 @@ import net.akarian.auctionhouse.guis.SortType;
 import net.akarian.auctionhouse.guis.admin.ListingEditAdminGUI;
 import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

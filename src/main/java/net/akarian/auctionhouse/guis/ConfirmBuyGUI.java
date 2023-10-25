@@ -6,7 +6,7 @@ import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

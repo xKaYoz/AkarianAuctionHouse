@@ -1,7 +1,11 @@
 package net.akarian.auctionhouse.guis;
 
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.AkarianInventory;
+import net.akarian.auctionhouse.utils.Chat;
+import net.akarian.auctionhouse.utils.InventoryHandler;
+import net.akarian.auctionhouse.utils.ItemBuilder;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,12 +23,14 @@ public class ConfirmListGUI implements AkarianInventory {
     private final Chat chat = AuctionHouse.getInstance().getChat();
     private final Player player;
     private final ItemStack itemStack;
+    private final ItemStack displayItem;
     private final double price;
     private Inventory inv;
 
     public ConfirmListGUI(Player player, ItemStack itemStack, double price) {
         this.player = player;
         this.itemStack = itemStack;
+        displayItem = itemStack.clone();
         this.price = price;
     }
 
@@ -70,19 +76,19 @@ public class ConfirmListGUI implements AkarianInventory {
 
 
         List<String> lore = new ArrayList<>();
-        if (itemStack.getItemMeta() != null && itemStack.getItemMeta().hasLore()) {
-            lore.addAll(itemStack.getItemMeta().getLore());
+        if (displayItem.getItemMeta() != null && displayItem.getItemMeta().hasLore()) {
+            lore.addAll(displayItem.getItemMeta().getLore());
         }
         for (String s : AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_CONFIRMLIST_LORE)) {
             lore.add(s.replace("%amount%", chat.formatMoney(price)).replace("%fee%",
                     chat.formatMoney(AuctionHouse.getInstance().getConfigFile().calculateListingFee(price))));
         }
-        ItemMeta meta = itemStack.getItemMeta();
-        meta.setLore(lore);
-        meta.setDisplayName(chat.formatItem(itemStack));
-        itemStack.setItemMeta(meta);
+        ItemMeta meta = displayItem.getItemMeta();
+        meta.setLore(chat.formatList(lore));
+        meta.setDisplayName(chat.formatItem(displayItem));
+        displayItem.setItemMeta(meta);
 
-        inv.setItem(4, itemStack);
+        inv.setItem(4, displayItem);
 
         for (int i = 5; i < 9; i++) {
             inv.setItem(i, ItemBuilder.build(Material.RED_STAINED_GLASS_PANE, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_DENY_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_DENY_LORE)));

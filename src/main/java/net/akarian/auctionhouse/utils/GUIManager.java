@@ -1,8 +1,8 @@
 package net.akarian.auctionhouse.utils;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.guis.admin.edit.LayoutEditGUI;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -11,9 +11,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.*;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -144,7 +142,7 @@ public class GUIManager implements Listener {
                     p.setItemOnCursor(ItemBuilder.build(Material.MAGENTA_CONCRETE, 1, "&5Listing Item", Collections.singletonList("&7Place where you want listings to be placed.")));
                     gui.setListingItem(false);
                 } else if (gui.isInformationButton()) {
-                    p.setItemOnCursor(ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + p.getUniqueId().toString(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(p)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
+                    p.setItemOnCursor(ItemBuilder.build(Material.BOOK, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.GUI_MAIN_INFO_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.GUI_MAIN_INFO_LORE, "%papi%;" + p.getUniqueId(), "%balance%;" + chat.formatMoney(AuctionHouse.getInstance().getEcon().getBalance(p)), "%items%;" + AuctionHouse.getInstance().getListingManager().getActive().size())));
                     gui.setInformationButton(false);
                 } else if (gui.isNextPageButton()) {
                     p.setItemOnCursor(ItemBuilder.build(Material.NETHER_STAR, 1, AuctionHouse.getInstance().getMessageManager().getMessage(MessageType.BUTTONS_NPAGE_NAME), AuctionHouse.getInstance().getMessageManager().getLore(MessageType.BUTTONS_NPAGE_LORE)));

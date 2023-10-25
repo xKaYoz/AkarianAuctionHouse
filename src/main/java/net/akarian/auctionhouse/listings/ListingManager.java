@@ -8,6 +8,7 @@ import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.*;
 import net.akarian.auctionhouse.utils.events.ListingBoughtEvent;
 import net.akarian.auctionhouse.utils.events.ListingCreateEvent;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;

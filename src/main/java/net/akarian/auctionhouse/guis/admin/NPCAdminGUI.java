@@ -3,6 +3,7 @@ package net.akarian.auctionhouse.guis.admin;
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.*;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.citizensnpcs.trait.SkinTrait;

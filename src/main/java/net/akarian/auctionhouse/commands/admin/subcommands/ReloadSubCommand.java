@@ -3,7 +3,7 @@ package net.akarian.auctionhouse.commands.admin.subcommands;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.command.CommandSender;
 
 public class ReloadSubCommand extends AkarianCommand {

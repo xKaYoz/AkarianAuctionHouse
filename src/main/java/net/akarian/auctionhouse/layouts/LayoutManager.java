@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.akarian.auctionhouse.AuctionHouse;
 import net.akarian.auctionhouse.utils.Chat;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Material;
 
 import java.io.File;

@@ -1,9 +1,10 @@
-package net.akarian.auctionhouse.utils;
+package net.akarian.auctionhouse.utils.messages;
 
 import lombok.Getter;
 import lombok.Setter;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.akarian.auctionhouse.AuctionHouse;
+import net.akarian.auctionhouse.utils.FileManager;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.util.FileUtil;
@@ -18,10 +19,14 @@ public class MessageManager {
     @Getter
     @Setter
     private String fileName;
+    private final HashMap<MessageType, String> messageCache;
+    private final HashMap<MessageType, List<String>> loreCache;
 
     public MessageManager(AuctionHouse plugin) {
 
         currentVersion = 1;
+        messageCache = new HashMap<>();
+        loreCache = new HashMap<>();
 
         FileManager fm = AuctionHouse.getInstance().getFileManager();
         //Load all the language files
@@ -216,25 +221,34 @@ public class MessageManager {
      * @param placeholders Message Placeholders. %item%;value
      */
     public String getMessage(MessageType message, String... placeholders) {
-        FileManager fm = AuctionHouse.getInstance().getFileManager();
-        fm.getConfig("/lang/" + fileName);
-        YamlConfiguration messagesFile = fm.getConfig("messages");
-        YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
-        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
+
         String langMessage;
 
-        if (!messagesFile.contains(message.toString())) {
-            langMessage = langFile.getString(message.toString());
-        } else {
-            langMessage = messagesFile.getString(message.toString());
-        }
+        if (!messageCache.containsKey(message)) {
 
-        if (langMessage == null) {
-            langMessage = enFile.getString(message.toString());
-            if (langMessage == null) {
-                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-                return "Message Not Found";
+            FileManager fm = AuctionHouse.getInstance().getFileManager();
+            fm.getConfig("/lang/" + fileName);
+            YamlConfiguration messagesFile = fm.getConfig("messages");
+            YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+            YamlConfiguration enFile = fm.getConfig("/lang/en_US");
+
+            if (!messagesFile.contains(message.toString())) {
+                langMessage = langFile.getString(message.toString());
+            } else {
+                langMessage = messagesFile.getString(message.toString());
             }
+
+            if (langMessage == null) {
+                langMessage = enFile.getString(message.toString());
+                if (langMessage == null) {
+                    AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                    return "Message Not Found";
+                }
+            }
+            //Making the cache save with the placeholders
+            messageCache.put(message, langMessage);
+        } else {
+            langMessage = messageCache.get(message);
         }
 
         for (String str : placeholders) {
@@ -263,24 +277,30 @@ public class MessageManager {
      * @return Formatted lore
      */
     public List<String> getLore(MessageType message, String... placeholders) {
-        FileManager fm = AuctionHouse.getInstance().getFileManager();
-        YamlConfiguration messagesFile = fm.getConfig("messages");
-        YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
-        YamlConfiguration enFile = fm.getConfig("/lang/en_US");
         List<String> langMessage;
+        if (!loreCache.containsKey(message)) {
 
-        if (!messagesFile.contains(message.toString())) {
-            langMessage = langFile.getStringList(message.toString());
-        } else {
-            langMessage = messagesFile.getStringList(message.toString());
-        }
+            FileManager fm = AuctionHouse.getInstance().getFileManager();
+            YamlConfiguration messagesFile = fm.getConfig("messages");
+            YamlConfiguration langFile = fm.getConfig("/lang/" + fileName);
+            YamlConfiguration enFile = fm.getConfig("/lang/en_US");
 
-        if (langMessage.isEmpty()) {
-            langMessage = enFile.getStringList(message.toString());
-            if (langMessage.isEmpty()) {
-                AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
-                return Collections.singletonList("Message Not Found");
+            if (!messagesFile.contains(message.toString())) {
+                langMessage = langFile.getStringList(message.toString());
+            } else {
+                langMessage = messagesFile.getStringList(message.toString());
             }
+
+            if (langMessage.isEmpty()) {
+                langMessage = enFile.getStringList(message.toString());
+                if (langMessage.isEmpty()) {
+                    AuctionHouse.getInstance().getChat().log("ERROR >> Tried to find message " + message + " but it was not found.", true);
+                    return Collections.singletonList("Message Not Found");
+                }
+            }
+            loreCache.put(message, langMessage);
+        } else {
+            langMessage = loreCache.get(message);
         }
 
         List<String> formatted = new ArrayList<>();

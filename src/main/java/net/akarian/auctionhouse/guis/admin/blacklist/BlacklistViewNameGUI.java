@@ -2,18 +2,16 @@ package net.akarian.auctionhouse.guis.admin.blacklist;
 
 import lombok.Getter;
 import net.akarian.auctionhouse.AuctionHouse;
-import net.akarian.auctionhouse.listings.Listing;
 import net.akarian.auctionhouse.utils.AkarianInventory;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.ItemBuilder;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.checkerframework.checker.units.qual.A;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;

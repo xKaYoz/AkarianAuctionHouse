@@ -1,4 +1,4 @@
-package net.akarian.auctionhouse.utils;
+package net.akarian.auctionhouse.utils.messages;
 
 public enum MessageType {
 

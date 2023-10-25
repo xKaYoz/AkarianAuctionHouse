@@ -6,7 +6,7 @@ import net.akarian.auctionhouse.users.User;
 import net.akarian.auctionhouse.utils.AkarianCommand;
 import net.akarian.auctionhouse.utils.Chat;
 import net.akarian.auctionhouse.utils.FileManager;
-import net.akarian.auctionhouse.utils.MessageType;
+import net.akarian.auctionhouse.utils.messages.MessageType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
