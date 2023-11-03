@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Chat {
 
@@ -33,6 +35,7 @@ public class Chat {
     @Setter
     private String prefix;
     private final Plugin plugin;
+    private final Pattern hexPattern;
 
     /**
      * Chat API
@@ -41,6 +44,7 @@ public class Chat {
      * @param prefix - Prefix of the Plugin
      */
     public Chat(Plugin plugin, String prefix) {
+        hexPattern = Pattern.compile("#[a-fA-F0-9]{6}");
         this.plugin = plugin;
         this.prefix = prefix;
     }
@@ -51,6 +55,13 @@ public class Chat {
      * @return - Formatted String
      */
     public String format(String str) {
+
+        Matcher matcher = hexPattern.matcher(str);
+        while (matcher.find()) {
+            String color = str.substring(matcher.start(), matcher.end());
+            str = str.replace(color, net.md_5.bungee.api.ChatColor.of(color) + "");
+            matcher = hexPattern.matcher(str);
+        }
         return ChatColor.translateAlternateColorCodes('&', str);
     }
 
